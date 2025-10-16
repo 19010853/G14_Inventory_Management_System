@@ -31,6 +31,12 @@
       rel="stylesheet"
       type="text/css"
     />
+
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
+    />
   </head>
 
   <!-- body start -->
@@ -84,5 +90,51 @@
 
     <!-- App js-->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
+
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
+    ></script>
+
+    @if (Session::has('message'))
+      <!-- Thẻ meta để lưu trữ dữ liệu từ Laravel Session -->
+      <meta
+        id="laravel-toastr"
+        data-message="{{ Session::get('message') }}"
+        data-type="{{ Session::get('alert-type', 'info') }}"
+      />
+    @endif
+
+    <script>
+      // Đoạn script này là JavaScript thuần túy, không có Blade
+      document.addEventListener('DOMContentLoaded', function () {
+        const toastrElement = document.getElementById('laravel-toastr');
+
+        if (toastrElement) {
+          const message = toastrElement.getAttribute('data-message');
+          const type = toastrElement.getAttribute('data-type');
+
+          if (message && type) {
+            toastr.options.closeButton = true; // Tùy chọn: thêm nút đóng
+            toastr.options.progressBar = true; // Tùy chọn: thêm thanh tiến trình
+
+            switch (type) {
+              case 'info':
+                toastr.info(message);
+                break;
+              case 'success':
+                toastr.success(message);
+                break;
+              case 'warning':
+                toastr.warning(message);
+                break;
+              case 'error':
+                toastr.error(message);
+                break;
+            }
+          }
+        }
+      });
+    </script>
   </body>
 </html>
