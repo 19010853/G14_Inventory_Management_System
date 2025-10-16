@@ -6,11 +6,11 @@ Dự án Hệ thống Quản lý Kho hàng được xây dựng trên nền tả
 
 Để chạy dự án này, bạn cần cài đặt các phần mềm sau trên máy tính của mình:
 
--   PHP (>= 8.2)
--   Composer
--   Node.js và npm
--   Một server CSDL như MySQL hoặc MariaDB
--   **Prettier** (đã được tích hợp trong `package.json` để định dạng code)
+- PHP (>= 8.2)
+- Composer
+- Node.js và npm
+- Một server CSDL như MySQL hoặc MariaDB
+- **Prettier** (đã được tích hợp trong `package.json` để định dạng code)
 
 ## Hướng dẫn Cài đặt cho Lập trình viên mới
 
@@ -97,14 +97,14 @@ Bây giờ bạn có thể truy cập dự án tại địa chỉ `http://127.0.
 
 Để đảm bảo code của toàn bộ dự án được nhất quán, chúng ta sử dụng Prettier.
 
--   **Kiểm tra định dạng:** Chạy lệnh sau để xem những file nào chưa được định dạng đúng.
-    ```bash
-    npm run format:check
-    ```
--   **Tự động định dạng:** Chạy lệnh sau để Prettier tự động sửa và định dạng lại tất cả các file cần thiết.
-    ```bash
-    npm run format
-    ```
+- **Kiểm tra định dạng:** Chạy lệnh sau để xem những file nào chưa được định dạng đúng.
+  ```bash
+  npm run format:check
+  ```
+- **Tự động định dạng:** Chạy lệnh sau để Prettier tự động sửa và định dạng lại tất cả các file cần thiết.
+  ```bash
+  npm run format
+  ```
 
 **Quan trọng:** Hãy chạy lệnh `npm run format` trước khi bạn commit code.
 

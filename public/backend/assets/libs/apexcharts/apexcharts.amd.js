@@ -3958,15 +3958,13 @@
                   })),
                   i.extend(i.Defs, {
                     pattern: function (t, e, a) {
-                      return this.put(new i.Pattern())
-                        .update(a)
-                        .attr({
-                          x: 0,
-                          y: 0,
-                          width: t,
-                          height: e,
-                          patternUnits: 'userSpaceOnUse',
-                        });
+                      return this.put(new i.Pattern()).update(a).attr({
+                        x: 0,
+                        y: 0,
+                        width: t,
+                        height: e,
+                        patternUnits: 'userSpaceOnUse',
+                      });
                     },
                   }),
                   (i.Shape = i.invent({
@@ -28199,17 +28197,13 @@
                     })),
                     t.forEach(function (t, o) {
                       var c = t.length === i.globals.dataPoints,
-                        h = e.graphics
-                          .group()
-                          .attr({
-                            class: 'apexcharts-series',
-                            'data:longestSeries': c,
-                            seriesName: r.escapeString(
-                              i.globals.seriesNames[o],
-                            ),
-                            rel: o + 1,
-                            'data:realIndex': o,
-                          });
+                        h = e.graphics.group().attr({
+                          class: 'apexcharts-series',
+                          'data:longestSeries': c,
+                          seriesName: r.escapeString(i.globals.seriesNames[o]),
+                          rel: o + 1,
+                          'data:realIndex': o,
+                        });
                       ((e.dataRadiusOfPercent[o] = []),
                         (e.dataRadius[o] = []),
                         (e.angleArr[o] = []),
