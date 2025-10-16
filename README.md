@@ -6,10 +6,11 @@ Dự án Hệ thống Quản lý Kho hàng được xây dựng trên nền tả
 
 Để chạy dự án này, bạn cần cài đặt các phần mềm sau trên máy tính của mình:
 
-- PHP (>= 8.2)
-- Composer
-- Node.js và npm
-- Một server CSDL như MySQL hoặc MariaDB
+-   PHP (>= 8.2)
+-   Composer
+-   Node.js và npm
+-   Một server CSDL như MySQL hoặc MariaDB
+-   **Prettier** (đã được tích hợp trong `package.json` để định dạng code)
 
 ## Hướng dẫn Cài đặt cho Lập trình viên mới
 
@@ -26,13 +27,13 @@ cd G14_Inventory_Management_System
 
 ### 2. Cài đặt Dependencies
 
-Cài đặt các thư viện PHP và JavaScript cần thiết.
+Cài đặt các thư viện PHP và JavaScript cần thiết. Lệnh `npm install` cũng sẽ cài đặt Prettier.
 
 ```bash
 # Cài đặt thư viện PHP
 composer install
 
-# Cài đặt thư viện JavaScript
+# Cài đặt thư viện JavaScript (bao gồm Prettier)
 npm install
 ```
 
@@ -66,13 +67,17 @@ php artisan key:generate
 
 ### 5. Chạy Migration và Seeder
 
-Lệnh này sẽ tạo toàn bộ cấu trúc bảng trong CSDL và chèn các dữ liệu khởi tạo (dữ liệu mẫu, tài khoản admin mặc định...).
+Lệnh này sẽ tạo toàn bộ cấu trúc bảng trong CSDL và chèn các dữ liệu khởi tạo.
 
 ```bash
 php artisan migrate:fresh --seed
 ```
 
-### 6. Khởi chạy Dự án
+### 6. Cài đặt Extension cho Editor (Rất khuyến khích)
+
+Để Prettier tự động định dạng code mỗi khi bạn lưu file, hãy cài đặt extension **Prettier - Code formatter** cho Visual Studio Code.
+
+### 7. Khởi chạy Dự án
 
 Biên dịch tài nguyên frontend và khởi chạy server phát triển.
 
@@ -88,89 +93,75 @@ Bây giờ bạn có thể truy cập dự án tại địa chỉ `http://127.0.
 
 ---
 
+## Định dạng Code (Code Formatting) với Prettier
+
+Để đảm bảo code của toàn bộ dự án được nhất quán, chúng ta sử dụng Prettier.
+
+-   **Kiểm tra định dạng:** Chạy lệnh sau để xem những file nào chưa được định dạng đúng.
+    ```bash
+    npm run format:check
+    ```
+-   **Tự động định dạng:** Chạy lệnh sau để Prettier tự động sửa và định dạng lại tất cả các file cần thiết.
+    ```bash
+    npm run format
+    ```
+
+**Quan trọng:** Hãy chạy lệnh `npm run format` trước khi bạn commit code.
+
+---
+
 ## Quy trình Làm việc Nhóm với Git và CSDL
 
-Để đảm bảo CSDL của mọi người luôn đồng nhất, chúng ta sẽ tuân thủ quy trình sau.
-
-**Nguyên tắc vàng:** Chúng ta **không** chia sẻ file CSDL. Chúng ta chia sẻ **code để tạo ra CSDL** (migrations và seeders).
+Để đảm bảo CSDL và code của mọi người luôn đồng nhất, chúng ta sẽ tuân thủ quy trình sau.
 
 ### A. Khi bạn bắt đầu làm việc hoặc cần cập nhật dự án
 
-1.  **Lấy code mới nhất:** Luôn `pull` code mới nhất từ nhánh `main` (hoặc nhánh phát triển chung) về máy.
-
+1.  **Lấy code mới nhất:** Luôn `pull` code mới nhất từ nhánh phát triển chung về máy.
     ```bash
     git pull origin main
     ```
-
-2.  **Cập nhật dependencies:** Nếu có thư viện mới được thêm vào.
-
+2.  **Cập nhật dependencies:**
     ```bash
     composer install
     npm install
     ```
-
-3.  **Cập nhật CSDL:** Chạy `migrate` để áp dụng các thay đổi về cấu trúc CSDL mà các thành viên khác đã tạo.
-
+3.  **Cập nhật CSDL:**
     ```bash
     php artisan migrate
     ```
 
-    Lệnh này an toàn, nó sẽ chỉ chạy những migration nào **chưa được chạy** trên CSDL local của bạn.
-
-### B. Khi bạn cần thay đổi Cấu trúc CSDL (Thêm/Sửa/Xóa bảng/cột)
+### B. Khi bạn cần thay đổi Cấu trúc CSDL (Migration)
 
 Mọi thay đổi về cấu trúc CSDL **BẮT BUỘC** phải được thực hiện thông qua **Migration**.
 
-1.  **Tạo file migration mới:** Ví dụ, để thêm cột `description` vào bảng `products`.
-
+1.  **Tạo file migration:**
     ```bash
-    php artisan make:migration add_description_to_products_table --table=products
+    php artisan make:migration ten_migration_cua_ban
     ```
-
-2.  **Chỉnh sửa file migration:** Mở file vừa được tạo trong `database/migrations` và định nghĩa thay đổi của bạn trong hàm `up()`.
-
-3.  **Kiểm tra trên local:** Chạy migrate trên máy của bạn để áp dụng thay đổi.
-
-    ```bash
-    php artisan migrate
-    ```
-
-4.  **Commit và Push:** Sau khi chắc chắn mọi thứ hoạt động, commit file migration mới của bạn và push lên Git. Các thành viên khác sẽ nhận được nó khi họ `pull` code về.
+2.  **Chỉnh sửa file migration** và kiểm tra trên local bằng `php artisan migrate`.
+3.  **Commit và Push** file migration mới lên Git.
 
 ### C. Khi bạn cần thêm Dữ liệu Mặc định (Seeder)
 
-**Lưu ý quan trọng:** Seeder chỉ dùng để thêm các **dữ liệu khởi tạo** hoặc **dữ liệu mẫu** (ví dụ: danh sách các quốc gia, các quyền user, tài khoản admin mặc định). Nó **không** dùng để đồng bộ hóa dữ liệu phát sinh hàng ngày (ví dụ: sản phẩm do người dùng A thêm vào).
+Seeder chỉ dùng để thêm các **dữ liệu khởi tạo** hoặc **dữ liệu mẫu**.
 
-1.  **Tạo file seeder mới:**
+1.  **Tạo hoặc chỉnh sửa file seeder** trong `database/seeders`.
+2.  **Gọi seeder** trong `DatabaseSeeder.php` nếu cần.
+3.  **Kiểm tra trên local** bằng `php artisan db:seed` hoặc `php artisan migrate:fresh --seed`.
+4.  **Commit và Push** các thay đổi về seeder lên Git.
 
+### D. Trước khi Commit Code
+
+Trước khi tạo một commit mới, hãy đảm bảo bạn đã làm những việc sau:
+
+1.  **Định dạng lại code:**
     ```bash
-    php artisan make:seeder ProductSeeder
+    npm run format
     ```
-
-2.  **Viết code thêm dữ liệu:** Chỉnh sửa file seeder trong `database/seeders`.
-
-3.  **Gọi seeder:** Trong file `DatabaseSeeder.php`, thêm dòng lệnh để gọi seeder mới của bạn.
-
-    ```php
-    public function run(): void
-    {
-        $this->call([
-            UserSeeder::class,
-            ProductSeeder::class, // Thêm seeder của bạn vào đây
-        ]);
-    }
-    ```
-
-4.  **Chạy seeder trên local:**
-
+2.  **Kiểm tra lại các thay đổi** của bạn bằng `git status` và `git diff`.
+3.  **Viết commit message rõ ràng** và push code của bạn.
     ```bash
-    # Chỉ chạy một seeder cụ thể
-    php artisan db:seed --class=ProductSeeder
-
-    # Hoặc làm mới toàn bộ CSDL và chạy lại tất cả seeder
-    php artisan migrate:fresh --seed
+    git add .
+    git commit -m "feat: Mô tả ngắn về tính năng bạn đã làm"
+    git push
     ```
-
-5.  **Commit và Push:** Commit các file seeder đã thay đổi và push lên Git.
-
-Bằng cách tuân thủ quy trình này, tất cả thành viên trong nhóm sẽ luôn có một cấu trúc CSDL nhất quán và một bộ dữ liệu khởi tạo giống nhau, giúp quá trình phát triển diễn ra suôn sẻ và tránh được các lỗi không đáng có.
