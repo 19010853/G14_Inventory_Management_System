@@ -1,7 +1,15 @@
 import { animateCSSModeScroll } from '../../shared/utils.js';
-export default function slideTo(index = 0, speed = this.params.speed, runCallbacks = true, internal, initial) {
+export default function slideTo(
+  index = 0,
+  speed = this.params.speed,
+  runCallbacks = true,
+  internal,
+  initial,
+) {
   if (typeof index !== 'number' && typeof index !== 'string') {
-    throw new Error(`The 'index' argument cannot have type other than 'number' or 'string'. [${typeof index}] given.`);
+    throw new Error(
+      `The 'index' argument cannot have type other than 'number' or 'string'. [${typeof index}] given.`,
+    );
   }
 
   if (typeof index === 'string') {
@@ -19,10 +27,11 @@ export default function slideTo(index = 0, speed = this.params.speed, runCallbac
     const isValidNumber = isFinite(indexAsNumber);
 
     if (!isValidNumber) {
-      throw new Error(`The passed-in 'index' (string) couldn't be converted to 'number'. [${index}] given.`);
+      throw new Error(
+        `The passed-in 'index' (string) couldn't be converted to 'number'. [${index}] given.`,
+      );
     } // Knowing that the converted `index` is a valid number,
     // we can update the original argument's value.
-
 
     index = indexAsNumber;
   }
@@ -38,15 +47,19 @@ export default function slideTo(index = 0, speed = this.params.speed, runCallbac
     activeIndex,
     rtlTranslate: rtl,
     wrapperEl,
-    enabled
+    enabled,
   } = swiper;
 
-  if (swiper.animating && params.preventInteractionOnTransition || !enabled && !internal && !initial) {
+  if (
+    (swiper.animating && params.preventInteractionOnTransition) ||
+    (!enabled && !internal && !initial)
+  ) {
     return false;
   }
 
   const skip = Math.min(swiper.params.slidesPerGroupSkip, slideIndex);
-  let snapIndex = skip + Math.floor((slideIndex - skip) / swiper.params.slidesPerGroup);
+  let snapIndex =
+    skip + Math.floor((slideIndex - skip) / swiper.params.slidesPerGroup);
   if (snapIndex >= snapGrid.length) snapIndex = snapGrid.length - 1;
   const translate = -snapGrid[snapIndex]; // Normalize slideIndex
 
@@ -57,9 +70,16 @@ export default function slideTo(index = 0, speed = this.params.speed, runCallbac
       const normalizedGridNext = Math.floor(slidesGrid[i + 1] * 100);
 
       if (typeof slidesGrid[i + 1] !== 'undefined') {
-        if (normalizedTranslate >= normalizedGrid && normalizedTranslate < normalizedGridNext - (normalizedGridNext - normalizedGrid) / 2) {
+        if (
+          normalizedTranslate >= normalizedGrid &&
+          normalizedTranslate <
+            normalizedGridNext - (normalizedGridNext - normalizedGrid) / 2
+        ) {
           slideIndex = i;
-        } else if (normalizedTranslate >= normalizedGrid && normalizedTranslate < normalizedGridNext) {
+        } else if (
+          normalizedTranslate >= normalizedGrid &&
+          normalizedTranslate < normalizedGridNext
+        ) {
           slideIndex = i + 1;
         }
       } else if (normalizedTranslate >= normalizedGrid) {
@@ -68,13 +88,20 @@ export default function slideTo(index = 0, speed = this.params.speed, runCallbac
     }
   } // Directions locks
 
-
   if (swiper.initialized && slideIndex !== activeIndex) {
-    if (!swiper.allowSlideNext && translate < swiper.translate && translate < swiper.minTranslate()) {
+    if (
+      !swiper.allowSlideNext &&
+      translate < swiper.translate &&
+      translate < swiper.minTranslate()
+    ) {
       return false;
     }
 
-    if (!swiper.allowSlidePrev && translate > swiper.translate && translate > swiper.maxTranslate()) {
+    if (
+      !swiper.allowSlidePrev &&
+      translate > swiper.translate &&
+      translate > swiper.maxTranslate()
+    ) {
       if ((activeIndex || 0) !== slideIndex) return false;
     }
   }
@@ -83,12 +110,16 @@ export default function slideTo(index = 0, speed = this.params.speed, runCallbac
     swiper.emit('beforeSlideChangeStart');
   } // Update progress
 
-
   swiper.updateProgress(translate);
   let direction;
-  if (slideIndex > activeIndex) direction = 'next';else if (slideIndex < activeIndex) direction = 'prev';else direction = 'reset'; // Update Index
+  if (slideIndex > activeIndex) direction = 'next';
+  else if (slideIndex < activeIndex) direction = 'prev';
+  else direction = 'reset'; // Update Index
 
-  if (rtl && -translate === swiper.translate || !rtl && translate === swiper.translate) {
+  if (
+    (rtl && -translate === swiper.translate) ||
+    (!rtl && translate === swiper.translate)
+  ) {
     swiper.updateActiveIndex(slideIndex); // Update Height
 
     if (params.autoHeight) {
@@ -134,14 +165,14 @@ export default function slideTo(index = 0, speed = this.params.speed, runCallbac
         animateCSSModeScroll({
           swiper,
           targetPosition: t,
-          side: isH ? 'left' : 'top'
+          side: isH ? 'left' : 'top',
         });
         return true;
       }
 
       wrapperEl.scrollTo({
         [isH ? 'left' : 'top']: t,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
 
@@ -164,16 +195,28 @@ export default function slideTo(index = 0, speed = this.params.speed, runCallbac
       swiper.onSlideToWrapperTransitionEnd = function transitionEnd(e) {
         if (!swiper || swiper.destroyed) return;
         if (e.target !== this) return;
-        swiper.$wrapperEl[0].removeEventListener('transitionend', swiper.onSlideToWrapperTransitionEnd);
-        swiper.$wrapperEl[0].removeEventListener('webkitTransitionEnd', swiper.onSlideToWrapperTransitionEnd);
+        swiper.$wrapperEl[0].removeEventListener(
+          'transitionend',
+          swiper.onSlideToWrapperTransitionEnd,
+        );
+        swiper.$wrapperEl[0].removeEventListener(
+          'webkitTransitionEnd',
+          swiper.onSlideToWrapperTransitionEnd,
+        );
         swiper.onSlideToWrapperTransitionEnd = null;
         delete swiper.onSlideToWrapperTransitionEnd;
         swiper.transitionEnd(runCallbacks, direction);
       };
     }
 
-    swiper.$wrapperEl[0].addEventListener('transitionend', swiper.onSlideToWrapperTransitionEnd);
-    swiper.$wrapperEl[0].addEventListener('webkitTransitionEnd', swiper.onSlideToWrapperTransitionEnd);
+    swiper.$wrapperEl[0].addEventListener(
+      'transitionend',
+      swiper.onSlideToWrapperTransitionEnd,
+    );
+    swiper.$wrapperEl[0].addEventListener(
+      'webkitTransitionEnd',
+      swiper.onSlideToWrapperTransitionEnd,
+    );
   }
 
   return true;

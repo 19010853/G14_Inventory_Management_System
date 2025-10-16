@@ -1,10 +1,31 @@
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() {
+  _extends = Object.assign
+    ? Object.assign.bind()
+    : function (target) {
+        for (var i = 1; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (Object.prototype.hasOwnProperty.call(source, key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      };
+  return _extends.apply(this, arguments);
+}
 
 import React, { useRef, useState, useEffect, forwardRef } from 'react';
 import SwiperCore from 'swiper';
 import { getParams } from '../components-shared/get-params.js';
 import { mountSwiper } from '../components-shared/mount-swiper.js';
-import { needsScrollbar, needsNavigation, needsPagination, uniqueClasses, extend } from '../components-shared/utils.js';
+import {
+  needsScrollbar,
+  needsNavigation,
+  needsPagination,
+  uniqueClasses,
+  extend,
+} from '../components-shared/utils.js';
 import { renderLoop, calcLoopedSlides } from './loop.js';
 import { getChangedParams } from '../components-shared/get-changed-params.js';
 import { getChildren } from './get-children.js';
@@ -13,7 +34,7 @@ import { renderVirtual } from './virtual.js';
 import { updateOnVirtualData } from '../components-shared/update-on-virtual-data.js';
 import { useIsomorphicLayoutEffect } from './use-isomorphic-layout-effect.js';
 import { SwiperContext } from './context.js';
-const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
+const Swiper = /*#__PURE__*/ forwardRef(function (_temp, externalElRef) {
   let {
     className,
     tag: Tag = 'div',
@@ -39,12 +60,9 @@ const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
     params: swiperParams,
     passedParams,
     rest: restProps,
-    events
+    events,
   } = getParams(rest);
-  const {
-    slides,
-    slots
-  } = getChildren(children);
+  const { slides, slots } = getChildren(children);
 
   const onBeforeBreakpoint = () => {
     setBreakpointChanged(!breakpointChanged);
@@ -53,8 +71,7 @@ const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
   Object.assign(swiperParams.on, {
     _containerClasses(swiper, classes) {
       setContainerClasses(classes);
-    }
-
+    },
   });
 
   const initSwiper = () => {
@@ -77,7 +94,7 @@ const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
         cache: false,
         slides,
         renderExternal: setVirtualData,
-        renderExternalUpdate: false
+        renderExternalUpdate: false,
       };
       extend(swiperRef.current.params.virtual, extendWith);
       extend(swiperRef.current.originalParams.virtual, extendWith);
@@ -88,28 +105,28 @@ const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
     initSwiper();
   } // Listen for breakpoints change
 
-
   if (swiperRef.current) {
     swiperRef.current.on('_beforeBreakpoint', onBeforeBreakpoint);
   }
 
   const attachEvents = () => {
     if (eventsAssigned || !events || !swiperRef.current) return;
-    Object.keys(events).forEach(eventName => {
+    Object.keys(events).forEach((eventName) => {
       swiperRef.current.on(eventName, events[eventName]);
     });
   };
 
   const detachEvents = () => {
     if (!events || !swiperRef.current) return;
-    Object.keys(events).forEach(eventName => {
+    Object.keys(events).forEach((eventName) => {
       swiperRef.current.off(eventName, events[eventName]);
     });
   };
 
   useEffect(() => {
     return () => {
-      if (swiperRef.current) swiperRef.current.off('_beforeBreakpoint', onBeforeBreakpoint);
+      if (swiperRef.current)
+        swiperRef.current.off('_beforeBreakpoint', onBeforeBreakpoint);
     };
   }); // set initialized flag
 
@@ -131,14 +148,17 @@ const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
       initSwiper();
     }
 
-    mountSwiper({
-      el: swiperElRef.current,
-      nextEl: nextElRef.current,
-      prevEl: prevElRef.current,
-      paginationEl: paginationElRef.current,
-      scrollbarEl: scrollbarElRef.current,
-      swiper: swiperRef.current
-    }, swiperParams);
+    mountSwiper(
+      {
+        el: swiperElRef.current,
+        nextEl: nextElRef.current,
+        prevEl: prevElRef.current,
+        paginationEl: paginationElRef.current,
+        scrollbarEl: scrollbarElRef.current,
+        swiper: swiperRef.current,
+      },
+      swiperParams,
+    );
     if (onSwiper) onSwiper(swiperRef.current); // eslint-disable-next-line
 
     return () => {
@@ -150,11 +170,21 @@ const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
 
   useIsomorphicLayoutEffect(() => {
     attachEvents();
-    const changedParams = getChangedParams(passedParams, oldPassedParamsRef.current, slides, oldSlides.current, c => c.key);
+    const changedParams = getChangedParams(
+      passedParams,
+      oldPassedParamsRef.current,
+      slides,
+      oldSlides.current,
+      (c) => c.key,
+    );
     oldPassedParamsRef.current = passedParams;
     oldSlides.current = slides;
 
-    if (changedParams.length && swiperRef.current && !swiperRef.current.destroyed) {
+    if (
+      changedParams.length &&
+      swiperRef.current &&
+      !swiperRef.current.destroyed
+    ) {
       updateSwiper({
         swiper: swiperRef.current,
         slides,
@@ -163,7 +193,7 @@ const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
         nextEl: nextElRef.current,
         prevEl: prevElRef.current,
         scrollbarEl: scrollbarElRef.current,
-        paginationEl: paginationElRef.current
+        paginationEl: paginationElRef.current,
       });
     }
 
@@ -181,10 +211,13 @@ const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
       return renderVirtual(swiperRef.current, slides, virtualData);
     }
 
-    if (!swiperParams.loop || swiperRef.current && swiperRef.current.destroyed) {
-      return slides.map(child => {
-        return /*#__PURE__*/React.cloneElement(child, {
-          swiper: swiperRef.current
+    if (
+      !swiperParams.loop ||
+      (swiperRef.current && swiperRef.current.destroyed)
+    ) {
+      return slides.map((child) => {
+        return /*#__PURE__*/ React.cloneElement(child, {
+          swiper: swiperRef.current,
         });
       });
     }
@@ -192,26 +225,58 @@ const Swiper = /*#__PURE__*/forwardRef(function (_temp, externalElRef) {
     return renderLoop(swiperRef.current, slides, swiperParams);
   }
 
-  return /*#__PURE__*/React.createElement(Tag, _extends({
-    ref: swiperElRef,
-    className: uniqueClasses(`${containerClasses}${className ? ` ${className}` : ''}`)
-  }, restProps), /*#__PURE__*/React.createElement(SwiperContext.Provider, {
-    value: swiperRef.current
-  }, slots['container-start'], /*#__PURE__*/React.createElement(WrapperTag, {
-    className: "swiper-wrapper"
-  }, slots['wrapper-start'], renderSlides(), slots['wrapper-end']), needsNavigation(swiperParams) && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    ref: prevElRef,
-    className: "swiper-button-prev"
-  }), /*#__PURE__*/React.createElement("div", {
-    ref: nextElRef,
-    className: "swiper-button-next"
-  })), needsScrollbar(swiperParams) && /*#__PURE__*/React.createElement("div", {
-    ref: scrollbarElRef,
-    className: "swiper-scrollbar"
-  }), needsPagination(swiperParams) && /*#__PURE__*/React.createElement("div", {
-    ref: paginationElRef,
-    className: "swiper-pagination"
-  }), slots['container-end']));
+  return /*#__PURE__*/ React.createElement(
+    Tag,
+    _extends(
+      {
+        ref: swiperElRef,
+        className: uniqueClasses(
+          `${containerClasses}${className ? ` ${className}` : ''}`,
+        ),
+      },
+      restProps,
+    ),
+    /*#__PURE__*/ React.createElement(
+      SwiperContext.Provider,
+      {
+        value: swiperRef.current,
+      },
+      slots['container-start'],
+      /*#__PURE__*/ React.createElement(
+        WrapperTag,
+        {
+          className: 'swiper-wrapper',
+        },
+        slots['wrapper-start'],
+        renderSlides(),
+        slots['wrapper-end'],
+      ),
+      needsNavigation(swiperParams) &&
+        /*#__PURE__*/ React.createElement(
+          React.Fragment,
+          null,
+          /*#__PURE__*/ React.createElement('div', {
+            ref: prevElRef,
+            className: 'swiper-button-prev',
+          }),
+          /*#__PURE__*/ React.createElement('div', {
+            ref: nextElRef,
+            className: 'swiper-button-next',
+          }),
+        ),
+      needsScrollbar(swiperParams) &&
+        /*#__PURE__*/ React.createElement('div', {
+          ref: scrollbarElRef,
+          className: 'swiper-scrollbar',
+        }),
+      needsPagination(swiperParams) &&
+        /*#__PURE__*/ React.createElement('div', {
+          ref: paginationElRef,
+          className: 'swiper-pagination',
+        }),
+      slots['container-end'],
+    ),
+  );
 });
 Swiper.displayName = 'Swiper';
 export { Swiper };

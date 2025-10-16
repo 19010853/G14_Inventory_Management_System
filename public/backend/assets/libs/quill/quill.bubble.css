@@ -71,24 +71,24 @@
 .ql-editor ul > li::before {
   content: '\2022';
 }
-.ql-editor ul[data-checked=true],
-.ql-editor ul[data-checked=false] {
+.ql-editor ul[data-checked='true'],
+.ql-editor ul[data-checked='false'] {
   pointer-events: none;
 }
-.ql-editor ul[data-checked=true] > li *,
-.ql-editor ul[data-checked=false] > li * {
+.ql-editor ul[data-checked='true'] > li *,
+.ql-editor ul[data-checked='false'] > li * {
   pointer-events: all;
 }
-.ql-editor ul[data-checked=true] > li::before,
-.ql-editor ul[data-checked=false] > li::before {
+.ql-editor ul[data-checked='true'] > li::before,
+.ql-editor ul[data-checked='false'] > li::before {
   color: #777;
   cursor: pointer;
   pointer-events: all;
 }
-.ql-editor ul[data-checked=true] > li::before {
+.ql-editor ul[data-checked='true'] > li::before {
   content: '\2611';
 }
-.ql-editor ul[data-checked=false] > li::before {
+.ql-editor ul[data-checked='false'] > li::before {
   content: '\2610';
 }
 .ql-editor li::before {
@@ -359,10 +359,16 @@
   color: #93f;
 }
 .ql-editor .ql-font-serif {
-  font-family: Georgia, Times New Roman, serif;
+  font-family:
+    Georgia,
+    Times New Roman,
+    serif;
 }
 .ql-editor .ql-font-monospace {
-  font-family: Monaco, Courier New, monospace;
+  font-family:
+    Monaco,
+    Courier New,
+    monospace;
 }
 .ql-editor .ql-size-small {
   font-size: 0.75em;
@@ -387,7 +393,7 @@
   text-align: right;
 }
 .ql-editor.ql-blank::before {
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
   content: attr(data-placeholder);
   font-style: italic;
   left: 15px;
@@ -421,8 +427,8 @@
 .ql-bubble .ql-toolbar button:active:hover {
   outline: none;
 }
-.ql-bubble.ql-toolbar input.ql-image[type=file],
-.ql-bubble .ql-toolbar input.ql-image[type=file] {
+.ql-bubble.ql-toolbar input.ql-image[type='file'],
+.ql-bubble .ql-toolbar input.ql-image[type='file'] {
   display: none;
 }
 .ql-bubble.ql-toolbar button:hover,
@@ -733,12 +739,24 @@
   top: 50%;
   width: 18px;
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-label[data-label]:not([data-label=''])::before,
-.ql-bubble .ql-picker.ql-font .ql-picker-label[data-label]:not([data-label=''])::before,
-.ql-bubble .ql-picker.ql-size .ql-picker-label[data-label]:not([data-label=''])::before,
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-label]:not([data-label=''])::before,
-.ql-bubble .ql-picker.ql-font .ql-picker-item[data-label]:not([data-label=''])::before,
-.ql-bubble .ql-picker.ql-size .ql-picker-item[data-label]:not([data-label=''])::before {
+.ql-bubble
+  .ql-picker.ql-header
+  .ql-picker-label[data-label]:not([data-label=''])::before,
+.ql-bubble
+  .ql-picker.ql-font
+  .ql-picker-label[data-label]:not([data-label=''])::before,
+.ql-bubble
+  .ql-picker.ql-size
+  .ql-picker-label[data-label]:not([data-label=''])::before,
+.ql-bubble
+  .ql-picker.ql-header
+  .ql-picker-item[data-label]:not([data-label=''])::before,
+.ql-bubble
+  .ql-picker.ql-font
+  .ql-picker-item[data-label]:not([data-label=''])::before,
+.ql-bubble
+  .ql-picker.ql-size
+  .ql-picker-item[data-label]:not([data-label=''])::before {
   content: attr(data-label);
 }
 .ql-bubble .ql-picker.ql-header {
@@ -748,46 +766,46 @@
 .ql-bubble .ql-picker.ql-header .ql-picker-item::before {
   content: 'Normal';
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="1"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value='1']::before,
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='1']::before {
   content: 'Heading 1';
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value="2"]::before,
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="2"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value='2']::before,
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='2']::before {
   content: 'Heading 2';
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value="3"]::before,
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="3"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value='3']::before,
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='3']::before {
   content: 'Heading 3';
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value="4"]::before,
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="4"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value='4']::before,
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='4']::before {
   content: 'Heading 4';
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value="5"]::before,
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="5"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value='5']::before,
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='5']::before {
   content: 'Heading 5';
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value="6"]::before,
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="6"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-label[data-value='6']::before,
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='6']::before {
   content: 'Heading 6';
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="1"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='1']::before {
   font-size: 2em;
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="2"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='2']::before {
   font-size: 1.5em;
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="3"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='3']::before {
   font-size: 1.17em;
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="4"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='4']::before {
   font-size: 1em;
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="5"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='5']::before {
   font-size: 0.83em;
 }
-.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value="6"]::before {
+.ql-bubble .ql-picker.ql-header .ql-picker-item[data-value='6']::before {
   font-size: 0.67em;
 }
 .ql-bubble .ql-picker.ql-font {
@@ -797,19 +815,25 @@
 .ql-bubble .ql-picker.ql-font .ql-picker-item::before {
   content: 'Sans Serif';
 }
-.ql-bubble .ql-picker.ql-font .ql-picker-label[data-value=serif]::before,
-.ql-bubble .ql-picker.ql-font .ql-picker-item[data-value=serif]::before {
+.ql-bubble .ql-picker.ql-font .ql-picker-label[data-value='serif']::before,
+.ql-bubble .ql-picker.ql-font .ql-picker-item[data-value='serif']::before {
   content: 'Serif';
 }
-.ql-bubble .ql-picker.ql-font .ql-picker-label[data-value=monospace]::before,
-.ql-bubble .ql-picker.ql-font .ql-picker-item[data-value=monospace]::before {
+.ql-bubble .ql-picker.ql-font .ql-picker-label[data-value='monospace']::before,
+.ql-bubble .ql-picker.ql-font .ql-picker-item[data-value='monospace']::before {
   content: 'Monospace';
 }
-.ql-bubble .ql-picker.ql-font .ql-picker-item[data-value=serif]::before {
-  font-family: Georgia, Times New Roman, serif;
+.ql-bubble .ql-picker.ql-font .ql-picker-item[data-value='serif']::before {
+  font-family:
+    Georgia,
+    Times New Roman,
+    serif;
 }
-.ql-bubble .ql-picker.ql-font .ql-picker-item[data-value=monospace]::before {
-  font-family: Monaco, Courier New, monospace;
+.ql-bubble .ql-picker.ql-font .ql-picker-item[data-value='monospace']::before {
+  font-family:
+    Monaco,
+    Courier New,
+    monospace;
 }
 .ql-bubble .ql-picker.ql-size {
   width: 98px;
@@ -818,25 +842,25 @@
 .ql-bubble .ql-picker.ql-size .ql-picker-item::before {
   content: 'Normal';
 }
-.ql-bubble .ql-picker.ql-size .ql-picker-label[data-value=small]::before,
-.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value=small]::before {
+.ql-bubble .ql-picker.ql-size .ql-picker-label[data-value='small']::before,
+.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value='small']::before {
   content: 'Small';
 }
-.ql-bubble .ql-picker.ql-size .ql-picker-label[data-value=large]::before,
-.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value=large]::before {
+.ql-bubble .ql-picker.ql-size .ql-picker-label[data-value='large']::before,
+.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value='large']::before {
   content: 'Large';
 }
-.ql-bubble .ql-picker.ql-size .ql-picker-label[data-value=huge]::before,
-.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value=huge]::before {
+.ql-bubble .ql-picker.ql-size .ql-picker-label[data-value='huge']::before,
+.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value='huge']::before {
   content: 'Huge';
 }
-.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value=small]::before {
+.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value='small']::before {
   font-size: 10px;
 }
-.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value=large]::before {
+.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value='large']::before {
   font-size: 18px;
 }
-.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value=huge]::before {
+.ql-bubble .ql-picker.ql-size .ql-picker-item[data-value='huge']::before {
   font-size: 32px;
 }
 .ql-bubble .ql-color-picker.ql-background .ql-picker-item {
@@ -866,7 +890,7 @@
 .ql-bubble .ql-tooltip-arrow {
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  content: " ";
+  content: ' ';
   display: block;
   left: 50%;
   margin-left: -6px;
@@ -889,7 +913,7 @@
 .ql-bubble .ql-tooltip-editor {
   display: none;
 }
-.ql-bubble .ql-tooltip-editor input[type=text] {
+.ql-bubble .ql-tooltip-editor input[type='text'] {
   background: transparent;
   border: none;
   color: #fff;
@@ -907,7 +931,7 @@
 }
 .ql-bubble .ql-tooltip-editor a:before {
   color: #ccc;
-  content: "\D7";
+  content: '\D7';
   font-size: 16px;
   font-weight: bold;
 }
@@ -933,7 +957,7 @@
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   top: 0;
-  content: " ";
+  content: ' ';
   height: 0;
   width: 0;
 }

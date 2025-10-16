@@ -120,5 +120,5 @@ export default {
   // Callbacks
   runCallbacksOnInit: true,
   // Internals
-  _emitClasses: false
+  _emitClasses: false,
 };

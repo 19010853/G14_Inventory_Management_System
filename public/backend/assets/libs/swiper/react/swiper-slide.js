@@ -1,10 +1,25 @@
-function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() {
+  _extends = Object.assign
+    ? Object.assign.bind()
+    : function (target) {
+        for (var i = 1; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (Object.prototype.hasOwnProperty.call(source, key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      };
+  return _extends.apply(this, arguments);
+}
 
 import React, { useRef, useState, forwardRef } from 'react';
 import { uniqueClasses } from '../components-shared/utils.js';
 import { useIsomorphicLayoutEffect } from './use-isomorphic-layout-effect.js';
 import { SwiperSlideContext } from './context.js';
-const SwiperSlide = /*#__PURE__*/forwardRef(function (_temp, externalRef) {
+const SwiperSlide = /*#__PURE__*/ forwardRef(function (_temp, externalRef) {
   let {
     tag: Tag = 'div',
     children,
@@ -53,27 +68,52 @@ const SwiperSlide = /*#__PURE__*/forwardRef(function (_temp, externalRef) {
     }
   }, [swiper]);
   const slideData = {
-    isActive: slideClasses.indexOf('swiper-slide-active') >= 0 || slideClasses.indexOf('swiper-slide-duplicate-active') >= 0,
+    isActive:
+      slideClasses.indexOf('swiper-slide-active') >= 0 ||
+      slideClasses.indexOf('swiper-slide-duplicate-active') >= 0,
     isVisible: slideClasses.indexOf('swiper-slide-visible') >= 0,
     isDuplicate: slideClasses.indexOf('swiper-slide-duplicate') >= 0,
-    isPrev: slideClasses.indexOf('swiper-slide-prev') >= 0 || slideClasses.indexOf('swiper-slide-duplicate-prev') >= 0,
-    isNext: slideClasses.indexOf('swiper-slide-next') >= 0 || slideClasses.indexOf('swiper-slide-duplicate-next') >= 0
+    isPrev:
+      slideClasses.indexOf('swiper-slide-prev') >= 0 ||
+      slideClasses.indexOf('swiper-slide-duplicate-prev') >= 0,
+    isNext:
+      slideClasses.indexOf('swiper-slide-next') >= 0 ||
+      slideClasses.indexOf('swiper-slide-duplicate-next') >= 0,
   };
 
   const renderChildren = () => {
     return typeof children === 'function' ? children(slideData) : children;
   };
 
-  return /*#__PURE__*/React.createElement(Tag, _extends({
-    ref: slideElRef,
-    className: uniqueClasses(`${slideClasses}${className ? ` ${className}` : ''}`),
-    "data-swiper-slide-index": virtualIndex
-  }, rest), /*#__PURE__*/React.createElement(SwiperSlideContext.Provider, {
-    value: slideData
-  }, zoom ? /*#__PURE__*/React.createElement("div", {
-    className: "swiper-zoom-container",
-    "data-swiper-zoom": typeof zoom === 'number' ? zoom : undefined
-  }, renderChildren()) : renderChildren()));
+  return /*#__PURE__*/ React.createElement(
+    Tag,
+    _extends(
+      {
+        ref: slideElRef,
+        className: uniqueClasses(
+          `${slideClasses}${className ? ` ${className}` : ''}`,
+        ),
+        'data-swiper-slide-index': virtualIndex,
+      },
+      rest,
+    ),
+    /*#__PURE__*/ React.createElement(
+      SwiperSlideContext.Provider,
+      {
+        value: slideData,
+      },
+      zoom
+        ? /*#__PURE__*/ React.createElement(
+            'div',
+            {
+              className: 'swiper-zoom-container',
+              'data-swiper-zoom': typeof zoom === 'number' ? zoom : undefined,
+            },
+            renderChildren(),
+          )
+        : renderChildren(),
+    ),
+  );
 });
 SwiperSlide.displayName = 'SwiperSlide';
 export { SwiperSlide };

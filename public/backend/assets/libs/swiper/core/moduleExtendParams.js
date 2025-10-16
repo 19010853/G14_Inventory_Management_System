@@ -9,9 +9,12 @@ export default function moduleExtendParams(params, allModulesParams) {
       return;
     }
 
-    if (['navigation', 'pagination', 'scrollbar'].indexOf(moduleParamName) >= 0 && params[moduleParamName] === true) {
+    if (
+      ['navigation', 'pagination', 'scrollbar'].indexOf(moduleParamName) >= 0 &&
+      params[moduleParamName] === true
+    ) {
       params[moduleParamName] = {
-        auto: true
+        auto: true,
       };
     }
 
@@ -22,17 +25,21 @@ export default function moduleExtendParams(params, allModulesParams) {
 
     if (params[moduleParamName] === true) {
       params[moduleParamName] = {
-        enabled: true
+        enabled: true,
       };
     }
 
-    if (typeof params[moduleParamName] === 'object' && !('enabled' in params[moduleParamName])) {
+    if (
+      typeof params[moduleParamName] === 'object' &&
+      !('enabled' in params[moduleParamName])
+    ) {
       params[moduleParamName].enabled = true;
     }
 
-    if (!params[moduleParamName]) params[moduleParamName] = {
-      enabled: false
-    };
+    if (!params[moduleParamName])
+      params[moduleParamName] = {
+        enabled: false,
+      };
     extend(allModulesParams, obj);
   };
 }

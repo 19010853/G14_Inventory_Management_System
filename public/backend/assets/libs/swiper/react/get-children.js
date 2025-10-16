@@ -1,16 +1,22 @@
 import React from 'react';
 
 function isChildSwiperSlide(child) {
-  return child.type && child.type.displayName && child.type.displayName.includes('SwiperSlide');
+  return (
+    child.type &&
+    child.type.displayName &&
+    child.type.displayName.includes('SwiperSlide')
+  );
 }
 
 function processChildren(c) {
   const slides = [];
-  React.Children.toArray(c).forEach(child => {
+  React.Children.toArray(c).forEach((child) => {
     if (isChildSwiperSlide(child)) {
       slides.push(child);
     } else if (child.props && child.props.children) {
-      processChildren(child.props.children).forEach(slide => slides.push(slide));
+      processChildren(child.props.children).forEach((slide) =>
+        slides.push(slide),
+      );
     }
   });
   return slides;
@@ -22,9 +28,9 @@ function getChildren(c) {
     'container-start': [],
     'container-end': [],
     'wrapper-start': [],
-    'wrapper-end': []
+    'wrapper-end': [],
   };
-  React.Children.toArray(c).forEach(child => {
+  React.Children.toArray(c).forEach((child) => {
     if (isChildSwiperSlide(child)) {
       slides.push(child);
     } else if (child.props && child.props.slot && slots[child.props.slot]) {
@@ -33,7 +39,7 @@ function getChildren(c) {
       const foundSlides = processChildren(child.props.children);
 
       if (foundSlides.length > 0) {
-        foundSlides.forEach(slide => slides.push(slide));
+        foundSlides.forEach((slide) => slides.push(slide));
       } else {
         slots['container-end'].push(child);
       }
@@ -43,7 +49,7 @@ function getChildren(c) {
   });
   return {
     slides,
-    slots
+    slots,
   };
 }
 

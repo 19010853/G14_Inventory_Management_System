@@ -1,9 +1,5 @@
 import { getWindow } from 'ssr-window';
-export default function Resize({
-  swiper,
-  on,
-  emit
-}) {
+export default function Resize({ swiper, on, emit }) {
   const window = getWindow();
   let observer = null;
   let animationFrame = null;
@@ -16,22 +12,19 @@ export default function Resize({
 
   const createObserver = () => {
     if (!swiper || swiper.destroyed || !swiper.initialized) return;
-    observer = new ResizeObserver(entries => {
+    observer = new ResizeObserver((entries) => {
       animationFrame = window.requestAnimationFrame(() => {
-        const {
-          width,
-          height
-        } = swiper;
+        const { width, height } = swiper;
         let newWidth = width;
         let newHeight = height;
-        entries.forEach(({
-          contentBoxSize,
-          contentRect,
-          target
-        }) => {
+        entries.forEach(({ contentBoxSize, contentRect, target }) => {
           if (target && target !== swiper.el) return;
-          newWidth = contentRect ? contentRect.width : (contentBoxSize[0] || contentBoxSize).inlineSize;
-          newHeight = contentRect ? contentRect.height : (contentBoxSize[0] || contentBoxSize).blockSize;
+          newWidth = contentRect
+            ? contentRect.width
+            : (contentBoxSize[0] || contentBoxSize).inlineSize;
+          newHeight = contentRect
+            ? contentRect.height
+            : (contentBoxSize[0] || contentBoxSize).blockSize;
         });
 
         if (newWidth !== width || newHeight !== height) {
@@ -59,7 +52,10 @@ export default function Resize({
   };
 
   on('init', () => {
-    if (swiper.params.resizeObserver && typeof window.ResizeObserver !== 'undefined') {
+    if (
+      swiper.params.resizeObserver &&
+      typeof window.ResizeObserver !== 'undefined'
+    ) {
       createObserver();
       return;
     }

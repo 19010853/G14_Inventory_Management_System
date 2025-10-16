@@ -1,7 +1,7 @@
-import { template as _$template } from "solid-js/web";
-import { effect as _$effect } from "solid-js/web";
+import { template as _$template } from 'solid-js/web';
+import { effect as _$effect } from 'solid-js/web';
 
-const _tmpl$ = /*#__PURE__*/_$template(`<div></div>`, 2);
+const _tmpl$ = /*#__PURE__*/ _$template(`<div></div>`, 2);
 
 import { calcLoopedSlides } from '../shared/calc-looped-slides.js';
 
@@ -21,18 +21,23 @@ function renderLoop(swiper, slides, swiperParams) {
   }
 
   if (swiperParams.loopFillGroupWithBlank) {
-    const blankSlidesNum = swiperParams.slidesPerGroup - modifiedSlides.length % swiperParams.slidesPerGroup;
+    const blankSlidesNum =
+      swiperParams.slidesPerGroup -
+      (modifiedSlides.length % swiperParams.slidesPerGroup);
 
     if (blankSlidesNum !== swiperParams.slidesPerGroup) {
       for (let i = 0; i < blankSlidesNum; i += 1) {
         const blankSlide = // eslint-disable-next-line react/react-in-jsx-scope
-        (() => {
-          const _el$ = _tmpl$.cloneNode(true);
+          (() => {
+            const _el$ = _tmpl$.cloneNode(true);
 
-          _$effect(() => _el$.className = `${swiperParams.slideClass} ${swiperParams.slideBlankClass}`);
+            _$effect(
+              () =>
+                (_el$.className = `${swiperParams.slideClass} ${swiperParams.slideBlankClass}`),
+            );
 
-          return _el$;
-        })();
+            return _el$;
+          })();
 
         modifiedSlides.push(blankSlide);
       }
@@ -48,9 +53,16 @@ function renderLoop(swiper, slides, swiperParams) {
   const appendSlides = [];
 
   for (let i = 0; i < loopedSlides; i += 1) {
-    const index = i - Math.floor(i / modifiedSlides.length) * modifiedSlides.length;
+    const index =
+      i - Math.floor(i / modifiedSlides.length) * modifiedSlides.length;
     appendSlides.push(duplicateSlide(modifiedSlides[index], i, 'append'));
-    prependSlides.unshift(duplicateSlide(modifiedSlides[modifiedSlides.length - index - 1], i, 'prepend'));
+    prependSlides.unshift(
+      duplicateSlide(
+        modifiedSlides[modifiedSlides.length - index - 1],
+        i,
+        'prepend',
+      ),
+    );
   }
 
   if (swiper) {

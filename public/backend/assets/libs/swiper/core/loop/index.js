@@ -4,5 +4,5 @@ import loopDestroy from './loopDestroy.js';
 export default {
   loopCreate,
   loopFix,
-  loopDestroy
+  loopDestroy,
 };

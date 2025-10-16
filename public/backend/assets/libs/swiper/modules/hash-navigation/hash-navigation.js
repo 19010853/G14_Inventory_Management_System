@@ -1,11 +1,6 @@
 import { getWindow, getDocument } from 'ssr-window';
 import $ from '../../shared/dom.js';
-export default function HashNavigation({
-  swiper,
-  extendParams,
-  emit,
-  on
-}) {
+export default function HashNavigation({ swiper, extendParams, emit, on }) {
   let initialized = false;
   const document = getDocument();
   const window = getWindow();
@@ -13,17 +8,21 @@ export default function HashNavigation({
     hashNavigation: {
       enabled: false,
       replaceState: false,
-      watchState: false
-    }
+      watchState: false,
+    },
   });
 
   const onHashChange = () => {
     emit('hashChange');
     const newHash = document.location.hash.replace('#', '');
-    const activeSlideHash = swiper.slides.eq(swiper.activeIndex).attr('data-hash');
+    const activeSlideHash = swiper.slides
+      .eq(swiper.activeIndex)
+      .attr('data-hash');
 
     if (newHash !== activeSlideHash) {
-      const newIndex = swiper.$wrapperEl.children(`.${swiper.params.slideClass}[data-hash="${newHash}"]`).index();
+      const newIndex = swiper.$wrapperEl
+        .children(`.${swiper.params.slideClass}[data-hash="${newHash}"]`)
+        .index();
       if (typeof newIndex === 'undefined') return;
       swiper.slideTo(newIndex);
     }
@@ -32,8 +31,16 @@ export default function HashNavigation({
   const setHash = () => {
     if (!initialized || !swiper.params.hashNavigation.enabled) return;
 
-    if (swiper.params.hashNavigation.replaceState && window.history && window.history.replaceState) {
-      window.history.replaceState(null, null, `#${swiper.slides.eq(swiper.activeIndex).attr('data-hash')}` || '');
+    if (
+      swiper.params.hashNavigation.replaceState &&
+      window.history &&
+      window.history.replaceState
+    ) {
+      window.history.replaceState(
+        null,
+        null,
+        `#${swiper.slides.eq(swiper.activeIndex).attr('data-hash')}` || '',
+      );
       emit('hashSet');
     } else {
       const slide = swiper.slides.eq(swiper.activeIndex);
@@ -44,7 +51,11 @@ export default function HashNavigation({
   };
 
   const init = () => {
-    if (!swiper.params.hashNavigation.enabled || swiper.params.history && swiper.params.history.enabled) return;
+    if (
+      !swiper.params.hashNavigation.enabled ||
+      (swiper.params.history && swiper.params.history.enabled)
+    )
+      return;
     initialized = true;
     const hash = document.location.hash.replace('#', '');
 
@@ -55,7 +66,10 @@ export default function HashNavigation({
         const slide = swiper.slides.eq(i);
         const slideHash = slide.attr('data-hash') || slide.attr('data-history');
 
-        if (slideHash === hash && !slide.hasClass(swiper.params.slideDuplicateClass)) {
+        if (
+          slideHash === hash &&
+          !slide.hasClass(swiper.params.slideDuplicateClass)
+        ) {
           const index = slide.index();
           swiper.slideTo(index, speed, swiper.params.runCallbacksOnInit, true);
         }

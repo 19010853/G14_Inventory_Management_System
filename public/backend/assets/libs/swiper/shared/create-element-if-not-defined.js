@@ -1,9 +1,14 @@
 import { getDocument } from 'ssr-window';
-export default function createElementIfNotDefined(swiper, originalParams, params, checkProps) {
+export default function createElementIfNotDefined(
+  swiper,
+  originalParams,
+  params,
+  checkProps,
+) {
   const document = getDocument();
 
   if (swiper.params.createElements) {
-    Object.keys(checkProps).forEach(key => {
+    Object.keys(checkProps).forEach((key) => {
       if (!params[key] && params.auto === true) {
         let element = swiper.$el.children(`.${checkProps[key]}`)[0];
 

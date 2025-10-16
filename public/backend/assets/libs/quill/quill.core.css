@@ -71,24 +71,24 @@
 .ql-editor ul > li::before {
   content: '\2022';
 }
-.ql-editor ul[data-checked=true],
-.ql-editor ul[data-checked=false] {
+.ql-editor ul[data-checked='true'],
+.ql-editor ul[data-checked='false'] {
   pointer-events: none;
 }
-.ql-editor ul[data-checked=true] > li *,
-.ql-editor ul[data-checked=false] > li * {
+.ql-editor ul[data-checked='true'] > li *,
+.ql-editor ul[data-checked='false'] > li * {
   pointer-events: all;
 }
-.ql-editor ul[data-checked=true] > li::before,
-.ql-editor ul[data-checked=false] > li::before {
+.ql-editor ul[data-checked='true'] > li::before,
+.ql-editor ul[data-checked='false'] > li::before {
   color: #777;
   cursor: pointer;
   pointer-events: all;
 }
-.ql-editor ul[data-checked=true] > li::before {
+.ql-editor ul[data-checked='true'] > li::before {
   content: '\2611';
 }
-.ql-editor ul[data-checked=false] > li::before {
+.ql-editor ul[data-checked='false'] > li::before {
   content: '\2610';
 }
 .ql-editor li::before {
@@ -359,10 +359,16 @@
   color: #93f;
 }
 .ql-editor .ql-font-serif {
-  font-family: Georgia, Times New Roman, serif;
+  font-family:
+    Georgia,
+    Times New Roman,
+    serif;
 }
 .ql-editor .ql-font-monospace {
-  font-family: Monaco, Courier New, monospace;
+  font-family:
+    Monaco,
+    Courier New,
+    monospace;
 }
 .ql-editor .ql-size-small {
   font-size: 0.75em;
@@ -387,7 +393,7 @@
   text-align: right;
 }
 .ql-editor.ql-blank::before {
-  color: rgba(0,0,0,0.6);
+  color: rgba(0, 0, 0, 0.6);
   content: attr(data-placeholder);
   font-style: italic;
   left: 15px;

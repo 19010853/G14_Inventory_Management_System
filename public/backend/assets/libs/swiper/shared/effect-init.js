@@ -8,7 +8,7 @@ export default function effectInit(params) {
     overwriteParams,
     perspective,
     recreateShadows,
-    getEffectParams
+    getEffectParams,
   } = params;
   on('beforeInit', () => {
     if (swiper.params.effect !== effect) return;
@@ -36,9 +36,13 @@ export default function effectInit(params) {
     if (recreateShadows) {
       if (!getEffectParams || !getEffectParams().slideShadows) return; // remove shadows
 
-      swiper.slides.each(slideEl => {
+      swiper.slides.each((slideEl) => {
         const $slideEl = swiper.$(slideEl);
-        $slideEl.find('.swiper-slide-shadow-top, .swiper-slide-shadow-right, .swiper-slide-shadow-bottom, .swiper-slide-shadow-left').remove();
+        $slideEl
+          .find(
+            '.swiper-slide-shadow-top, .swiper-slide-shadow-right, .swiper-slide-shadow-bottom, .swiper-slide-shadow-left',
+          )
+          .remove();
       }); // create new one
 
       recreateShadows();

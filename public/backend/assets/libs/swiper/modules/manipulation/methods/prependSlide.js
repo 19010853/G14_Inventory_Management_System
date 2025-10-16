@@ -1,10 +1,6 @@
 export default function prependSlide(slides) {
   const swiper = this;
-  const {
-    params,
-    $wrapperEl,
-    activeIndex
-  } = swiper;
+  const { params, $wrapperEl, activeIndex } = swiper;
 
   if (params.loop) {
     swiper.loopDestroy();

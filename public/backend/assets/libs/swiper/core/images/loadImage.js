@@ -1,6 +1,13 @@
 import { getWindow } from 'ssr-window';
 import $ from '../../shared/dom.js';
-export default function loadImage(imageEl, src, srcset, sizes, checkForComplete, callback) {
+export default function loadImage(
+  imageEl,
+  src,
+  srcset,
+  sizes,
+  checkForComplete,
+  callback,
+) {
   const window = getWindow();
   let image;
 

@@ -7,16 +7,15 @@ export default function updateSlides() {
       return property;
     } // prettier-ignore
 
-
     return {
-      'width': 'height',
+      width: 'height',
       'margin-top': 'margin-left',
       'margin-bottom ': 'margin-right',
       'margin-left': 'margin-top',
       'margin-right': 'margin-bottom',
       'padding-left': 'padding-top',
       'padding-right': 'padding-bottom',
-      'marginRight': 'marginBottom'
+      marginRight: 'marginBottom',
     }[property];
   }
 
@@ -25,14 +24,11 @@ export default function updateSlides() {
   }
 
   const params = swiper.params;
-  const {
-    $wrapperEl,
-    size: swiperSize,
-    rtlTranslate: rtl,
-    wrongRTL
-  } = swiper;
+  const { $wrapperEl, size: swiperSize, rtlTranslate: rtl, wrongRTL } = swiper;
   const isVirtual = swiper.virtual && params.virtual.enabled;
-  const previousSlidesLength = isVirtual ? swiper.virtual.slides.length : swiper.slides.length;
+  const previousSlidesLength = isVirtual
+    ? swiper.virtual.slides.length
+    : swiper.slides.length;
   const slides = $wrapperEl.children(`.${swiper.params.slideClass}`);
   const slidesLength = isVirtual ? swiper.virtual.slides.length : slides.length;
   let snapGrid = [];
@@ -62,20 +58,24 @@ export default function updateSlides() {
   }
 
   if (typeof spaceBetween === 'string' && spaceBetween.indexOf('%') >= 0) {
-    spaceBetween = parseFloat(spaceBetween.replace('%', '')) / 100 * swiperSize;
+    spaceBetween =
+      (parseFloat(spaceBetween.replace('%', '')) / 100) * swiperSize;
   }
 
   swiper.virtualSize = -spaceBetween; // reset margins
 
-  if (rtl) slides.css({
-    marginLeft: '',
-    marginBottom: '',
-    marginTop: ''
-  });else slides.css({
-    marginRight: '',
-    marginBottom: '',
-    marginTop: ''
-  }); // reset cssMode offsets
+  if (rtl)
+    slides.css({
+      marginLeft: '',
+      marginBottom: '',
+      marginTop: '',
+    });
+  else
+    slides.css({
+      marginRight: '',
+      marginBottom: '',
+      marginTop: '',
+    }); // reset cssMode offsets
 
   if (params.centeredSlides && params.cssMode) {
     setCSSProperty(swiper.wrapperEl, '--swiper-centered-offset-before', '');
@@ -88,11 +88,13 @@ export default function updateSlides() {
     swiper.grid.initSlides(slidesLength);
   } // Calc slides
 
-
   let slideSize;
-  const shouldResetSlideSize = params.slidesPerView === 'auto' && params.breakpoints && Object.keys(params.breakpoints).filter(key => {
-    return typeof params.breakpoints[key].slidesPerView !== 'undefined';
-  }).length > 0;
+  const shouldResetSlideSize =
+    params.slidesPerView === 'auto' &&
+    params.breakpoints &&
+    Object.keys(params.breakpoints).filter((key) => {
+      return typeof params.breakpoints[key].slidesPerView !== 'undefined';
+    }).length > 0;
 
   for (let i = 0; i < slidesLength; i += 1) {
     slideSize = 0;
@@ -122,24 +124,41 @@ export default function updateSlides() {
       }
 
       if (params.roundLengths) {
-        slideSize = swiper.isHorizontal() ? slide.outerWidth(true) : slide.outerHeight(true);
+        slideSize = swiper.isHorizontal()
+          ? slide.outerWidth(true)
+          : slide.outerHeight(true);
       } else {
         // eslint-disable-next-line
         const width = getDirectionPropertyValue(slideStyles, 'width');
-        const paddingLeft = getDirectionPropertyValue(slideStyles, 'padding-left');
-        const paddingRight = getDirectionPropertyValue(slideStyles, 'padding-right');
-        const marginLeft = getDirectionPropertyValue(slideStyles, 'margin-left');
-        const marginRight = getDirectionPropertyValue(slideStyles, 'margin-right');
+        const paddingLeft = getDirectionPropertyValue(
+          slideStyles,
+          'padding-left',
+        );
+        const paddingRight = getDirectionPropertyValue(
+          slideStyles,
+          'padding-right',
+        );
+        const marginLeft = getDirectionPropertyValue(
+          slideStyles,
+          'margin-left',
+        );
+        const marginRight = getDirectionPropertyValue(
+          slideStyles,
+          'margin-right',
+        );
         const boxSizing = slideStyles.getPropertyValue('box-sizing');
 
         if (boxSizing && boxSizing === 'border-box') {
           slideSize = width + marginLeft + marginRight;
         } else {
-          const {
-            clientWidth,
-            offsetWidth
-          } = slide[0];
-          slideSize = width + paddingLeft + paddingRight + marginLeft + marginRight + (offsetWidth - clientWidth);
+          const { clientWidth, offsetWidth } = slide[0];
+          slideSize =
+            width +
+            paddingLeft +
+            paddingRight +
+            marginLeft +
+            marginRight +
+            (offsetWidth - clientWidth);
         }
       }
 
@@ -153,7 +172,9 @@ export default function updateSlides() {
 
       if (params.roundLengths) slideSize = Math.floor(slideSize);
     } else {
-      slideSize = (swiperSize - (params.slidesPerView - 1) * spaceBetween) / params.slidesPerView;
+      slideSize =
+        (swiperSize - (params.slidesPerView - 1) * spaceBetween) /
+        params.slidesPerView;
       if (params.roundLengths) slideSize = Math.floor(slideSize);
 
       if (slides[i]) {
@@ -168,16 +189,24 @@ export default function updateSlides() {
     slidesSizesGrid.push(slideSize);
 
     if (params.centeredSlides) {
-      slidePosition = slidePosition + slideSize / 2 + prevSlideSize / 2 + spaceBetween;
-      if (prevSlideSize === 0 && i !== 0) slidePosition = slidePosition - swiperSize / 2 - spaceBetween;
-      if (i === 0) slidePosition = slidePosition - swiperSize / 2 - spaceBetween;
+      slidePosition =
+        slidePosition + slideSize / 2 + prevSlideSize / 2 + spaceBetween;
+      if (prevSlideSize === 0 && i !== 0)
+        slidePosition = slidePosition - swiperSize / 2 - spaceBetween;
+      if (i === 0)
+        slidePosition = slidePosition - swiperSize / 2 - spaceBetween;
       if (Math.abs(slidePosition) < 1 / 1000) slidePosition = 0;
       if (params.roundLengths) slidePosition = Math.floor(slidePosition);
       if (index % params.slidesPerGroup === 0) snapGrid.push(slidePosition);
       slidesGrid.push(slidePosition);
     } else {
       if (params.roundLengths) slidePosition = Math.floor(slidePosition);
-      if ((index - Math.min(swiper.params.slidesPerGroupSkip, index)) % swiper.params.slidesPerGroup === 0) snapGrid.push(slidePosition);
+      if (
+        (index - Math.min(swiper.params.slidesPerGroupSkip, index)) %
+          swiper.params.slidesPerGroup ===
+        0
+      )
+        snapGrid.push(slidePosition);
       slidesGrid.push(slidePosition);
       slidePosition = slidePosition + slideSize + spaceBetween;
     }
@@ -189,22 +218,26 @@ export default function updateSlides() {
 
   swiper.virtualSize = Math.max(swiper.virtualSize, swiperSize) + offsetAfter;
 
-  if (rtl && wrongRTL && (params.effect === 'slide' || params.effect === 'coverflow')) {
+  if (
+    rtl &&
+    wrongRTL &&
+    (params.effect === 'slide' || params.effect === 'coverflow')
+  ) {
     $wrapperEl.css({
-      width: `${swiper.virtualSize + params.spaceBetween}px`
+      width: `${swiper.virtualSize + params.spaceBetween}px`,
     });
   }
 
   if (params.setWrapperSize) {
     $wrapperEl.css({
-      [getDirectionLabel('width')]: `${swiper.virtualSize + params.spaceBetween}px`
+      [getDirectionLabel('width')]:
+        `${swiper.virtualSize + params.spaceBetween}px`,
     });
   }
 
   if (gridEnabled) {
     swiper.grid.updateWrapperSize(slideSize, snapGrid, getDirectionLabel);
   } // Remove last grid elements depending on width
-
 
   if (!params.centeredSlides) {
     const newSlidesGrid = [];
@@ -220,7 +253,11 @@ export default function updateSlides() {
 
     snapGrid = newSlidesGrid;
 
-    if (Math.floor(swiper.virtualSize - swiperSize) - Math.floor(snapGrid[snapGrid.length - 1]) > 1) {
+    if (
+      Math.floor(swiper.virtualSize - swiperSize) -
+        Math.floor(snapGrid[snapGrid.length - 1]) >
+      1
+    ) {
       snapGrid.push(swiper.virtualSize - swiperSize);
     }
   }
@@ -228,28 +265,34 @@ export default function updateSlides() {
   if (snapGrid.length === 0) snapGrid = [0];
 
   if (params.spaceBetween !== 0) {
-    const key = swiper.isHorizontal() && rtl ? 'marginLeft' : getDirectionLabel('marginRight');
-    slides.filter((_, slideIndex) => {
-      if (!params.cssMode) return true;
+    const key =
+      swiper.isHorizontal() && rtl
+        ? 'marginLeft'
+        : getDirectionLabel('marginRight');
+    slides
+      .filter((_, slideIndex) => {
+        if (!params.cssMode) return true;
 
-      if (slideIndex === slides.length - 1) {
-        return false;
-      }
+        if (slideIndex === slides.length - 1) {
+          return false;
+        }
 
-      return true;
-    }).css({
-      [key]: `${spaceBetween}px`
-    });
+        return true;
+      })
+      .css({
+        [key]: `${spaceBetween}px`,
+      });
   }
 
   if (params.centeredSlides && params.centeredSlidesBounds) {
     let allSlidesSize = 0;
-    slidesSizesGrid.forEach(slideSizeValue => {
-      allSlidesSize += slideSizeValue + (params.spaceBetween ? params.spaceBetween : 0);
+    slidesSizesGrid.forEach((slideSizeValue) => {
+      allSlidesSize +=
+        slideSizeValue + (params.spaceBetween ? params.spaceBetween : 0);
     });
     allSlidesSize -= params.spaceBetween;
     const maxSnap = allSlidesSize - swiperSize;
-    snapGrid = snapGrid.map(snap => {
+    snapGrid = snapGrid.map((snap) => {
       if (snap < 0) return -offsetBefore;
       if (snap > maxSnap) return maxSnap + offsetAfter;
       return snap;
@@ -258,8 +301,9 @@ export default function updateSlides() {
 
   if (params.centerInsufficientSlides) {
     let allSlidesSize = 0;
-    slidesSizesGrid.forEach(slideSizeValue => {
-      allSlidesSize += slideSizeValue + (params.spaceBetween ? params.spaceBetween : 0);
+    slidesSizesGrid.forEach((slideSizeValue) => {
+      allSlidesSize +=
+        slideSizeValue + (params.spaceBetween ? params.spaceBetween : 0);
     });
     allSlidesSize -= params.spaceBetween;
 
@@ -278,16 +322,24 @@ export default function updateSlides() {
     slides,
     snapGrid,
     slidesGrid,
-    slidesSizesGrid
+    slidesSizesGrid,
   });
 
   if (params.centeredSlides && params.cssMode && !params.centeredSlidesBounds) {
-    setCSSProperty(swiper.wrapperEl, '--swiper-centered-offset-before', `${-snapGrid[0]}px`);
-    setCSSProperty(swiper.wrapperEl, '--swiper-centered-offset-after', `${swiper.size / 2 - slidesSizesGrid[slidesSizesGrid.length - 1] / 2}px`);
+    setCSSProperty(
+      swiper.wrapperEl,
+      '--swiper-centered-offset-before',
+      `${-snapGrid[0]}px`,
+    );
+    setCSSProperty(
+      swiper.wrapperEl,
+      '--swiper-centered-offset-after',
+      `${swiper.size / 2 - slidesSizesGrid[slidesSizesGrid.length - 1] / 2}px`,
+    );
     const addToSnapGrid = -swiper.snapGrid[0];
     const addToSlidesGrid = -swiper.slidesGrid[0];
-    swiper.snapGrid = swiper.snapGrid.map(v => v + addToSnapGrid);
-    swiper.slidesGrid = swiper.slidesGrid.map(v => v + addToSlidesGrid);
+    swiper.snapGrid = swiper.snapGrid.map((v) => v + addToSnapGrid);
+    swiper.slidesGrid = swiper.slidesGrid.map((v) => v + addToSlidesGrid);
   }
 
   if (slidesLength !== previousSlidesLength) {
@@ -307,7 +359,11 @@ export default function updateSlides() {
     swiper.updateSlidesOffset();
   }
 
-  if (!isVirtual && !params.cssMode && (params.effect === 'slide' || params.effect === 'fade')) {
+  if (
+    !isVirtual &&
+    !params.cssMode &&
+    (params.effect === 'slide' || params.effect === 'fade')
+  ) {
     const backFaceHiddenClass = `${params.containerModifierClass}backface-hidden`;
     const hasClassBackfaceClassAdded = swiper.$el.hasClass(backFaceHiddenClass);
 

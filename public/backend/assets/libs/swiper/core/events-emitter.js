@@ -5,7 +5,7 @@ export default {
     if (!self.eventsListeners || self.destroyed) return self;
     if (typeof handler !== 'function') return self;
     const method = priority ? 'unshift' : 'push';
-    events.split(' ').forEach(event => {
+    events.split(' ').forEach((event) => {
       if (!self.eventsListeners[event]) self.eventsListeners[event] = [];
       self.eventsListeners[event][method](handler);
     });
@@ -61,12 +61,16 @@ export default {
     const self = this;
     if (!self.eventsListeners || self.destroyed) return self;
     if (!self.eventsListeners) return self;
-    events.split(' ').forEach(event => {
+    events.split(' ').forEach((event) => {
       if (typeof handler === 'undefined') {
         self.eventsListeners[event] = [];
       } else if (self.eventsListeners[event]) {
         self.eventsListeners[event].forEach((eventHandler, index) => {
-          if (eventHandler === handler || eventHandler.__emitterProxy && eventHandler.__emitterProxy === handler) {
+          if (
+            eventHandler === handler ||
+            (eventHandler.__emitterProxy &&
+              eventHandler.__emitterProxy === handler)
+          ) {
             self.eventsListeners[event].splice(index, 1);
           }
         });
@@ -95,20 +99,19 @@ export default {
 
     data.unshift(context);
     const eventsArray = Array.isArray(events) ? events : events.split(' ');
-    eventsArray.forEach(event => {
+    eventsArray.forEach((event) => {
       if (self.eventsAnyListeners && self.eventsAnyListeners.length) {
-        self.eventsAnyListeners.forEach(eventHandler => {
+        self.eventsAnyListeners.forEach((eventHandler) => {
           eventHandler.apply(context, [event, ...data]);
         });
       }
 
       if (self.eventsListeners && self.eventsListeners[event]) {
-        self.eventsListeners[event].forEach(eventHandler => {
+        self.eventsListeners[event].forEach((eventHandler) => {
           eventHandler.apply(context, data);
         });
       }
     });
     return self;
-  }
-
+  },
 };

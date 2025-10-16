@@ -1,10 +1,6 @@
 import classesToSelector from '../../shared/classes-to-selector.js';
 import $ from '../../shared/dom.js';
-export default function A11y({
-  swiper,
-  extendParams,
-  on
-}) {
+export default function A11y({ swiper, extendParams, on }) {
   extendParams({
     a11y: {
       enabled: true,
@@ -19,11 +15,11 @@ export default function A11y({
       containerRoleDescriptionMessage: null,
       itemRoleDescriptionMessage: null,
       slideRole: 'group',
-      id: null
-    }
+      id: null,
+    },
   });
   swiper.a11y = {
-    clicked: false
+    clicked: false,
   };
   let liveRegion = null;
 
@@ -85,7 +81,11 @@ export default function A11y({
     const params = swiper.params.a11y;
     const $targetEl = $(e.target);
 
-    if (swiper.navigation && swiper.navigation.$nextEl && $targetEl.is(swiper.navigation.$nextEl)) {
+    if (
+      swiper.navigation &&
+      swiper.navigation.$nextEl &&
+      $targetEl.is(swiper.navigation.$nextEl)
+    ) {
       if (!(swiper.isEnd && !swiper.params.loop)) {
         swiper.slideNext();
       }
@@ -97,7 +97,11 @@ export default function A11y({
       }
     }
 
-    if (swiper.navigation && swiper.navigation.$prevEl && $targetEl.is(swiper.navigation.$prevEl)) {
+    if (
+      swiper.navigation &&
+      swiper.navigation.$prevEl &&
+      $targetEl.is(swiper.navigation.$prevEl)
+    ) {
       if (!(swiper.isBeginning && !swiper.params.loop)) {
         swiper.slidePrev();
       }
@@ -109,17 +113,18 @@ export default function A11y({
       }
     }
 
-    if (swiper.pagination && $targetEl.is(classesToSelector(swiper.params.pagination.bulletClass))) {
+    if (
+      swiper.pagination &&
+      $targetEl.is(classesToSelector(swiper.params.pagination.bulletClass))
+    ) {
       $targetEl[0].click();
     }
   }
 
   function updateNavigation() {
-    if (swiper.params.loop || swiper.params.rewind || !swiper.navigation) return;
-    const {
-      $nextEl,
-      $prevEl
-    } = swiper.navigation;
+    if (swiper.params.loop || swiper.params.rewind || !swiper.navigation)
+      return;
+    const { $nextEl, $prevEl } = swiper.navigation;
 
     if ($prevEl && $prevEl.length > 0) {
       if (swiper.isBeginning) {
@@ -143,7 +148,11 @@ export default function A11y({
   }
 
   function hasPagination() {
-    return swiper.pagination && swiper.pagination.bullets && swiper.pagination.bullets.length;
+    return (
+      swiper.pagination &&
+      swiper.pagination.bullets &&
+      swiper.pagination.bullets.length
+    );
   }
 
   function hasClickablePagination() {
@@ -153,7 +162,7 @@ export default function A11y({
   function updatePagination() {
     const params = swiper.params.a11y;
     if (!hasPagination()) return;
-    swiper.pagination.bullets.each(bulletEl => {
+    swiper.pagination.bullets.each((bulletEl) => {
       const $bulletEl = $(bulletEl);
 
       if (swiper.params.pagination.clickable) {
@@ -161,7 +170,13 @@ export default function A11y({
 
         if (!swiper.params.pagination.renderBullet) {
           addElRole($bulletEl, 'button');
-          addElLabel($bulletEl, params.paginationBulletMessage.replace(/\{\{index\}\}/, $bulletEl.index() + 1));
+          addElLabel(
+            $bulletEl,
+            params.paginationBulletMessage.replace(
+              /\{\{index\}\}/,
+              $bulletEl.index() + 1,
+            ),
+          );
         }
       }
 
@@ -199,12 +214,15 @@ export default function A11y({
     });
   };
 
-  const handleFocus = e => {
+  const handleFocus = (e) => {
     if (swiper.a11y.clicked) return;
     const slideEl = e.target.closest(`.${swiper.params.slideClass}`);
     if (!slideEl || !swiper.slides.includes(slideEl)) return;
     const isActive = swiper.slides.indexOf(slideEl) === swiper.activeIndex;
-    const isVisible = swiper.params.watchSlidesProgress && swiper.visibleSlides && swiper.visibleSlides.includes(slideEl);
+    const isVisible =
+      swiper.params.watchSlidesProgress &&
+      swiper.visibleSlides &&
+      swiper.visibleSlides.includes(slideEl);
     if (isActive || isVisible) return;
     if (e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
 
@@ -228,13 +246,21 @@ export default function A11y({
       addElRole($(swiper.slides), params.slideRole);
     }
 
-    const slidesLength = swiper.params.loop ? swiper.slides.filter(el => !el.classList.contains(swiper.params.slideDuplicateClass)).length : swiper.slides.length;
+    const slidesLength = swiper.params.loop
+      ? swiper.slides.filter(
+          (el) => !el.classList.contains(swiper.params.slideDuplicateClass),
+        ).length
+      : swiper.slides.length;
 
     if (params.slideLabelMessage) {
       swiper.slides.each((slideEl, index) => {
         const $slideEl = $(slideEl);
-        const slideIndex = swiper.params.loop ? parseInt($slideEl.attr('data-swiper-slide-index'), 10) : index;
-        const ariaLabelMessage = params.slideLabelMessage.replace(/\{\{index\}\}/, slideIndex + 1).replace(/\{\{slidesLength\}\}/, slidesLength);
+        const slideIndex = swiper.params.loop
+          ? parseInt($slideEl.attr('data-swiper-slide-index'), 10)
+          : index;
+        const ariaLabelMessage = params.slideLabelMessage
+          .replace(/\{\{index\}\}/, slideIndex + 1)
+          .replace(/\{\{slidesLength\}\}/, slidesLength);
         addElLabel($slideEl, ariaLabelMessage);
       });
     }
@@ -247,17 +273,25 @@ export default function A11y({
     const $containerEl = swiper.$el;
 
     if (params.containerRoleDescriptionMessage) {
-      addElRoleDescription($containerEl, params.containerRoleDescriptionMessage);
+      addElRoleDescription(
+        $containerEl,
+        params.containerRoleDescriptionMessage,
+      );
     }
 
     if (params.containerMessage) {
       addElLabel($containerEl, params.containerMessage);
     } // Wrapper
 
-
     const $wrapperEl = swiper.$wrapperEl;
-    const wrapperId = params.id || $wrapperEl.attr('id') || `swiper-wrapper-${getRandomNumber(16)}`;
-    const live = swiper.params.autoplay && swiper.params.autoplay.enabled ? 'off' : 'polite';
+    const wrapperId =
+      params.id ||
+      $wrapperEl.attr('id') ||
+      `swiper-wrapper-${getRandomNumber(16)}`;
+    const live =
+      swiper.params.autoplay && swiper.params.autoplay.enabled
+        ? 'off'
+        : 'polite';
     addElId($wrapperEl, wrapperId);
     addElLive($wrapperEl, live); // Slide
 
@@ -282,11 +316,13 @@ export default function A11y({
       initNavEl($prevEl, wrapperId, params.prevSlideMessage);
     } // Pagination
 
-
     if (hasClickablePagination()) {
-      swiper.pagination.$el.on('keydown', classesToSelector(swiper.params.pagination.bulletClass), onEnterOrSpaceKey);
+      swiper.pagination.$el.on(
+        'keydown',
+        classesToSelector(swiper.params.pagination.bulletClass),
+        onEnterOrSpaceKey,
+      );
     } // Tab focus
-
 
     swiper.$el.on('focus', handleFocus, true);
     swiper.$el.on('pointerdown', handlePointerDown, true);
@@ -314,11 +350,13 @@ export default function A11y({
       $prevEl.off('keydown', onEnterOrSpaceKey);
     } // Pagination
 
-
     if (hasClickablePagination()) {
-      swiper.pagination.$el.off('keydown', classesToSelector(swiper.params.pagination.bulletClass), onEnterOrSpaceKey);
+      swiper.pagination.$el.off(
+        'keydown',
+        classesToSelector(swiper.params.pagination.bulletClass),
+        onEnterOrSpaceKey,
+      );
     } // Tab focus
-
 
     swiper.$el.off('focus', handleFocus, true);
     swiper.$el.off('pointerdown', handlePointerDown, true);
@@ -326,7 +364,9 @@ export default function A11y({
   }
 
   on('beforeInit', () => {
-    liveRegion = $(`<span class="${swiper.params.a11y.notificationClass}" aria-live="assertive" aria-atomic="true"></span>`);
+    liveRegion = $(
+      `<span class="${swiper.params.a11y.notificationClass}" aria-live="assertive" aria-atomic="true"></span>`,
+    );
   });
   on('afterInit', () => {
     if (!swiper.params.a11y.enabled) return;
