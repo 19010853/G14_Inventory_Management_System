@@ -23,11 +23,7 @@ export default function onTouchStart(event) {
   const document = getDocument();
   const window = getWindow();
   const data = swiper.touchEventsData;
-  const {
-    params,
-    touches,
-    enabled
-  } = swiper;
+  const { params, touches, enabled } = swiper;
   if (!enabled) return;
 
   if (swiper.animating && params.preventInteractionOnTransition) {
@@ -51,7 +47,8 @@ export default function onTouchStart(event) {
   if (!data.isTouchEvent && 'button' in e && e.button > 0) return;
   if (data.isTouched && data.isMoved) return; // change target el for shadow root component
 
-  const swipingClassHasValue = !!params.noSwipingClass && params.noSwipingClass !== ''; // eslint-disable-next-line
+  const swipingClassHasValue =
+    !!params.noSwipingClass && params.noSwipingClass !== ''; // eslint-disable-next-line
 
   const eventPath = event.composedPath ? event.composedPath() : event.path;
 
@@ -59,10 +56,17 @@ export default function onTouchStart(event) {
     $targetEl = $(eventPath[0]);
   }
 
-  const noSwipingSelector = params.noSwipingSelector ? params.noSwipingSelector : `.${params.noSwipingClass}`;
+  const noSwipingSelector = params.noSwipingSelector
+    ? params.noSwipingSelector
+    : `.${params.noSwipingClass}`;
   const isTargetShadow = !!(e.target && e.target.shadowRoot); // use closestElement for shadow root element to get the actual closest for nested shadow root element
 
-  if (params.noSwiping && (isTargetShadow ? closestElement(noSwipingSelector, $targetEl[0]) : $targetEl.closest(noSwipingSelector)[0])) {
+  if (
+    params.noSwiping &&
+    (isTargetShadow
+      ? closestElement(noSwipingSelector, $targetEl[0])
+      : $targetEl.closest(noSwipingSelector)[0])
+  ) {
     swiper.allowClick = true;
     return;
   }
@@ -71,15 +75,23 @@ export default function onTouchStart(event) {
     if (!$targetEl.closest(params.swipeHandler)[0]) return;
   }
 
-  touches.currentX = e.type === 'touchstart' ? e.targetTouches[0].pageX : e.pageX;
-  touches.currentY = e.type === 'touchstart' ? e.targetTouches[0].pageY : e.pageY;
+  touches.currentX =
+    e.type === 'touchstart' ? e.targetTouches[0].pageX : e.pageX;
+  touches.currentY =
+    e.type === 'touchstart' ? e.targetTouches[0].pageY : e.pageY;
   const startX = touches.currentX;
   const startY = touches.currentY; // Do NOT start if iOS edge swipe is detected. Otherwise iOS app cannot swipe-to-go-back anymore
 
-  const edgeSwipeDetection = params.edgeSwipeDetection || params.iOSEdgeSwipeDetection;
-  const edgeSwipeThreshold = params.edgeSwipeThreshold || params.iOSEdgeSwipeThreshold;
+  const edgeSwipeDetection =
+    params.edgeSwipeDetection || params.iOSEdgeSwipeDetection;
+  const edgeSwipeThreshold =
+    params.edgeSwipeThreshold || params.iOSEdgeSwipeThreshold;
 
-  if (edgeSwipeDetection && (startX <= edgeSwipeThreshold || startX >= window.innerWidth - edgeSwipeThreshold)) {
+  if (
+    edgeSwipeDetection &&
+    (startX <= edgeSwipeThreshold ||
+      startX >= window.innerWidth - edgeSwipeThreshold)
+  ) {
     if (edgeSwipeDetection === 'prevent') {
       event.preventDefault();
     } else {
@@ -92,7 +104,7 @@ export default function onTouchStart(event) {
     isMoved: false,
     allowTouchCallbacks: true,
     isScrolling: undefined,
-    startMoving: undefined
+    startMoving: undefined,
   });
   touches.startX = startX;
   touches.startY = startY;
@@ -113,18 +125,34 @@ export default function onTouchStart(event) {
       }
     }
 
-    if (document.activeElement && $(document.activeElement).is(data.focusableElements) && document.activeElement !== $targetEl[0]) {
+    if (
+      document.activeElement &&
+      $(document.activeElement).is(data.focusableElements) &&
+      document.activeElement !== $targetEl[0]
+    ) {
       document.activeElement.blur();
     }
 
-    const shouldPreventDefault = preventDefault && swiper.allowTouchMove && params.touchStartPreventDefault;
+    const shouldPreventDefault =
+      preventDefault &&
+      swiper.allowTouchMove &&
+      params.touchStartPreventDefault;
 
-    if ((params.touchStartForcePreventDefault || shouldPreventDefault) && !$targetEl[0].isContentEditable) {
+    if (
+      (params.touchStartForcePreventDefault || shouldPreventDefault) &&
+      !$targetEl[0].isContentEditable
+    ) {
       e.preventDefault();
     }
   }
 
-  if (swiper.params.freeMode && swiper.params.freeMode.enabled && swiper.freeMode && swiper.animating && !params.cssMode) {
+  if (
+    swiper.params.freeMode &&
+    swiper.params.freeMode.enabled &&
+    swiper.freeMode &&
+    swiper.animating &&
+    !params.cssMode
+  ) {
     swiper.freeMode.onTouchStart();
   }
 

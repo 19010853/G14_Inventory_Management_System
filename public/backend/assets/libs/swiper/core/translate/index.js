@@ -8,5 +8,5 @@ export default {
   setTranslate,
   minTranslate,
   maxTranslate,
-  translateTo
+  translateTo,
 };

@@ -2,12 +2,7 @@ import { getDocument } from 'ssr-window';
 import $ from '../../shared/dom.js';
 import { nextTick } from '../../shared/utils.js';
 import createElementIfNotDefined from '../../shared/create-element-if-not-defined.js';
-export default function Scrollbar({
-  swiper,
-  extendParams,
-  on,
-  emit
-}) {
+export default function Scrollbar({ swiper, extendParams, on, emit }) {
   const document = getDocument();
   let isTouched = false;
   let timeout = null;
@@ -27,27 +22,20 @@ export default function Scrollbar({
       dragClass: 'swiper-scrollbar-drag',
       scrollbarDisabledClass: 'swiper-scrollbar-disabled',
       horizontalClass: `swiper-scrollbar-horizontal`,
-      verticalClass: `swiper-scrollbar-vertical`
-    }
+      verticalClass: `swiper-scrollbar-vertical`,
+    },
   });
   swiper.scrollbar = {
     el: null,
     dragEl: null,
     $el: null,
-    $dragEl: null
+    $dragEl: null,
   };
 
   function setTranslate() {
     if (!swiper.params.scrollbar.el || !swiper.scrollbar.el) return;
-    const {
-      scrollbar,
-      rtlTranslate: rtl,
-      progress
-    } = swiper;
-    const {
-      $dragEl,
-      $el
-    } = scrollbar;
+    const { scrollbar, rtlTranslate: rtl, progress } = swiper;
+    const { $dragEl, $el } = scrollbar;
     const params = swiper.params.scrollbar;
     let newSize = dragSize;
     let newPos = (trackSize - dragSize) * progress;
@@ -93,17 +81,18 @@ export default function Scrollbar({
 
   function updateSize() {
     if (!swiper.params.scrollbar.el || !swiper.scrollbar.el) return;
-    const {
-      scrollbar
-    } = swiper;
-    const {
-      $dragEl,
-      $el
-    } = scrollbar;
+    const { scrollbar } = swiper;
+    const { $dragEl, $el } = scrollbar;
     $dragEl[0].style.width = '';
     $dragEl[0].style.height = '';
-    trackSize = swiper.isHorizontal() ? $el[0].offsetWidth : $el[0].offsetHeight;
-    divider = swiper.size / (swiper.virtualSize + swiper.params.slidesOffsetBefore - (swiper.params.centeredSlides ? swiper.snapGrid[0] : 0));
+    trackSize = swiper.isHorizontal()
+      ? $el[0].offsetWidth
+      : $el[0].offsetHeight;
+    divider =
+      swiper.size /
+      (swiper.virtualSize +
+        swiper.params.slidesOffsetBefore -
+        (swiper.params.centeredSlides ? swiper.snapGrid[0] : 0));
 
     if (swiper.params.scrollbar.dragSize === 'auto') {
       dragSize = trackSize * divider;
@@ -128,35 +117,42 @@ export default function Scrollbar({
     }
 
     if (swiper.params.watchOverflow && swiper.enabled) {
-      scrollbar.$el[swiper.isLocked ? 'addClass' : 'removeClass'](swiper.params.scrollbar.lockClass);
+      scrollbar.$el[swiper.isLocked ? 'addClass' : 'removeClass'](
+        swiper.params.scrollbar.lockClass,
+      );
     }
   }
 
   function getPointerPosition(e) {
     if (swiper.isHorizontal()) {
-      return e.type === 'touchstart' || e.type === 'touchmove' ? e.targetTouches[0].clientX : e.clientX;
+      return e.type === 'touchstart' || e.type === 'touchmove'
+        ? e.targetTouches[0].clientX
+        : e.clientX;
     }
 
-    return e.type === 'touchstart' || e.type === 'touchmove' ? e.targetTouches[0].clientY : e.clientY;
+    return e.type === 'touchstart' || e.type === 'touchmove'
+      ? e.targetTouches[0].clientY
+      : e.clientY;
   }
 
   function setDragPosition(e) {
-    const {
-      scrollbar,
-      rtlTranslate: rtl
-    } = swiper;
-    const {
-      $el
-    } = scrollbar;
+    const { scrollbar, rtlTranslate: rtl } = swiper;
+    const { $el } = scrollbar;
     let positionRatio;
-    positionRatio = (getPointerPosition(e) - $el.offset()[swiper.isHorizontal() ? 'left' : 'top'] - (dragStartPos !== null ? dragStartPos : dragSize / 2)) / (trackSize - dragSize);
+    positionRatio =
+      (getPointerPosition(e) -
+        $el.offset()[swiper.isHorizontal() ? 'left' : 'top'] -
+        (dragStartPos !== null ? dragStartPos : dragSize / 2)) /
+      (trackSize - dragSize);
     positionRatio = Math.max(Math.min(positionRatio, 1), 0);
 
     if (rtl) {
       positionRatio = 1 - positionRatio;
     }
 
-    const position = swiper.minTranslate() + (swiper.maxTranslate() - swiper.minTranslate()) * positionRatio;
+    const position =
+      swiper.minTranslate() +
+      (swiper.maxTranslate() - swiper.minTranslate()) * positionRatio;
     swiper.updateProgress(position);
     swiper.setTranslate(position);
     swiper.updateActiveIndex();
@@ -165,16 +161,16 @@ export default function Scrollbar({
 
   function onDragStart(e) {
     const params = swiper.params.scrollbar;
-    const {
-      scrollbar,
-      $wrapperEl
-    } = swiper;
-    const {
-      $el,
-      $dragEl
-    } = scrollbar;
+    const { scrollbar, $wrapperEl } = swiper;
+    const { $el, $dragEl } = scrollbar;
     isTouched = true;
-    dragStartPos = e.target === $dragEl[0] || e.target === $dragEl ? getPointerPosition(e) - e.target.getBoundingClientRect()[swiper.isHorizontal() ? 'left' : 'top'] : null;
+    dragStartPos =
+      e.target === $dragEl[0] || e.target === $dragEl
+        ? getPointerPosition(e) -
+          e.target.getBoundingClientRect()[
+            swiper.isHorizontal() ? 'left' : 'top'
+          ]
+        : null;
     e.preventDefault();
     e.stopPropagation();
     $wrapperEl.transition(100);
@@ -195,16 +191,11 @@ export default function Scrollbar({
   }
 
   function onDragMove(e) {
-    const {
-      scrollbar,
-      $wrapperEl
-    } = swiper;
-    const {
-      $el,
-      $dragEl
-    } = scrollbar;
+    const { scrollbar, $wrapperEl } = swiper;
+    const { $el, $dragEl } = scrollbar;
     if (!isTouched) return;
-    if (e.preventDefault) e.preventDefault();else e.returnValue = false;
+    if (e.preventDefault) e.preventDefault();
+    else e.returnValue = false;
     setDragPosition(e);
     $wrapperEl.transition(0);
     $el.transition(0);
@@ -214,13 +205,8 @@ export default function Scrollbar({
 
   function onDragEnd(e) {
     const params = swiper.params.scrollbar;
-    const {
-      scrollbar,
-      $wrapperEl
-    } = swiper;
-    const {
-      $el
-    } = scrollbar;
+    const { scrollbar, $wrapperEl } = swiper;
+    const { $el } = scrollbar;
     if (!isTouched) return;
     isTouched = false;
 
@@ -245,30 +231,40 @@ export default function Scrollbar({
   }
 
   function events(method) {
-    const {
-      scrollbar,
-      touchEventsTouch,
-      touchEventsDesktop,
-      params,
-      support
-    } = swiper;
+    const { scrollbar, touchEventsTouch, touchEventsDesktop, params, support } =
+      swiper;
     const $el = scrollbar.$el;
     if (!$el) return;
     const target = $el[0];
-    const activeListener = support.passiveListener && params.passiveListeners ? {
-      passive: false,
-      capture: false
-    } : false;
-    const passiveListener = support.passiveListener && params.passiveListeners ? {
-      passive: true,
-      capture: false
-    } : false;
+    const activeListener =
+      support.passiveListener && params.passiveListeners
+        ? {
+            passive: false,
+            capture: false,
+          }
+        : false;
+    const passiveListener =
+      support.passiveListener && params.passiveListeners
+        ? {
+            passive: true,
+            capture: false,
+          }
+        : false;
     if (!target) return;
-    const eventMethod = method === 'on' ? 'addEventListener' : 'removeEventListener';
+    const eventMethod =
+      method === 'on' ? 'addEventListener' : 'removeEventListener';
 
     if (!support.touch) {
-      target[eventMethod](touchEventsDesktop.start, onDragStart, activeListener);
-      document[eventMethod](touchEventsDesktop.move, onDragMove, activeListener);
+      target[eventMethod](
+        touchEventsDesktop.start,
+        onDragStart,
+        activeListener,
+      );
+      document[eventMethod](
+        touchEventsDesktop.move,
+        onDragMove,
+        activeListener,
+      );
       document[eventMethod](touchEventsDesktop.end, onDragEnd, passiveListener);
     } else {
       target[eventMethod](touchEventsTouch.start, onDragStart, activeListener);
@@ -288,22 +284,31 @@ export default function Scrollbar({
   }
 
   function init() {
-    const {
-      scrollbar,
-      $el: $swiperEl
-    } = swiper;
-    swiper.params.scrollbar = createElementIfNotDefined(swiper, swiper.originalParams.scrollbar, swiper.params.scrollbar, {
-      el: 'swiper-scrollbar'
-    });
+    const { scrollbar, $el: $swiperEl } = swiper;
+    swiper.params.scrollbar = createElementIfNotDefined(
+      swiper,
+      swiper.originalParams.scrollbar,
+      swiper.params.scrollbar,
+      {
+        el: 'swiper-scrollbar',
+      },
+    );
     const params = swiper.params.scrollbar;
     if (!params.el) return;
     let $el = $(params.el);
 
-    if (swiper.params.uniqueNavElements && typeof params.el === 'string' && $el.length > 1 && $swiperEl.find(params.el).length === 1) {
+    if (
+      swiper.params.uniqueNavElements &&
+      typeof params.el === 'string' &&
+      $el.length > 1 &&
+      $swiperEl.find(params.el).length === 1
+    ) {
       $el = $swiperEl.find(params.el);
     }
 
-    $el.addClass(swiper.isHorizontal() ? params.horizontalClass : params.verticalClass);
+    $el.addClass(
+      swiper.isHorizontal() ? params.horizontalClass : params.verticalClass,
+    );
     let $dragEl = $el.find(`.${swiper.params.scrollbar.dragClass}`);
 
     if ($dragEl.length === 0) {
@@ -315,7 +320,7 @@ export default function Scrollbar({
       $el,
       el: $el[0],
       $dragEl,
-      dragEl: $dragEl[0]
+      dragEl: $dragEl[0],
     });
 
     if (params.draggable) {
@@ -323,7 +328,9 @@ export default function Scrollbar({
     }
 
     if ($el) {
-      $el[swiper.enabled ? 'removeClass' : 'addClass'](swiper.params.scrollbar.lockClass);
+      $el[swiper.enabled ? 'removeClass' : 'addClass'](
+        swiper.params.scrollbar.lockClass,
+      );
     }
   }
 
@@ -332,7 +339,9 @@ export default function Scrollbar({
     const $el = swiper.scrollbar.$el;
 
     if ($el) {
-      $el.removeClass(swiper.isHorizontal() ? params.horizontalClass : params.verticalClass);
+      $el.removeClass(
+        swiper.isHorizontal() ? params.horizontalClass : params.verticalClass,
+      );
     }
 
     disableDraggable();
@@ -358,12 +367,12 @@ export default function Scrollbar({
     setTransition(duration);
   });
   on('enable disable', () => {
-    const {
-      $el
-    } = swiper.scrollbar;
+    const { $el } = swiper.scrollbar;
 
     if ($el) {
-      $el[swiper.enabled ? 'removeClass' : 'addClass'](swiper.params.scrollbar.lockClass);
+      $el[swiper.enabled ? 'removeClass' : 'addClass'](
+        swiper.params.scrollbar.lockClass,
+      );
     }
   });
   on('destroy', () => {
@@ -374,7 +383,9 @@ export default function Scrollbar({
     swiper.$el.removeClass(swiper.params.scrollbar.scrollbarDisabledClass);
 
     if (swiper.scrollbar.$el) {
-      swiper.scrollbar.$el.removeClass(swiper.params.scrollbar.scrollbarDisabledClass);
+      swiper.scrollbar.$el.removeClass(
+        swiper.params.scrollbar.scrollbarDisabledClass,
+      );
     }
 
     init();
@@ -386,7 +397,9 @@ export default function Scrollbar({
     swiper.$el.addClass(swiper.params.scrollbar.scrollbarDisabledClass);
 
     if (swiper.scrollbar.$el) {
-      swiper.scrollbar.$el.addClass(swiper.params.scrollbar.scrollbarDisabledClass);
+      swiper.scrollbar.$el.addClass(
+        swiper.params.scrollbar.scrollbarDisabledClass,
+      );
     }
 
     destroy();
@@ -398,6 +411,6 @@ export default function Scrollbar({
     updateSize,
     setTranslate,
     init,
-    destroy
+    destroy,
   });
 }

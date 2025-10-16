@@ -1,4 +1,9 @@
-export default function slideToLoop(index = 0, speed = this.params.speed, runCallbacks = true, internal) {
+export default function slideToLoop(
+  index = 0,
+  speed = this.params.speed,
+  runCallbacks = true,
+  internal,
+) {
   if (typeof index === 'string') {
     /**
      * The `index` argument converted from `string` to `number`.
@@ -14,10 +19,11 @@ export default function slideToLoop(index = 0, speed = this.params.speed, runCal
     const isValidNumber = isFinite(indexAsNumber);
 
     if (!isValidNumber) {
-      throw new Error(`The passed-in 'index' (string) couldn't be converted to 'number'. [${index}] given.`);
+      throw new Error(
+        `The passed-in 'index' (string) couldn't be converted to 'number'. [${index}] given.`,
+      );
     } // Knowing that the converted `index` is a valid number,
     // we can update the original argument's value.
-
 
     index = indexAsNumber;
   }

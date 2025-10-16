@@ -8,7 +8,7 @@ export default function loopFix() {
     allowSlidePrev,
     allowSlideNext,
     snapGrid,
-    rtlTranslate: rtl
+    rtlTranslate: rtl,
   } = swiper;
   let newIndex;
   swiper.allowSlidePrev = true;

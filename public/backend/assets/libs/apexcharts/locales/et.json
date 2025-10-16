@@ -38,15 +38,7 @@
       "reede",
       "laupäev"
     ],
-    "shortDays": [
-      "P",
-      "E",
-      "T",
-      "K",
-      "N",
-      "R",
-      "L"
-    ],
+    "shortDays": ["P", "E", "T", "K", "N", "R", "L"],
     "toolbar": {
       "exportToSVG": "Lae alla SVG",
       "exportToPNG": "Lae alla PNG",

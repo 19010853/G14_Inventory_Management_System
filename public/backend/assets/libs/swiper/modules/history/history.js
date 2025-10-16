@@ -1,26 +1,28 @@
 import { getWindow } from 'ssr-window';
-export default function History({
-  swiper,
-  extendParams,
-  on
-}) {
+export default function History({ swiper, extendParams, on }) {
   extendParams({
     history: {
       enabled: false,
       root: '',
       replaceState: false,
       key: 'slides',
-      keepQuery: false
-    }
+      keepQuery: false,
+    },
   });
   let initialized = false;
   let paths = {};
 
-  const slugify = text => {
-    return text.toString().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
+  const slugify = (text) => {
+    return text
+      .toString()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]+/g, '')
+      .replace(/--+/g, '-')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '');
   };
 
-  const getPathValues = urlOverride => {
+  const getPathValues = (urlOverride) => {
     const window = getWindow();
     let location;
 
@@ -30,13 +32,16 @@ export default function History({
       location = window.location;
     }
 
-    const pathArray = location.pathname.slice(1).split('/').filter(part => part !== '');
+    const pathArray = location.pathname
+      .slice(1)
+      .split('/')
+      .filter((part) => part !== '');
     const total = pathArray.length;
     const key = pathArray[total - 2];
     const value = pathArray[total - 1];
     return {
       key,
-      value
+      value,
     };
   };
 
@@ -73,13 +78,21 @@ export default function History({
     }
 
     if (swiper.params.history.replaceState) {
-      window.history.replaceState({
-        value
-      }, null, value);
+      window.history.replaceState(
+        {
+          value,
+        },
+        null,
+        value,
+      );
     } else {
-      window.history.pushState({
-        value
-      }, null, value);
+      window.history.pushState(
+        {
+          value,
+        },
+        null,
+        value,
+      );
     }
   };
 
@@ -89,7 +102,10 @@ export default function History({
         const slide = swiper.slides.eq(i);
         const slideHistory = slugify(slide.attr('data-history'));
 
-        if (slideHistory === value && !slide.hasClass(swiper.params.slideDuplicateClass)) {
+        if (
+          slideHistory === value &&
+          !slide.hasClass(swiper.params.slideDuplicateClass)
+        ) {
           const index = slide.index();
           swiper.slideTo(index, speed, runCallbacks);
         }

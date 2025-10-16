@@ -5,9 +5,14 @@ function calcSupport() {
   const window = getWindow();
   const document = getDocument();
   return {
-    smoothScroll: document.documentElement && 'scrollBehavior' in document.documentElement.style,
-    touch: !!('ontouchstart' in window || window.DocumentTouch && document instanceof window.DocumentTouch),
-    passiveListener: function checkPassiveListener() {
+    smoothScroll:
+      document.documentElement &&
+      'scrollBehavior' in document.documentElement.style,
+    touch: !!(
+      'ontouchstart' in window ||
+      (window.DocumentTouch && document instanceof window.DocumentTouch)
+    ),
+    passiveListener: (function checkPassiveListener() {
       let supportsPassive = false;
 
       try {
@@ -15,18 +20,18 @@ function calcSupport() {
           // eslint-disable-next-line
           get() {
             supportsPassive = true;
-          }
-
+          },
         });
         window.addEventListener('testPassiveListener', null, opts);
-      } catch (e) {// No support
+      } catch (e) {
+        // No support
       }
 
       return supportsPassive;
-    }(),
-    gestures: function checkGestures() {
+    })(),
+    gestures: (function checkGestures() {
       return 'ongesturestart' in window;
-    }()
+    })(),
   };
 }
 

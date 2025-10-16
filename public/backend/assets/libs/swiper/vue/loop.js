@@ -11,19 +11,26 @@ function renderLoop(swiperRef, slides, swiperParams) {
 
   function duplicateSlide(child, index, position) {
     if (!child.props) child.props = {};
-    return h(child.type, { ...child.props,
-      key: `${child.key}-duplicate-${index}-${position}`,
-      class: `${child.props.className || ''} ${swiperParams.slideDuplicateClass} ${child.props.class || ''}`
-    }, child.children);
+    return h(
+      child.type,
+      {
+        ...child.props,
+        key: `${child.key}-duplicate-${index}-${position}`,
+        class: `${child.props.className || ''} ${swiperParams.slideDuplicateClass} ${child.props.class || ''}`,
+      },
+      child.children,
+    );
   }
 
   if (swiperParams.loopFillGroupWithBlank) {
-    const blankSlidesNum = swiperParams.slidesPerGroup - modifiedSlides.length % swiperParams.slidesPerGroup;
+    const blankSlidesNum =
+      swiperParams.slidesPerGroup -
+      (modifiedSlides.length % swiperParams.slidesPerGroup);
 
     if (blankSlidesNum !== swiperParams.slidesPerGroup) {
       for (let i = 0; i < blankSlidesNum; i += 1) {
         const blankSlide = h('div', {
-          class: `${swiperParams.slideClass} ${swiperParams.slideBlankClass}`
+          class: `${swiperParams.slideClass} ${swiperParams.slideBlankClass}`,
         });
         modifiedSlides.push(blankSlide);
       }
@@ -39,9 +46,16 @@ function renderLoop(swiperRef, slides, swiperParams) {
   const appendSlides = [];
 
   for (let i = 0; i < loopedSlides; i += 1) {
-    const index = i - Math.floor(i / modifiedSlides.length) * modifiedSlides.length;
+    const index =
+      i - Math.floor(i / modifiedSlides.length) * modifiedSlides.length;
     appendSlides.push(duplicateSlide(modifiedSlides[index], i, 'append'));
-    prependSlides.unshift(duplicateSlide(modifiedSlides[modifiedSlides.length - index - 1], i, 'prepend'));
+    prependSlides.unshift(
+      duplicateSlide(
+        modifiedSlides[modifiedSlides.length - index - 1],
+        i,
+        'prepend',
+      ),
+    );
   }
 
   if (swiperRef.value) {

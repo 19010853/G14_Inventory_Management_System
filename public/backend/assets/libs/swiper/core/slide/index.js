@@ -12,5 +12,5 @@ export default {
   slidePrev,
   slideReset,
   slideToClosest,
-  slideToClickedSlide
+  slideToClickedSlide,
 };

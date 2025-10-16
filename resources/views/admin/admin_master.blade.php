@@ -1,83 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A fully featured admin theme which can be used to build CRM, CMS, etc."
+    />
+    <meta name="author" content="Zoyothemes" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <head>
+    <!-- App favicon -->
+    <link
+      rel="shortcut icon"
+      href="{{ asset('backend/assets/images/favicon.ico') }}"
+    />
 
-        <meta charset="utf-8" />
-        <title> Admin Dashboard </title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc."/>
-        <meta name="author" content="Zoyothemes"/>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- App css -->
+    <link
+      href="{{ asset('backend/assets/css/app.min.css') }}"
+      rel="stylesheet"
+      type="text/css"
+      id="app-style"
+    />
 
-        <!-- App favicon -->
-        <link rel="shortcut icon" href="{{ asset('backend/assets/images/favicon.ico')}}">
+    <!-- Icons -->
+    <link
+      href="{{ asset('backend/assets/css/icons.min.css') }}"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
 
-        <!-- App css -->
-        <link href="{{ asset('backend/assets/css/app.min.css')}}" rel="stylesheet" type="text/css" id="app-style" />
+  <!-- body start -->
+  <body data-menu-color="light" data-sidebar="default">
+    <!-- Begin page -->
+    <div id="app-layout">
+      <!-- Topbar Start -->
+      @include('admin.body.header')
+      <!-- end Topbar -->
 
-        <!-- Icons -->
-        <link href="{{ asset('backend/assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+      <!-- Left Sidebar Start -->
+      @include('admin.body.sidebar')
+      <!-- Left Sidebar End -->
 
-    </head>
+      <!-- ============================================================== -->
+      <!-- Start Page Content here -->
+      <!-- ============================================================== -->
 
-    <!-- body start -->
-    <body data-menu-color="light" data-sidebar="default">
+      <div class="content-page">
+        @yield('admin')
 
-        <!-- Begin page -->
-        <div id="app-layout">
+        <!-- content -->
 
+        <!-- Footer Start -->
+        @include('admin.body.footer')
+        <!-- end Footer -->
+      </div>
+      <!-- ============================================================== -->
+      <!-- End Page content -->
+      <!-- ============================================================== -->
+    </div>
+    <!-- END wrapper -->
 
-            <!-- Topbar Start -->
-    @include('admin.body.header')
-            <!-- end Topbar -->
+    <!-- Vendor -->
+    <script src="{{ asset('backend/assets/libs/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/libs/simplebar/simplebar.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/libs/node-waves/waves.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/libs/waypoints/lib/jquery.waypoints.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/libs/jquery.counterup/jquery.counterup.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/libs/feather-icons/feather.min.js') }}"></script>
 
-            <!-- Left Sidebar Start -->
-    @include('admin.body.sidebar')
-            <!-- Left Sidebar End -->
+    <!-- Apexcharts JS -->
+    <script src="{{ asset('backend/assets/libs/apexcharts/apexcharts.min.js') }}"></script>
 
-            <!-- ============================================================== -->
-            <!-- Start Page Content here -->
-            <!-- ============================================================== -->
+    <!-- for basic area chart -->
+    <script src="https://apexcharts.com/samples/assets/stock-prices.js"></script>
 
-    <div class="content-page">
-    
-     @yield('admin')          
+    <!-- Widgets Init Js -->
+    <script src="{{ asset('backend/assets/js/pages/analytics-dashboard.init.js') }}"></script>
 
-     <!-- content -->
-
-                <!-- Footer Start -->
-    @include('admin.body.footer')          
-                <!-- end Footer -->
-                
-            </div>
-            <!-- ============================================================== -->
-            <!-- End Page content -->
-            <!-- ============================================================== -->
-
-        </div>
-        <!-- END wrapper -->
-
-        <!-- Vendor -->
-        <script src="{{ asset('backend/assets/libs/jquery/jquery.min.js')}}"></script>
-        <script src="{{ asset('backend/assets/libs/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
-        <script src="{{ asset('backend/assets/libs/simplebar/simplebar.min.js')}}"></script>
-        <script src="{{ asset('backend/assets/libs/node-waves/waves.min.js')}}"></script>
-        <script src="{{ asset('backend/assets/libs/waypoints/lib/jquery.waypoints.min.js')}}"></script>
-        <script src="{{ asset('backend/assets/libs/jquery.counterup/jquery.counterup.min.js')}}"></script>
-        <script src="{{ asset('backend/assets/libs/feather-icons/feather.min.js')}}"></script>
-
-        <!-- Apexcharts JS -->
-        <script src="{{ asset('backend/assets/libs/apexcharts/apexcharts.min.js')}}"></script>
-
-        <!-- for basic area chart -->
-        <script src="https://apexcharts.com/samples/assets/stock-prices.js"></script>
-
-        <!-- Widgets Init Js -->
-        <script src="{{ asset('backend/assets/js/pages/analytics-dashboard.init.js')}}"></script>
-
-        <!-- App js-->
-        <script src="{{ asset('backend/assets/js/app.js')}}"></script>
-
-    </body>
+    <!-- App js-->
+    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
+  </body>
 </html>

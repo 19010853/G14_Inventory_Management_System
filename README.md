@@ -1,4 +1,3 @@
-
 # G14_Inventory_Management_System
 
 Dự án Hệ thống Quản lý Kho hàng được xây dựng trên nền tảng Laravel.
@@ -7,10 +6,10 @@ Dự án Hệ thống Quản lý Kho hàng được xây dựng trên nền tả
 
 Để chạy dự án này, bạn cần cài đặt các phần mềm sau trên máy tính của mình:
 
--   PHP (>= 8.2)
--   Composer
--   Node.js và npm
--   Một server CSDL như MySQL hoặc MariaDB
+- PHP (>= 8.2)
+- Composer
+- Node.js và npm
+- Một server CSDL như MySQL hoặc MariaDB
 
 ## Hướng dẫn Cài đặt cho Lập trình viên mới
 

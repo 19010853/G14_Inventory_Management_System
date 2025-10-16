@@ -7,4 +7,10 @@ import timeGridPlugin from '@fullcalendar/timegrid/index.js';
 import listPlugin from '@fullcalendar/list/index.js';
 import multiMonthPlugin from '@fullcalendar/multimonth/index.js';
 
-globalPlugins.push(interactionPlugin__default, dayGridPlugin, timeGridPlugin, listPlugin, multiMonthPlugin);
+globalPlugins.push(
+  interactionPlugin__default,
+  dayGridPlugin,
+  timeGridPlugin,
+  listPlugin,
+  multiMonthPlugin,
+);

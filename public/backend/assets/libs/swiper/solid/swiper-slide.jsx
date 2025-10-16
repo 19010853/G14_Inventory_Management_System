@@ -61,7 +61,9 @@ const SwiperSlide = (props) => {
   });
 
   const renderChildren = () => {
-    return typeof local.children === 'function' ? local.children(slideData()) : local.children;
+    return typeof local.children === 'function'
+      ? local.children(slideData())
+      : local.children;
   };
 
   /* eslint-disable react/react-in-jsx-scope */
@@ -78,7 +80,9 @@ const SwiperSlide = (props) => {
           local.ref = el;
         }
       }}
-      class={uniqueClasses(`${slideClasses()}${local.class ? ` ${local.class}` : ''}`)}
+      class={uniqueClasses(
+        `${slideClasses()}${local.class ? ` ${local.class}` : ''}`,
+      )}
       data-swiper-slide-index={local.virtualIndex}
       {...rest}
     >
@@ -86,7 +90,9 @@ const SwiperSlide = (props) => {
         {local.zoom ? (
           <div
             class="swiper-zoom-container"
-            data-swiper-zoom={typeof local.zoom === 'number' ? local.zoom : undefined}
+            data-swiper-zoom={
+              typeof local.zoom === 'number' ? local.zoom : undefined
+            }
           >
             {renderChildren()}
           </div>

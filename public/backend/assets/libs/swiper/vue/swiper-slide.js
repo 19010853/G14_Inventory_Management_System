@@ -1,34 +1,39 @@
-import { h, ref, onMounted, onUpdated, onBeforeUpdate, computed, onBeforeUnmount, provide } from 'vue';
+import {
+  h,
+  ref,
+  onMounted,
+  onUpdated,
+  onBeforeUpdate,
+  computed,
+  onBeforeUnmount,
+  provide,
+} from 'vue';
 import { uniqueClasses } from '../components-shared/utils.js';
 const SwiperSlide = {
   name: 'SwiperSlide',
   props: {
     tag: {
       type: String,
-      default: 'div'
+      default: 'div',
     },
     swiperRef: {
       type: Object,
-      required: false
+      required: false,
     },
     zoom: {
       type: Boolean,
-      default: undefined
+      default: undefined,
     },
     virtualIndex: {
       type: [String, Number],
-      default: undefined
-    }
+      default: undefined,
+    },
   },
 
   setup(props, _ref) {
-    let {
-      slots
-    } = _ref;
+    let { slots } = _ref;
     let eventAttached = false;
-    const {
-      swiperRef
-    } = props;
+    const { swiperRef } = props;
     const slideElRef = ref(null);
     const slideClasses = ref('swiper-slide');
 
@@ -62,24 +67,40 @@ const SwiperSlide = {
       swiperRef.value.off('_slideClass', updateClasses);
     });
     const slideData = computed(() => ({
-      isActive: slideClasses.value.indexOf('swiper-slide-active') >= 0 || slideClasses.value.indexOf('swiper-slide-duplicate-active') >= 0,
+      isActive:
+        slideClasses.value.indexOf('swiper-slide-active') >= 0 ||
+        slideClasses.value.indexOf('swiper-slide-duplicate-active') >= 0,
       isVisible: slideClasses.value.indexOf('swiper-slide-visible') >= 0,
       isDuplicate: slideClasses.value.indexOf('swiper-slide-duplicate') >= 0,
-      isPrev: slideClasses.value.indexOf('swiper-slide-prev') >= 0 || slideClasses.value.indexOf('swiper-slide-duplicate-prev') >= 0,
-      isNext: slideClasses.value.indexOf('swiper-slide-next') >= 0 || slideClasses.value.indexOf('swiper-slide-duplicate-next') >= 0
+      isPrev:
+        slideClasses.value.indexOf('swiper-slide-prev') >= 0 ||
+        slideClasses.value.indexOf('swiper-slide-duplicate-prev') >= 0,
+      isNext:
+        slideClasses.value.indexOf('swiper-slide-next') >= 0 ||
+        slideClasses.value.indexOf('swiper-slide-duplicate-next') >= 0,
     }));
     provide('swiperSlide', slideData);
     return () => {
-      return h(props.tag, {
-        class: uniqueClasses(`${slideClasses.value}`),
-        ref: slideElRef,
-        'data-swiper-slide-index': props.virtualIndex
-      }, props.zoom ? h('div', {
-        class: 'swiper-zoom-container',
-        'data-swiper-zoom': typeof props.zoom === 'number' ? props.zoom : undefined
-      }, slots.default && slots.default(slideData.value)) : slots.default && slots.default(slideData.value));
+      return h(
+        props.tag,
+        {
+          class: uniqueClasses(`${slideClasses.value}`),
+          ref: slideElRef,
+          'data-swiper-slide-index': props.virtualIndex,
+        },
+        props.zoom
+          ? h(
+              'div',
+              {
+                class: 'swiper-zoom-container',
+                'data-swiper-zoom':
+                  typeof props.zoom === 'number' ? props.zoom : undefined,
+              },
+              slots.default && slots.default(slideData.value),
+            )
+          : slots.default && slots.default(slideData.value),
+      );
     };
-  }
-
+  },
 };
 export { SwiperSlide };

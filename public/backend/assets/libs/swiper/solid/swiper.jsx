@@ -75,7 +75,10 @@ const Swiper = (props) => {
     swiperRef.loopCreate = () => {};
     swiperRef.loopDestroy = () => {};
     if (params().params.loop) {
-      swiperRef.loopedSlides = calcLoopedSlides(slidesSlots().slides, params().params);
+      swiperRef.loopedSlides = calcLoopedSlides(
+        slidesSlots().slides,
+        params().params,
+      );
     }
     if (swiperRef.virtual && swiperRef.params.virtual.enabled) {
       swiperRef.virtual.slides = slidesSlots().slides;
@@ -215,7 +218,9 @@ const Swiper = (props) => {
   return (
     <div
       ref={swiperElRef}
-      class={uniqueClasses(`${containerClasses()}${local.class ? ` ${local.class}` : ''}`)}
+      class={uniqueClasses(
+        `${containerClasses()}${local.class ? ` ${local.class}` : ''}`,
+      )}
       {...params().rest}
     >
       <SwiperContext.Provider value={swiperRef}>

@@ -1,9 +1,6 @@
 export default function appendSlide(slides) {
   const swiper = this;
-  const {
-    $wrapperEl,
-    params
-  } = swiper;
+  const { $wrapperEl, params } = swiper;
 
   if (params.loop) {
     swiper.loopDestroy();

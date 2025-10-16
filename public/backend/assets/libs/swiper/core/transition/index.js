@@ -4,5 +4,5 @@ import transitionEnd from './transitionEnd.js';
 export default {
   setTransition,
   transitionStart,
-  transitionEnd
+  transitionEnd,
 };

@@ -1,19 +1,13 @@
 import $ from '../../shared/dom.js';
-export default function Parallax({
-  swiper,
-  extendParams,
-  on
-}) {
+export default function Parallax({ swiper, extendParams, on }) {
   extendParams({
     parallax: {
-      enabled: false
-    }
+      enabled: false,
+    },
   });
 
   const setTransform = (el, progress) => {
-    const {
-      rtl
-    } = swiper;
+    const { rtl } = swiper;
     const $el = $(el);
     const rtlFactor = rtl ? -1 : 1;
     const p = $el.attr('data-swiper-parallax') || '0';
@@ -59,39 +53,50 @@ export default function Parallax({
   };
 
   const setTranslate = () => {
-    const {
-      $el,
-      slides,
-      progress,
-      snapGrid
-    } = swiper;
-    $el.children('[data-swiper-parallax], [data-swiper-parallax-x], [data-swiper-parallax-y], [data-swiper-parallax-opacity], [data-swiper-parallax-scale]').each(el => {
-      setTransform(el, progress);
-    });
+    const { $el, slides, progress, snapGrid } = swiper;
+    $el
+      .children(
+        '[data-swiper-parallax], [data-swiper-parallax-x], [data-swiper-parallax-y], [data-swiper-parallax-opacity], [data-swiper-parallax-scale]',
+      )
+      .each((el) => {
+        setTransform(el, progress);
+      });
     slides.each((slideEl, slideIndex) => {
       let slideProgress = slideEl.progress;
 
-      if (swiper.params.slidesPerGroup > 1 && swiper.params.slidesPerView !== 'auto') {
-        slideProgress += Math.ceil(slideIndex / 2) - progress * (snapGrid.length - 1);
+      if (
+        swiper.params.slidesPerGroup > 1 &&
+        swiper.params.slidesPerView !== 'auto'
+      ) {
+        slideProgress +=
+          Math.ceil(slideIndex / 2) - progress * (snapGrid.length - 1);
       }
 
       slideProgress = Math.min(Math.max(slideProgress, -1), 1);
-      $(slideEl).find('[data-swiper-parallax], [data-swiper-parallax-x], [data-swiper-parallax-y], [data-swiper-parallax-opacity], [data-swiper-parallax-scale]').each(el => {
-        setTransform(el, slideProgress);
-      });
+      $(slideEl)
+        .find(
+          '[data-swiper-parallax], [data-swiper-parallax-x], [data-swiper-parallax-y], [data-swiper-parallax-opacity], [data-swiper-parallax-scale]',
+        )
+        .each((el) => {
+          setTransform(el, slideProgress);
+        });
     });
   };
 
   const setTransition = (duration = swiper.params.speed) => {
-    const {
-      $el
-    } = swiper;
-    $el.find('[data-swiper-parallax], [data-swiper-parallax-x], [data-swiper-parallax-y], [data-swiper-parallax-opacity], [data-swiper-parallax-scale]').each(parallaxEl => {
-      const $parallaxEl = $(parallaxEl);
-      let parallaxDuration = parseInt($parallaxEl.attr('data-swiper-parallax-duration'), 10) || duration;
-      if (duration === 0) parallaxDuration = 0;
-      $parallaxEl.transition(parallaxDuration);
-    });
+    const { $el } = swiper;
+    $el
+      .find(
+        '[data-swiper-parallax], [data-swiper-parallax-x], [data-swiper-parallax-y], [data-swiper-parallax-opacity], [data-swiper-parallax-scale]',
+      )
+      .each((parallaxEl) => {
+        const $parallaxEl = $(parallaxEl);
+        let parallaxDuration =
+          parseInt($parallaxEl.attr('data-swiper-parallax-duration'), 10) ||
+          duration;
+        if (duration === 0) parallaxDuration = 0;
+        $parallaxEl.transition(parallaxDuration);
+      });
   };
 
   on('beforeInit', () => {

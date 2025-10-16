@@ -1,11 +1,6 @@
 import createElementIfNotDefined from '../../shared/create-element-if-not-defined.js';
 import $ from '../../shared/dom.js';
-export default function Navigation({
-  swiper,
-  extendParams,
-  on,
-  emit
-}) {
+export default function Navigation({ swiper, extendParams, on, emit }) {
   extendParams({
     navigation: {
       nextEl: null,
@@ -14,14 +9,14 @@ export default function Navigation({
       disabledClass: 'swiper-button-disabled',
       hiddenClass: 'swiper-button-hidden',
       lockClass: 'swiper-button-lock',
-      navigationDisabledClass: 'swiper-navigation-disabled'
-    }
+      navigationDisabledClass: 'swiper-navigation-disabled',
+    },
   });
   swiper.navigation = {
     nextEl: null,
     $nextEl: null,
     prevEl: null,
-    $prevEl: null
+    $prevEl: null,
   };
 
   function getEl(el) {
@@ -30,7 +25,12 @@ export default function Navigation({
     if (el) {
       $el = $(el);
 
-      if (swiper.params.uniqueNavElements && typeof el === 'string' && $el.length > 1 && swiper.$el.find(el).length === 1) {
+      if (
+        swiper.params.uniqueNavElements &&
+        typeof el === 'string' &&
+        $el.length > 1 &&
+        swiper.$el.find(el).length === 1
+      ) {
         $el = swiper.$el.find(el);
       }
     }
@@ -54,17 +54,15 @@ export default function Navigation({
   function update() {
     // Update Navigation Buttons
     if (swiper.params.loop) return;
-    const {
-      $nextEl,
-      $prevEl
-    } = swiper.navigation;
+    const { $nextEl, $prevEl } = swiper.navigation;
     toggleEl($prevEl, swiper.isBeginning && !swiper.params.rewind);
     toggleEl($nextEl, swiper.isEnd && !swiper.params.rewind);
   }
 
   function onPrevClick(e) {
     e.preventDefault();
-    if (swiper.isBeginning && !swiper.params.loop && !swiper.params.rewind) return;
+    if (swiper.isBeginning && !swiper.params.loop && !swiper.params.rewind)
+      return;
     swiper.slidePrev();
     emit('navigationPrev');
   }
@@ -78,10 +76,15 @@ export default function Navigation({
 
   function init() {
     const params = swiper.params.navigation;
-    swiper.params.navigation = createElementIfNotDefined(swiper, swiper.originalParams.navigation, swiper.params.navigation, {
-      nextEl: 'swiper-button-next',
-      prevEl: 'swiper-button-prev'
-    });
+    swiper.params.navigation = createElementIfNotDefined(
+      swiper,
+      swiper.originalParams.navigation,
+      swiper.params.navigation,
+      {
+        nextEl: 'swiper-button-next',
+        prevEl: 'swiper-button-prev',
+      },
+    );
     if (!(params.nextEl || params.prevEl)) return;
     const $nextEl = getEl(params.nextEl);
     const $prevEl = getEl(params.prevEl);
@@ -98,7 +101,7 @@ export default function Navigation({
       $nextEl,
       nextEl: $nextEl && $nextEl[0],
       $prevEl,
-      prevEl: $prevEl && $prevEl[0]
+      prevEl: $prevEl && $prevEl[0],
     });
 
     if (!swiper.enabled) {
@@ -108,10 +111,7 @@ export default function Navigation({
   }
 
   function destroy() {
-    const {
-      $nextEl,
-      $prevEl
-    } = swiper.navigation;
+    const { $nextEl, $prevEl } = swiper.navigation;
 
     if ($nextEl && $nextEl.length) {
       $nextEl.off('click', onNextClick);
@@ -140,28 +140,37 @@ export default function Navigation({
     destroy();
   });
   on('enable disable', () => {
-    const {
-      $nextEl,
-      $prevEl
-    } = swiper.navigation;
+    const { $nextEl, $prevEl } = swiper.navigation;
 
     if ($nextEl) {
-      $nextEl[swiper.enabled ? 'removeClass' : 'addClass'](swiper.params.navigation.lockClass);
+      $nextEl[swiper.enabled ? 'removeClass' : 'addClass'](
+        swiper.params.navigation.lockClass,
+      );
     }
 
     if ($prevEl) {
-      $prevEl[swiper.enabled ? 'removeClass' : 'addClass'](swiper.params.navigation.lockClass);
+      $prevEl[swiper.enabled ? 'removeClass' : 'addClass'](
+        swiper.params.navigation.lockClass,
+      );
     }
   });
   on('click', (_s, e) => {
-    const {
-      $nextEl,
-      $prevEl
-    } = swiper.navigation;
+    const { $nextEl, $prevEl } = swiper.navigation;
     const targetEl = e.target;
 
-    if (swiper.params.navigation.hideOnClick && !$(targetEl).is($prevEl) && !$(targetEl).is($nextEl)) {
-      if (swiper.pagination && swiper.params.pagination && swiper.params.pagination.clickable && (swiper.pagination.el === targetEl || swiper.pagination.el.contains(targetEl))) return;
+    if (
+      swiper.params.navigation.hideOnClick &&
+      !$(targetEl).is($prevEl) &&
+      !$(targetEl).is($nextEl)
+    ) {
+      if (
+        swiper.pagination &&
+        swiper.params.pagination &&
+        swiper.params.pagination.clickable &&
+        (swiper.pagination.el === targetEl ||
+          swiper.pagination.el.contains(targetEl))
+      )
+        return;
       let isHidden;
 
       if ($nextEl) {
@@ -202,6 +211,6 @@ export default function Navigation({
     disable,
     update,
     init,
-    destroy
+    destroy,
   });
 }

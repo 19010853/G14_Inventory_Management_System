@@ -11,16 +11,10 @@ function dummyEventListener() {}
 
 const events = (swiper, method) => {
   const document = getDocument();
-  const {
-    params,
-    touchEvents,
-    el,
-    wrapperEl,
-    device,
-    support
-  } = swiper;
+  const { params, touchEvents, el, wrapperEl, device, support } = swiper;
   const capture = !!params.nested;
-  const domMethod = method === 'on' ? 'addEventListener' : 'removeEventListener';
+  const domMethod =
+    method === 'on' ? 'addEventListener' : 'removeEventListener';
   const swiperMethod = method; // Touch Events
 
   if (!support.touch) {
@@ -28,22 +22,32 @@ const events = (swiper, method) => {
     document[domMethod](touchEvents.move, swiper.onTouchMove, capture);
     document[domMethod](touchEvents.end, swiper.onTouchEnd, false);
   } else {
-    const passiveListener = touchEvents.start === 'touchstart' && support.passiveListener && params.passiveListeners ? {
-      passive: true,
-      capture: false
-    } : false;
+    const passiveListener =
+      touchEvents.start === 'touchstart' &&
+      support.passiveListener &&
+      params.passiveListeners
+        ? {
+            passive: true,
+            capture: false,
+          }
+        : false;
     el[domMethod](touchEvents.start, swiper.onTouchStart, passiveListener);
-    el[domMethod](touchEvents.move, swiper.onTouchMove, support.passiveListener ? {
-      passive: false,
-      capture
-    } : capture);
+    el[domMethod](
+      touchEvents.move,
+      swiper.onTouchMove,
+      support.passiveListener
+        ? {
+            passive: false,
+            capture,
+          }
+        : capture,
+    );
     el[domMethod](touchEvents.end, swiper.onTouchEnd, passiveListener);
 
     if (touchEvents.cancel) {
       el[domMethod](touchEvents.cancel, swiper.onTouchEnd, passiveListener);
     }
   } // Prevent Links Clicks
-
 
   if (params.preventClicks || params.preventClicksPropagation) {
     el[domMethod]('click', swiper.onClick, true);
@@ -53,9 +57,14 @@ const events = (swiper, method) => {
     wrapperEl[domMethod]('scroll', swiper.onScroll);
   } // Resize handler
 
-
   if (params.updateOnWindowResize) {
-    swiper[swiperMethod](device.ios || device.android ? 'resize orientationchange observerUpdate' : 'resize observerUpdate', onResize, true);
+    swiper[swiperMethod](
+      device.ios || device.android
+        ? 'resize orientationchange observerUpdate'
+        : 'resize observerUpdate',
+      onResize,
+      true,
+    );
   } else {
     swiper[swiperMethod]('observerUpdate', onResize, true);
   }
@@ -64,10 +73,7 @@ const events = (swiper, method) => {
 function attachEvents() {
   const swiper = this;
   const document = getDocument();
-  const {
-    params,
-    support
-  } = swiper;
+  const { params, support } = swiper;
   swiper.onTouchStart = onTouchStart.bind(swiper);
   swiper.onTouchMove = onTouchMove.bind(swiper);
   swiper.onTouchEnd = onTouchEnd.bind(swiper);
@@ -93,5 +99,5 @@ function detachEvents() {
 
 export default {
   attachEvents,
-  detachEvents
+  detachEvents,
 };

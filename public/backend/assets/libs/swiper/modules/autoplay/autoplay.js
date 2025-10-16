@@ -3,16 +3,11 @@
 /* eslint no-use-before-define: "off" */
 import { getDocument } from 'ssr-window';
 import { nextTick } from '../../shared/utils.js';
-export default function Autoplay({
-  swiper,
-  extendParams,
-  on,
-  emit
-}) {
+export default function Autoplay({ swiper, extendParams, on, emit }) {
   let timeout;
   swiper.autoplay = {
     running: false,
-    paused: false
+    paused: false,
   };
   extendParams({
     autoplay: {
@@ -22,8 +17,8 @@ export default function Autoplay({
       disableOnInteraction: true,
       stopOnLastSlide: false,
       reverseDirection: false,
-      pauseOnMouseEnter: false
-    }
+      pauseOnMouseEnter: false,
+    },
   });
 
   function run() {
@@ -37,7 +32,9 @@ export default function Autoplay({
     let delay = swiper.params.autoplay.delay;
 
     if ($activeSlideEl.attr('data-swiper-autoplay')) {
-      delay = $activeSlideEl.attr('data-swiper-autoplay') || swiper.params.autoplay.delay;
+      delay =
+        $activeSlideEl.attr('data-swiper-autoplay') ||
+        swiper.params.autoplay.delay;
     }
 
     clearTimeout(timeout);
@@ -53,7 +50,12 @@ export default function Autoplay({
           autoplayResult = swiper.slidePrev(swiper.params.speed, true, true);
           emit('autoplay');
         } else if (!swiper.params.autoplay.stopOnLastSlide) {
-          autoplayResult = swiper.slideTo(swiper.slides.length - 1, swiper.params.speed, true, true);
+          autoplayResult = swiper.slideTo(
+            swiper.slides.length - 1,
+            swiper.params.speed,
+            true,
+            true,
+          );
           emit('autoplay');
         } else {
           stop();
@@ -72,7 +74,8 @@ export default function Autoplay({
         stop();
       }
 
-      if (swiper.params.cssMode && swiper.autoplay.running) run();else if (autoplayResult === false) {
+      if (swiper.params.cssMode && swiper.autoplay.running) run();
+      else if (autoplayResult === false) {
         run();
       }
     }, delay);
@@ -111,7 +114,7 @@ export default function Autoplay({
       swiper.autoplay.paused = false;
       run();
     } else {
-      ['transitionend', 'webkitTransitionEnd'].forEach(event => {
+      ['transitionend', 'webkitTransitionEnd'].forEach((event) => {
         swiper.$wrapperEl[0].addEventListener(event, onTransitionEnd);
       });
     }
@@ -133,7 +136,7 @@ export default function Autoplay({
   function onTransitionEnd(e) {
     if (!swiper || swiper.destroyed || !swiper.$wrapperEl) return;
     if (e.target !== swiper.$wrapperEl[0]) return;
-    ['transitionend', 'webkitTransitionEnd'].forEach(event => {
+    ['transitionend', 'webkitTransitionEnd'].forEach((event) => {
       swiper.$wrapperEl[0].removeEventListener(event, onTransitionEnd);
     });
     swiper.autoplay.paused = false;
@@ -153,7 +156,7 @@ export default function Autoplay({
       pause();
     }
 
-    ['transitionend', 'webkitTransitionEnd'].forEach(event => {
+    ['transitionend', 'webkitTransitionEnd'].forEach((event) => {
       swiper.$wrapperEl[0].removeEventListener(event, onTransitionEnd);
     });
   }
@@ -207,7 +210,11 @@ export default function Autoplay({
     }
   });
   on('touchEnd', () => {
-    if (swiper.params.cssMode && swiper.autoplay.paused && !swiper.params.autoplay.disableOnInteraction) {
+    if (
+      swiper.params.cssMode &&
+      swiper.autoplay.paused &&
+      !swiper.params.autoplay.disableOnInteraction
+    ) {
       run();
     }
   });
@@ -225,6 +232,6 @@ export default function Autoplay({
     pause,
     run,
     start,
-    stop
+    stop,
   });
 }
