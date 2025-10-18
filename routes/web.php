@@ -60,6 +60,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/update/supplier', 'UpdateSupplier')->name('update.supplier');
     Route::get('/delete/supplier/{id}', 'DeleteSupplier')->name('delete.supplier');
 });
+
+    Route::controller(SupplierController::class)->group(function(){
+    Route::get('/all/customer', 'AllCustomer')->name('all.customer');
+    Route::get('/add/customer', 'AddCustomer')->name('add.customer');
+    Route::post('/store/customer', 'StoreCustomer')->name('store.customer');
+    Route::get('/edit/customer/{id}', 'EditCustomer')->name('edit.customer');
+    Route::post('/update/customer', 'UpdateCustomer')->name('update.customer');
+    Route::get('/delete/customer/{id}', 'DeleteCustomer')->name('delete.customer');
+});
 });
 
 
