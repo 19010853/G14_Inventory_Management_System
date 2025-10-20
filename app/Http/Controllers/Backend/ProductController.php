@@ -166,4 +166,11 @@ class ProductController extends Controller
         return redirect()->back()->with($notification);
     }
     // End Method
+
+    // Product Details
+    public function ProductDetails($id){
+        $product = Product::findOrFail($id);
+
+        return view('admin.backend.product.details_product',compact('product'));
+    }
 }
