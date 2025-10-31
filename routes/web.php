@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Backend\BrandController;
 use App\Http\Controllers\Backend\ProductCategoryController;
 use App\Http\Controllers\Backend\ProductController;
+use App\Http\Controllers\Backend\PurchaseController;
 use App\Http\Controllers\Backend\SupplierController;
 use App\Http\Controllers\Backend\WarehouseController;
 
@@ -89,6 +90,10 @@ Route::controller(ProductController::class)->group(function(){
     Route::post('/update/product', 'UpdateProduct')->name('update.product');
     Route::get('/delete/product/{id}', 'DeleteProduct')->name('delete.product');
     Route::get('/details/product/{id}', 'DetailsProduct')->name('details.product');
+});
+
+Route::controller(PurchaseController::class)->group(function(){
+    Route::get('/all/purchase', 'AllPurchase')->name('all.purchase');
 });
 });
 
