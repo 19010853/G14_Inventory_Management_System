@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class WarehouseController extends Controller
 {
@@ -27,14 +28,14 @@ class WarehouseController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:warehouses,email|max:255',
             'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
         ]);
 
         Warehouse::insert([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'phone' => $validatedData['phone'],
-            'address' => $validatedData['address'],
+            'city' => $validatedData['city'] ?? null,
         ]);
 
         $notification = array(
@@ -59,16 +60,21 @@ class WarehouseController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:warehouses,email|max:255',
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('warehouses', 'email')->ignore($warehouse_id),
+            ],
             'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
         ]);
 
         Warehouse::find($warehouse_id)->update([
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'phone' => $validatedData['phone'],
-            'address' => $validatedData['address'],
+            'city' => $validatedData['city'] ?? null,
         ]);
 
         $notification = array(
