@@ -25,7 +25,7 @@ class WarehouseController extends Controller
     public function StoreWarehouse(Request $request){
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:ware_houses,email|max:255',
+            'email' => 'required|email|unique:warehouses,email|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
         ]);
@@ -59,7 +59,7 @@ class WarehouseController extends Controller
 
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:ware_houses,email|max:255',
+            'email' => 'required|email|unique:warehouses,email|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
         ]);
