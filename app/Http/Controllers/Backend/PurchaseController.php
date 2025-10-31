@@ -44,4 +44,71 @@ class PurchaseController extends Controller
         return response()->json($products);
     }
     // End Methods
+
+    // Store Purchase Methods
+    public function StorePurchase(Request $request){
+
+        $request->validate([
+            'date' => 'required|date',
+            'status' => 'required',
+            'supplier_id' => 'required',
+        ]);
+
+        try {
+
+            DB::beginTransaction();
+
+            // Purchase Create
+            $purchase = Purchase::create([
+                'date' => $request->date,
+                'warehouse_id' => $request->warehouse_id,
+                'supplier_id' => $request->supplier_id,
+                'discount' => $request->discount,
+                'shipping' => $request->shipping,
+                'status' => $request->status,
+                'note' => $request->note,
+                'grand_total' => 0,
+            ]);
+
+            // Store Purchase Items and Update Product Stock
+            foreach ($request->products as $productData){
+                $product = Product::findOrFail($productData['id']);
+                $netUnitCost = $productData['net_unit_cost'] ?? $product->price;
+
+                if ($netUnitCost === null) {
+                    throw new \Exception("Net Unit cost is missing ofr the product id" . $productData['id']);
+                }
+
+                $subtotal = ($netUnitCost * $productData['quantity']) - ($productData['discount'] ?? 0);
+                $grandTotal += $subtotal;
+
+                PurchaseItem::create([
+                    'purchase_id' => $purchase->id,
+                    'product_id' => $productData['id'],
+                    'net_unit_cost' => $netUnitCost,
+                    'stock' => $product->product_qty + $productData['quantity'],
+                    'quantity' => $productData['quantity'],
+                    'discount' => $productData['discount'] ?? 0,
+                    'subtotal' => $subtotal, 
+                ]);
+                $product->increment('product_qty', $productData['quantity']);
+            }
+
+            $purchase->update(['grand_total' => $grandTotal + $request->shipping - $request->discount]);
+
+            DB::commit();
+
+            $notification = array(
+                'message' => 'Purchase created successfully',
+                'alert-type' => 'success',
+            );
+
+            return redirect()->route('all.purchase')->with($notification);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+    // End Methods
 }
