@@ -78,7 +78,7 @@
 
                         <a
                           title="Delete"
-                          href="{{ route('delete.product', $item->id) }}"
+                          href="{{ route('delete.purchase', $item->id) }}"
                           class="btn btn-danger btn-sm"
                           id="delete"
                         >
