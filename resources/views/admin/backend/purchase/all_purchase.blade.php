@@ -62,7 +62,7 @@
 
                         <a
                           title="PDF Invoice"
-                          href="{{ route('details.product', $item->id) }}"
+                          href="{{ route('invoice.purchase', $item->id) }}"
                           class="btn btn-primary btn-sm"
                         >
                           <span class="mdi mdi-download-circle mdi-18px"></span>
