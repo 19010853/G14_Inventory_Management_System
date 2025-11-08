@@ -18,7 +18,7 @@ class ProductController extends Controller
     // All Product
     public function AllProduct(){
         $allData = Product::orderBy('id','DESC')->get();
-        return view('backend.product.all_product',compact('allData'));
+        return view('admin.backend.product.product_list',compact('allData'));
     }
     // End Method
 
@@ -28,7 +28,7 @@ class ProductController extends Controller
         $brands = Brand::all();
         $suppliers = Supplier::all();
         $warehouses = Warehouse::all();
-        return view('backend.product.add_product',compact('categories','brands','suppliers','warehouses'));
+        return view('admin.backend.product.add_product',compact('categories','brands','suppliers','warehouses'));
     }
     // End Method
 
