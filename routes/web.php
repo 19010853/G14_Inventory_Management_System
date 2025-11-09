@@ -7,6 +7,8 @@ use App\Http\Controllers\Backend\BrandController;
 use App\Http\Controllers\Backend\ProductCategoryController;
 use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\PurchaseController;
+use App\Http\Controllers\Backend\ReturnPurchaseController;
+use App\Http\Controllers\Backend\SaleController;
 use App\Http\Controllers\Backend\SupplierController;
 use App\Http\Controllers\Backend\WarehouseController;
 
@@ -113,5 +115,16 @@ Route::controller(ReturnPurchaseController::class)->group(function(){
     Route::get('/edit/return/purchase/{id}', 'EditReturnPurchase')->name('edit.return.purchase');
     Route::post('/update/return/purchase/{id}', 'UpdateReturnPurchase')->name('update.return.purchase');
     Route::get('/delete/return/purchase/{id}', 'DeleteReturnPurchase')->name('delete.return.purchase');
-});   
+});
+
+    Route::controller(SaleController::class)->group(function(){
+        Route::get('/all/sale', 'AllSales')->name('all.sale');
+        Route::get('/add/sale', 'AddSale')->name('add.sale');
+        Route::post('/store/sale', 'StoreSales')->name('store.sale');
+        Route::get('/edit/sale/{id}', 'EditSales')->name('edit.sale');
+        Route::post('/update/sale/{id}', 'UpdateSales')->name('update.sale');
+        Route::get('/delete/sale/{id}', 'DeleteSales')->name('delete.sale');
+        Route::get('/details/sale/{id}', 'DetailsSales')->name('details.sale');
+        Route::get('/invoice/sale/{id}', 'InvoiceSales')->name('invoice.sale');
+    });
 });

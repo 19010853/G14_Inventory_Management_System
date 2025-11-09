@@ -9,6 +9,7 @@ use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Models\Product;
 use App\Models\ReturnPurchaseItem;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
 
@@ -52,7 +53,7 @@ class ReturnPurchaseController extends Controller
                 'shipping' => $request->shipping ?? 0,
                 'status' => $request->status,
                 'note' => $request->note,
-                'grand_total' => 0, 
+                'grand_total' => 0,
             ]);
 
             // Store Return Purchase Items then update stock
@@ -74,7 +75,7 @@ class ReturnPurchaseController extends Controller
                     'stock' => $product->product_qty + $productData['quantity'],
                     'quantity' => $productData['quantity'],
                     'discount' => $productData['discount'] ?? 0,
-                    'subtotal' => $subtotal, 
+                    'subtotal' => $subtotal,
                 ]);
 
                 $product->decrement('product_qty', $productData['quantity']);
@@ -89,11 +90,11 @@ class ReturnPurchaseController extends Controller
                 'alert-type' => 'success',
             );
 
-            return redirect()->route('all.return.purchase')->with($notification);  
+            return redirect()->route('all.return.purchase')->with($notification);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
-          } 
+          }
     }
     // End Method
 
@@ -142,7 +143,7 @@ class ReturnPurchaseController extends Controller
                 'shipping' => $request->shipping ?? 0,
                 'status' => $request->status,
                 'note' => $request->note,
-                'grand_total' => $request->grand_total, 
+                'grand_total' => $request->grand_total,
             ]);
 
             // Get Old Purchase Items
@@ -168,7 +169,7 @@ class ReturnPurchaseController extends Controller
                     'stock' => $productData['stock'],
                     'quantity' => $productData['quantity'],
                     'discount' => $productData['discount'] ?? 0,
-                    'subtotal' => $productData['subtotal'],  
+                    'subtotal' => $productData['subtotal'],
                 ]);
 
                 // Update product stock by incrementing new quantity
@@ -183,12 +184,12 @@ class ReturnPurchaseController extends Controller
             $notification = array(
                 'message' => 'Return Purchase Updated Successfully',
                 'alert-type' => 'success'
-             ); 
+             );
              return redirect()->route('all.return.purchase')->with($notification);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
-          } 
+          }
     }
     // End Method
 
@@ -213,9 +214,9 @@ class ReturnPurchaseController extends Controller
             $notification = array(
                 'message' => 'Return Purchase Deleted Successfully',
                 'alert-type' => 'success'
-             ); 
-             return redirect()->route('all.return.purchase')->with($notification);  
-                
+             );
+             return redirect()->route('all.return.purchase')->with($notification);
+
             } catch (\Exception $e) {
                 DB::rollBack();
                 return response()->json(['error' => $e->getMessage()], 500);

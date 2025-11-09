@@ -4,12 +4,9 @@
     <div class="d-flex flex-column-fluid">
       <div class="container-fluid my-4">
         <div class="d-md-flex align-items-center justify-content-between">
-          <h3 class="mb-0">Purchase Details</h3>
+          <h3 class="mb-0">Sales Details</h3>
           <div class="text-end my-2 mt-md-0">
-            <a
-              class="btn btn-outline-primary"
-              href="{{ route('all.purchase') }}"
-            >
+            <a class="btn btn-outline-primary" href="{{ route('all.sale') }}">
               Back
             </a>
           </div>
@@ -31,20 +28,20 @@
                       border-radius: 10px 10px 0 0;
                     "
                   >
-                    <h5 class="mb-0 fw-bold">Supplier Information</h5>
+                    <h5 class="mb-0 fw-bold">Customer Information</h5>
                   </div>
                   <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Name:</strong>
-                      <span>{{ $purchase->supplier->name }}</span>
+                      <span>{{ $sales->customer->name }}</span>
                     </div>
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Email:</strong>
-                      <span>{{ $purchase->supplier->email }}</span>
+                      <span>{{ $sales->customer->email }}</span>
                     </div>
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Phone:</strong>
-                      <span>{{ $purchase->supplier->phone }}</span>
+                      <span>{{ $sales->customer->phone }}</span>
                     </div>
                   </div>
                 </div>
@@ -69,7 +66,7 @@
                   <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Warehouse:</strong>
-                      <span>{{ $purchase->warehouse->name }}</span>
+                      <span>{{ $sales->warehouse->name }}</span>
                     </div>
                   </div>
                 </div>
@@ -89,22 +86,28 @@
                       border-radius: 10px 10px 0 0;
                     "
                   >
-                    <h5 class="mb-0 fw-bold">Purchase Information</h5>
+                    <h5 class="mb-0 fw-bold">Sales Information</h5>
                   </div>
                   <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
-                      <strong class="me-2 text-muted">Purchase Date:</strong>
-                      <span>{{ $purchase->date }}</span>
+                      <strong class="me-2 text-muted">Sales Date:</strong>
+                      <span>{{ $sales->date }}</span>
                     </div>
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Status:</strong>
-                      <span>{{ $purchase->status }}</span>
+                      <span>{{ $sales->status }}</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                      <strong class="me-2 text-muted">Paid Amount:</strong>
+                      <span>{{ $sales->paid_amount }}</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                      <strong class="me-2 text-muted">Due Amount:</strong>
+                      <span>{{ $sales->due_amount }}</span>
                     </div>
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Grand Total:</strong>
-                      <span>
-                        {{ number_format($purchase->grand_total, 2) }}
-                      </span>
+                      <span>{{ number_format($sales->grand_total, 2) }}</span>
                     </div>
                   </div>
                 </div>
@@ -142,7 +145,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            @foreach ($purchase->purchaseItems as $key => $item)
+                            @foreach ($sales->saleItems as $key => $item)
                               <tr>
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $item->product->name }}</td>
@@ -150,12 +153,8 @@
                                 <td>
                                   {{ number_format($item->net_unit_cost, 2) }}
                                 </td>
-                                <td>
-                                  {{ number_format($item->discount, 2) }}
-                                </td>
-                                <td>
-                                  {{ number_format($item->subtotal, 2) }}
-                                </td>
+                                <td>{{ number_format($item->discount, 2) }}</td>
+                                <td>{{ number_format($item->subtotal, 2) }}</td>
                               </tr>
                             @endforeach
                           </tbody>

@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseController extends Controller
 {
@@ -59,6 +61,8 @@ class PurchaseController extends Controller
 
             DB::beginTransaction();
 
+            $grandTotal = 0;
+
             // Purchase Create
             $purchase = Purchase::create([
                 'date' => $request->date,
@@ -90,7 +94,7 @@ class PurchaseController extends Controller
                     'stock' => $product->product_qty + $productData['quantity'],
                     'quantity' => $productData['quantity'],
                     'discount' => $productData['discount'] ?? 0,
-                    'subtotal' => $subtotal, 
+                    'subtotal' => $subtotal,
                 ]);
                 $product->increment('product_qty', $productData['quantity']);
             }
@@ -133,7 +137,7 @@ class PurchaseController extends Controller
         DB::beginTransaction();
 
         try {
-            
+
             $purchase = Purchase::findOrFail($id);
 
             $purchase->update([
@@ -144,7 +148,7 @@ class PurchaseController extends Controller
                 'shipping' => $request->shipping ?? 0,
                 'status' => $request->status,
                 'note' => $request->note,
-                'grand_total' => $request->grand_total, 
+                'grand_total' => $request->grand_total,
             ]);
 
             // Get Old Purchase Items
@@ -171,15 +175,15 @@ class PurchaseController extends Controller
                     'stock' => $productData['stock'],
                     'quantity' => $productData['quantity'],
                     'discount' => $productData['discount'] ?? 0,
-                    'subtotal' => $productData['subtotal'],  
+                    'subtotal' => $productData['subtotal'],
                 ]);
-        
-                /// Update product stock by incremeting new quantity 
+
+                /// Update product stock by incremeting new quantity
                 $product = Product::find($product_id);
                 if ($product) {
                     $product->increment('product_qty',$productData['quantity']);
                     // Increment new quantity
-                 } 
+                 }
                }
 
                DB::commit();
@@ -187,11 +191,11 @@ class PurchaseController extends Controller
                $notification = array(
                 'message' => 'Purchase Updated Successfully',
                 'alert-type' => 'success'
-             ); 
+             );
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
-          }   
+          }
     }
     // End Methods
 
