@@ -2,6 +2,17 @@
 
 Dự án Hệ thống Quản lý Kho hàng được xây dựng trên nền tảng Laravel.
 
+## Mục lục
+
+- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
+- [Cấu trúc dự án](#cấu-trúc-dự-án)
+- [Khởi tạo nhanh (5 phút)](#khởi-tạo-nhanh-5-phút)
+- [Hướng dẫn cài đặt chi tiết](#hướng-dẫn-cài-đặt-chi-tiết)
+- [Định dạng Code với Prettier](#định-dạng-code-code-formatting-với-prettier)
+- [Quy trình làm việc nhóm với Git và CSDL](#quy-trình-làm-việc-nhóm-với-git-và-csdl)
+- [Các lệnh Artisan/NPM thường dùng](#các-lệnh-artisannpm-thường-dùng)
+- [Khắc phục sự cố thường gặp](#khắc-phục-sự-cố-thường-gặp)
+
 ## Yêu cầu hệ thống
 
 Để chạy dự án này, bạn cần cài đặt các phần mềm sau trên máy tính của mình:
@@ -11,6 +22,66 @@ Dự án Hệ thống Quản lý Kho hàng được xây dựng trên nền tả
 - Node.js và npm
 - Một server CSDL như MySQL hoặc MariaDB
 - **Prettier** (đã được tích hợp trong `package.json` để định dạng code)
+
+## Cấu trúc dự án
+
+Tổng quan các thư mục chính trong dự án Laravel này:
+
+```bash
+G14_Inventory_Management_System/
+├─ app/                 # Mã nguồn ứng dụng (Models, Http/Controllers, Policies, ...)
+│  ├─ Models/           # Eloquent models (ví dụ: SaleItem.php)
+│  └─ Http/
+│     ├─ Controllers/   # Controllers xử lý request
+│     └─ Middleware/    # Middleware
+├─ bootstrap/           # Bootstrap ứng dụng (autoload, cache)
+├─ config/              # File cấu hình
+├─ database/            # Migrations, seeders, factories
+├─ public/              # Document root (index.php), assets đã build
+├─ resources/           # View Blade, CSS/JS (Vite/Laravel Mix), email templates
+│  └─ views/            # Giao diện Blade (ví dụ: resources/views/admin/...)
+├─ routes/              # Định nghĩa route (web.php, api.php, ...)
+├─ storage/             # Logs, cache, file upload (liên kết với public/storage)
+├─ tests/               # Test (PHPUnit/Pest)
+├─ vendor/              # Thư viện PHP do Composer quản lý
+├─ .env.example         # Mẫu cấu hình môi trường
+├─ artisan              # CLI của Laravel
+├─ composer.json        # Khai báo package PHP
+├─ package.json         # Script và package JS (bao gồm Prettier)
+└─ README.md
+```
+
+Gợi ý: Khi thêm view mới, đặt trong `resources/views/...`; khi thêm route, chỉnh trong `routes/web.php` (cho trang web) hoặc `routes/api.php` (cho API).
+
+## Khởi tạo nhanh (5 phút)
+
+Áp dụng khi bạn đã cài đủ PHP/Composer/Node/MySQL.
+
+```bash
+# 1) Clone & vào thư mục dự án
+git clone git@github.com:19010853/G14_Inventory_Management_System.git
+cd G14_Inventory_Management_System
+
+# 2) Cài dependencies
+composer install
+npm install
+
+# 3) Tạo .env và key
+cp .env.example .env
+php artisan key:generate
+
+# 4) Cấu hình DB trong .env, sau đó:
+php artisan migrate --seed
+
+# 5) Tạo symbolic link cho storage (lưu/hiển thị file upload)
+php artisan storage:link
+
+# 6) Chạy frontend và server Laravel (mở 2 cửa sổ terminal riêng)
+npm run dev      # hoặc: npm run build cho build production
+php artisan serve
+```
+
+Truy cập ứng dụng tại `http://127.0.0.1:8000`.
 
 ## Hướng dẫn Cài đặt cho Lập trình viên mới
 
@@ -71,6 +142,14 @@ Lệnh này sẽ tạo toàn bộ cấu trúc bảng trong CSDL và chèn các d
 
 ```bash
 php artisan migrate:fresh --seed
+```
+
+### 6. Liên kết Storage (bắt buộc cho upload/file)
+
+Tạo symbolic link để có thể truy cập file upload qua `public/storage`:
+
+```bash
+php artisan storage:link
 ```
 
 ### 6. Cài đặt Extension cho Editor (Rất khuyến khích)
@@ -165,3 +244,39 @@ Trước khi tạo một commit mới, hãy đảm bảo bạn đã làm những
     git commit -m "feat: Mô tả ngắn về tính năng bạn đã làm"
     git push
     ```
+
+---
+
+## Các lệnh Artisan/NPM thường dùng
+
+- `php artisan serve`: Chạy server phát triển.
+- `php artisan migrate`: Chạy migration chưa áp dụng.
+- `php artisan migrate:fresh --seed`: Xóa và tạo lại DB kèm dữ liệu mẫu.
+- `php artisan db:seed`: Chạy seeder.
+- `php artisan tinker`: Môi trường REPL kiểm thử nhanh.
+- `php artisan route:list`: Liệt kê routes hiện có.
+- `php artisan cache:clear && php artisan config:clear && php artisan view:clear`: Xóa cache cấu hình/view.
+- `php artisan storage:link`: Tạo liên kết `public/storage`.
+- `npm run dev`: Build asset ở chế độ watch/dev.
+- `npm run build`: Build asset production.
+- `npm run format` / `npm run format:check`: Định dạng code và kiểm tra.
+
+---
+
+## Khắc phục sự cố thường gặp
+
+- Cổng 8000 đã được sử dụng: đổi cổng `php artisan serve --port=8001`.
+- Lỗi kết nối DB: kiểm tra `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` trong `.env`, đảm bảo MySQL đang chạy.
+- Không hiển thị file upload: chạy `php artisan storage:link`, kiểm tra quyền thư mục `storage/` và `public/`.
+- Thay đổi `.env` nhưng không có hiệu lực: chạy
+  ```bash
+  php artisan config:clear && php artisan cache:clear
+  ```
+- Lỗi Node/Frontend: đảm bảo `npm install` đã chạy; nếu cần, xóa `node_modules` rồi cài lại.
+- Push Git bị từ chối vì remote có commit mới:
+  ```bash
+  git fetch origin
+  git pull --rebase origin main
+  # giải quyết xung đột nếu có, sau đó:
+  git push origin main
+  ```
