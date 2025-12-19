@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Sale;
 use App\Models\SaleReturn;
 use App\Models\SaleReturnItem;
 use App\Models\Warehouse;
@@ -193,6 +194,27 @@ class SaleReturnController extends Controller
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
           }
+    }
+    // End Method
+
+    // Due Sale and Due Return Sale
+    public function DueSale(){
+        $sales = Sale::with(['customer','warehouse'])
+            ->select('id','customer_id','warehouse_id','due_amount')
+            ->where('due_amount', '>', 0)
+            ->get();
+        return view('admin.backend.due.sale_due',compact('sales'));
+
+    }
+    // End Method
+
+    public function DueSaleReturn(){
+        $sales = SaleReturn::with(['customer','warehouse'])
+            ->select('id','customer_id','warehouse_id','due_amount')
+            ->where('due_amount', '>', 0)
+            ->get();
+        return view('admin.backend.due.sale_return_due',compact('sales'));
+
     }
     // End Method
 

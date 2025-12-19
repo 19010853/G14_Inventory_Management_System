@@ -139,3 +139,8 @@ Route::controller(SaleReturnController::class)->group(function(){
     Route::get('/delete/sale/return/{id}', 'DeleteSalesReturn')->name('delete.return.sale');
 });
 });
+
+Route::controller(SaleReturnController::class)->group(function(){
+    Route::get('/due/sale', 'DueSale')->name('due.sale');
+    Route::get('/due/sale/return', 'DueSaleReturn')->name('due.sale.return');
+});
