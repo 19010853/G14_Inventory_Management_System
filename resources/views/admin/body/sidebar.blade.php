@@ -220,21 +220,21 @@
         </li>
 
         <li>
-        <a href="#Report" data-bs-toggle="collapse">
+          <a href="#Report" data-bs-toggle="collapse">
             <i data-feather="alert-octagon"></i>
-            <span> Report Setup </span>
+            <span>Report Setup</span>
             <span class="menu-arrow"></span>
-        </a>
-        <div class="collapse" id="Report">
+          </a>
+          <div class="collapse" id="Report">
             <ul class="nav-second-level">
-                <li>
-                    <a href="{{ route('all.report') }}" class="tp-link">All Reports </a>
-                </li>
-
-
+              <li>
+                <a href="{{ route('all.report') }}" class="tp-link">
+                  All Reports
+                </a>
+              </li>
             </ul>
-        </div>
-    </li>
+          </div>
+        </li>
 
         <li class="menu-title mt-2">General</li>
 
