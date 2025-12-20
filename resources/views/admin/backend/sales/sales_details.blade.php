@@ -153,8 +153,12 @@
                                 <td>
                                   {{ number_format($item->net_unit_cost, 2) }}
                                 </td>
-                                <td>{{ number_format($item->discount, 2) }}</td>
-                                <td>{{ number_format($item->subtotal, 2) }}</td>
+                                <td>
+                                  {{ number_format($item->discount, 2) }}
+                                </td>
+                                <td>
+                                  {{ number_format($item->subtotal, 2) }}
+                                </td>
                               </tr>
                             @endforeach
                           </tbody>

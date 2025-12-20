@@ -11,6 +11,7 @@ use App\Http\Controllers\Backend\ReturnPurchaseController;
 use App\Http\Controllers\Backend\SaleController;
 use App\Http\Controllers\Backend\SaleReturnController;
 use App\Http\Controllers\Backend\SupplierController;
+use App\Http\Controllers\Backend\TransferController;
 use App\Http\Controllers\Backend\WarehouseController;
 
 Route::get('/', function () {
@@ -138,9 +139,21 @@ Route::controller(SaleReturnController::class)->group(function(){
     Route::get('/details/sale/return/{id}', 'DetailsSalesReturn')->name('details.return.sale');
     Route::get('/delete/sale/return/{id}', 'DeleteSalesReturn')->name('delete.return.sale');
 });
-});
 
 Route::controller(SaleReturnController::class)->group(function(){
     Route::get('/due/sale', 'DueSale')->name('due.sale');
     Route::get('/due/sale/return', 'DueSaleReturn')->name('due.sale.return');
 });
+
+Route::controller(TransferController::class)->group(function(){
+    Route::get('/all/transfer', 'AllTransfer')->name('all.transfer');
+    Route::get('/add/transfer', 'AddTransfer')->name('add.transfer');
+    Route::post('/store/transfer', 'StoreTransfer')->name('store.transfer');
+    Route::get('/edit/transfer/{id}', 'EditTransfer')->name('edit.transfer');
+    Route::post('/update/transfer/{id}', 'UpdateTransfer')->name('update.transfer');
+    Route::get('/delete/transfer/{id}', 'DeleteTransfer')->name('delete.transfer');
+    Route::get('/details/transfer/{id}', 'DetailsTransfer')->name('details.transfer');
+});
+
+});
+
