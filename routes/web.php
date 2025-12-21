@@ -14,6 +14,7 @@ use App\Http\Controllers\Backend\SaleReturnController;
 use App\Http\Controllers\Backend\SupplierController;
 use App\Http\Controllers\Backend\TransferController;
 use App\Http\Controllers\Backend\WarehouseController;
+use App\Http\Controllers\Backend\RoleController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -164,6 +165,15 @@ Route::controller(ReportController::class)->group(function(){
     Route::get('/filter-sales', 'FilterSales')->name('filter-sales');
     Route::get('/sale/return/report', 'SaleReturnReport')->name('sale.return.report');
     Route::get('/product/stock/report', 'ProductStockReport')->name('product.stock.report');
+});
+
+Route::controller(RoleController::class)->group(function(){
+    Route::get('/all/permission', 'AllPermission')->name('all.permission');
+    Route::get('/add/permission', 'AddPermission')->name('add.permission');
+    Route::post('/store/permission', 'StorePermission')->name('store.permission');
+    Route::get('/edit/permission/{id}', 'EditPermission')->name('edit.permission');
+    Route::post('/update/permission', 'UpdatePermission')->name('update.permission');
+    Route::get('/delete/permission/{id}', 'DeletePermission')->name('delete.permission');
 });
 
 });

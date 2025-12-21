@@ -23,8 +23,8 @@ return new class extends Migration
             $table->decimal('grand_total', 15 , 2);
             $table->timestamps();
 
-            $table->foreign('from_warehouse_id')->references('id')->on('ware_houses')->onDelete('cascade');
-            $table->foreign('to_warehouse_id')->references('id')->on('ware_houses')->onDelete('cascade');
+            $table->foreign('from_warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');
+            $table->foreign('to_warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');
         });
     }
 
