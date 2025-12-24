@@ -11,6 +11,9 @@ class WarehouseController extends Controller
 {
     //All Warehouse
     public function AllWarehouse(){
+        if (!auth()->user()->hasPermissionTo('all.warehouse')) {
+            abort(403, 'Unauthorized Action');
+        }
         $warehouse = Warehouse::latest()->get();
         return view('admin.backend.warehouse.all_warehouse',compact('warehouse'));
     }
