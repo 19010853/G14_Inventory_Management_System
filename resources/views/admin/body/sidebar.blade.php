@@ -252,7 +252,9 @@
                 </a>
               </li>
               <li>
-                <a href="ui-alerts.html" class="tp-link">Alerts</a>
+                <a href="{{ route('all.roles') }}" class="tp-link">
+                  All Roles
+                </a>
               </li>
             </ul>
           </div>
