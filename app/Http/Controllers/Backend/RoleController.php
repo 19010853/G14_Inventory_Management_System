@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -229,4 +230,96 @@ class RoleController extends Controller
          return redirect()->back()->with($notification);
     }
     // End Method
+
+    //Show All Admin Roles with their Permissions
+    public function AllAdmin(){
+        $alladmin = User::where('role','admin')->latest()->get();
+        return view('admin.backend.pages.admin.all_admin',compact('alladmin'));
+    }
+    // End Method
+
+    // Add Admin Roles with their Permissions
+    public function AddAdmin(){
+        $roles = Role::all();
+        return view('admin.backend.pages.admin.add_admin',compact('roles'));
+    }
+    // End Method
+
+    // Store Admin Roles with their Permissions
+    public function StoreAdmin(Request $request){
+
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->role = 'admin';
+        $user->save();
+
+        if ($request->roles) {
+            $role = Role::where('id',$request->roles)->where('guard_name','web')->first();
+            if ($role) {
+                $user->assignRole($role->name);
+            }
+        }
+
+        $notification = array(
+            'message' => 'New Admin Inserted Successfully',
+            'alert-type' => 'success'
+         );
+         return redirect()->route('all.admin')->with($notification);
+
+    }
+    // End Method
+
+    // Edit Admin Roles with their Permissions
+    public function EditAdmin($id){
+        $admin = User::find($id);
+        $roles = Role::all();
+        return view('admin.backend.pages.admin.edit_admin',compact('admin','roles'));
+    }
+    // End Method
+
+    // Update Admin Roles with their Permissions after press edit button
+    public function UpdateAdmin(Request $request,$id){
+
+        $user = User::find($id);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->role = 'admin';
+        $user->save();
+
+        $user->roles()->detach();
+
+        if ($request->roles) {
+            $role = Role::where('id',$request->roles)->where('guard_name','web')->first();
+            if ($role) {
+                $user->assignRole($role->name);
+            }
+        }
+
+        $notification = array(
+            'message' => 'New Admin Updated Successfully',
+            'alert-type' => 'success'
+         );
+         return redirect()->route('all.admin')->with($notification);
+
+    }
+     // End Method
+
+    // Delete Admin Roles with their Permissions
+    public function DeleteAdmin($id){
+
+        $admin = User::find($id);
+        if (!is_null($admin)) {
+            $admin->delete();
+        }
+
+        $notification = array(
+            'message' => ' Admin Deleted Successfully',
+            'alert-type' => 'success'
+         );
+         return redirect()->back()->with($notification);
+
+    }
+     // End Method
 }
