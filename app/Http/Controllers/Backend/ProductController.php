@@ -10,11 +10,42 @@ use App\Models\ProductImage;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 
 class ProductController extends Controller
 {
+    private const PRODUCT_DIR = 'upload/producting';
+
+    private function imageDisk(): string
+    {
+        return config('filesystems.default', 'public');
+    }
+
+    private function storeProductImage($uploadedFile): string
+    {
+        $manager = new ImageManager(new Driver());
+        $name = hexdec(uniqid()).'.'.$uploadedFile->getClientOriginalExtension();
+
+        $image = $manager->read($uploadedFile)->resize(150, 150);
+        $path = self::PRODUCT_DIR.'/'.$name;
+
+        Storage::disk($this->imageDisk())
+            ->put($path, (string) $image->toJpeg(85), ['visibility' => 'public']);
+
+        return $path;
+    }
+
+    private function deleteImageIfExists(?string $path): void
+    {
+        if (!$path) {
+            return;
+        }
+
+        Storage::disk($this->imageDisk())->delete($path);
+    }
+
     // All Product
     public function AllProduct(){
         $allData = Product::orderBy('id','DESC')->get();
@@ -54,11 +85,7 @@ class ProductController extends Controller
         // Multiple Image Upload
         if ($request->hasFile('image')){
             foreach($request->file('image') as $img){
-                $manager = new ImageManager(new Driver());
-                $name_gen = hexdec(uniqid()).'.'.$img->getClientOriginalExtension();
-                $imgs = $manager->read($img);
-                $imgs->resize(150, 150)->save(public_path('upload/producting/'.$name_gen));
-                $save_url = 'upload/producting/'.$name_gen;
+                $save_url = $this->storeProductImage($img);
 
                 ProductImage::create([
                     'product_id' => $product_id,
@@ -107,15 +134,10 @@ class ProductController extends Controller
         $product->status = $request->status;
         $product->save();
 
-        if ($request->hasFile('iamge')){
+        if ($request->hasFile('image')){
             foreach($request->file('image') as $img){
-                $manager = new ImageManager(new Driver());
-                $name_gen = hexdec(uniqid()).'.'.$img->getClientOriginalExtension();
-                $imgs = $manager->read($img);
-                $imgs->resize(150, 150)->save(public_path('upload/producting/'.$name_gen));
-
                 $product->imgs()->create([
-                    'image' => 'upload/producting/'.$name_gen,
+                    'image' => $this->storeProductImage($img),
                 ]);
             }
         }
@@ -124,9 +146,7 @@ class ProductController extends Controller
             foreach($request->remove_image as $removeImageId){
                 $img = ProductImage::find($removeImageId);
                 if ($img){
-                    if (file_exists(public_path($img->image))){
-                        unlink(public_path($img->image));
-                    }
+                    $this->deleteImageIfExists($img->image);
                     $img->delete();
                 }
             }
@@ -147,10 +167,7 @@ class ProductController extends Controller
         // Delete associated images
         $images = ProductImage::where('product_id', $id)->get();
         foreach ($images as $img) {
-            $imagePath = public_path($img->image);
-            if (file_exists($imagePath)) {
-                unlink($imagePath);
-            }
+            $this->deleteImageIfExists($img->image);
         }
 
         // Delete image records from database

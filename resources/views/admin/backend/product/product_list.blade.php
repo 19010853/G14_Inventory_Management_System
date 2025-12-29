@@ -46,11 +46,11 @@
                       <td>{{ $key + 1 }}</td>
                       <td>
                         @php
-                          $primaryImage = $item->images->first()->image ?? '/upload/no_image.jpg';
+                          $primaryImage = $item->images->first()->image ?? null;
                         @endphp
 
                         <img
-                          src="{{ asset($primaryImage) }}"
+                          src="{{ $primaryImage ? Storage::url($primaryImage) : asset('upload/no_image.jpg') }}"
                           alt="img"
                           width="40px"
                         />

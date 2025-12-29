@@ -4,12 +4,45 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 
 class BrandController extends Controller
 {
+    private const BRAND_DIR = 'upload/brand';
+
+    private function imageDisk(): string
+    {
+        // Allow switching between local/public/s3 from .env via FILESYSTEM_DISK
+        return config('filesystems.default', 'public');
+    }
+
+    private function storeBrandImage($uploadedFile): string
+    {
+        $manager = new ImageManager(new Driver());
+        $name = hexdec(uniqid()).'.'.$uploadedFile->getClientOriginalExtension();
+
+        // Resize with Intervention then store via Laravel filesystem (S3-compatible)
+        $image = $manager->read($uploadedFile)->resize(100, 90);
+        $path = self::BRAND_DIR.'/'.$name;
+
+        Storage::disk($this->imageDisk())
+            ->put($path, (string) $image->toJpeg(85), ['visibility' => 'public']);
+
+        return $path;
+    }
+
+    private function deleteImageIfExists(?string $path): void
+    {
+        if (!$path) {
+            return;
+        }
+
+        Storage::disk($this->imageDisk())->delete($path);
+    }
+
     //All Brand
     public function AllBrand(){
         if (!auth()->user()->hasPermissionTo('all.brand')) {
@@ -30,12 +63,7 @@ class BrandController extends Controller
     public function StoreBrand(Request $request){
 
         if ($request->file('image')){
-            $image=$request->file('image');
-            $manager= new ImageManager(new Driver());
-            $name_gen= hexdec(uniqid()).'.'.$image->getClientOriginalExtension();
-            $img = $manager->read($image);
-            $img->resize(100,90)->save(public_path('upload/brand/'.$name_gen));
-            $save_url='upload/brand/'.$name_gen;
+            $save_url = $this->storeBrandImage($request->file('image'));
 
             Brand::create([
                 'name'=>$request->name,
@@ -67,16 +95,8 @@ class BrandController extends Controller
         $brand = Brand::find($brand_id);
 
         if ($request->file('image')){
-            $image = $request->file('image');
-            $manager = new ImageManager(new Driver());
-            $name_gen = hexdec(uniqid()).'.'.$image->getClientOriginalExtension();
-            $img = $manager->read($image);
-            $img->resize(100,90)->save(public_path('upload/brand/'.$name_gen));
-            $save_url = 'upload/brand/'.$name_gen;
-
-            if (file_exists((public_path($brand->image)))){
-                @unlink(public_path($brand->image));
-            }
+            $save_url = $this->storeBrandImage($request->file('image'));
+            $this->deleteImageIfExists($brand?->image);
 
             Brand::find($brand_id)->update([
                 'name' => $request->name,
@@ -107,8 +127,7 @@ class BrandController extends Controller
     //Delete Brand
     public function DeleteBrand($id){
         $item = Brand::find($id);
-        $img = $item->image;
-        unlink($img);
+        $this->deleteImageIfExists($item?->image);
 
         Brand::find($id)->delete();
 
