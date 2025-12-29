@@ -15,13 +15,13 @@ class RoleController extends Controller
     // Show All Permission
     public function AllPermission(){
         $permissions = Permission::all();
-        return view('admin.backend.pages.permission.all_permission',compact('permissions'));
+        return view('admin.pages.permission.all_permission',compact('permissions'));
     }
     // End Method
 
     // Add New Permission
     public function AddPermission(){
-        return view('admin.backend.pages.permission.add_permission');
+        return view('admin.pages.permission.add_permission');
     }
     // End Method
 
@@ -44,7 +44,7 @@ class RoleController extends Controller
     // Edit Permission
     public function EditPermission($id){
         $permissions = Permission::find($id);
-        return view('admin.backend.pages.permission.edit_permission',compact('permissions'));
+        return view('admin.pages.permission.edit_permission',compact('permissions'));
 
      }
      // End Method
