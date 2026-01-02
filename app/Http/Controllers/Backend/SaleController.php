@@ -11,6 +11,9 @@ use App\Models\Warehouse;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Notifications\NewSaleNotification;
+use Illuminate\Support\Facades\Notification;
 
 class SaleController extends Controller
 {
@@ -82,6 +85,9 @@ class SaleController extends Controller
                 $sales->update(['grand_total' => $grandTotal + $request->shipping - $request->discount]);
 
                 DB::commit();
+
+                $admin = User::role('Super Admin')->get();
+                Notification::send($admin, new NewSaleNotification($sales));
 
                 $notification = array(
                     'message' => 'Sale Stored Successfully',

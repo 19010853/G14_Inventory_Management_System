@@ -175,5 +175,36 @@
         }
       });
     </script>
+
+    <!-- Right bar overlay-->
+    <div class="rightbar-overlay"></div>
+
+    @vite('resources/js/app.js')
+    <script type="module">
+    window.Echo.private('App.Models.User.{{ auth()->id() }}')
+        .notification((notification) => {
+            // 1. Hiển thị thông báo dạng popup (Toastr)
+            toastr.success(notification.message, notification.title);
+
+            // 2. Cập nhật số lượng trên icon chuông thông báo (nếu có)
+            let count = parseInt($('#notification-count').text());
+            $('#notification-count').text(count + 1);
+
+            // 3. Chèn thêm dòng thông báo mới vào danh sách dropdown mà không cần F5
+            let newHtml = `
+                <a href="${notification.link}" class="text-reset notification-item">
+                    <div class="d-flex">
+                        <div class="flex-1">
+                            <h6 class="mb-1">${notification.title}</h6>
+                            <div class="font-size-12 text-muted">
+                                <p class="mb-1">${notification.message}</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>`;
+            $('#notification-list').prepend(newHtml);
+        });
+</script>
+
   </body>
 </html>
