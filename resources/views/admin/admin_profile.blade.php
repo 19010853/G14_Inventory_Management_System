@@ -173,7 +173,7 @@
                               <label class="form-label">Old Password</label>
                               <div class="col-lg-12 col-xl-12">
                                 <input
-                                  class="form-control @error('old_password') is-invalid@enderror"
+                                  class="form-control @error('old_password') is-invalid @enderror"
                                   name="old_password"
                                   id="old_password"
                                   type="password"
@@ -190,7 +190,7 @@
                               <label class="form-label">New Password</label>
                               <div class="col-lg-12 col-xl-12">
                                 <input
-                                  class="form-control @error('new_password') is-invalid@enderror"
+                                  class="form-control @error('new_password') is-invalid @enderror"
                                   name="new_password"
                                   id="new_password"
                                   type="password"

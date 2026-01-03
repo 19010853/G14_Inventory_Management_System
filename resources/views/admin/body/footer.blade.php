@@ -6,10 +6,10 @@
         <script>
           document.write(new Date().getFullYear());
         </script>
-        - Made with
+        - Made Hoang, Khoi, Van, Tuyen from Group 14
         <span class="mdi mdi-heart text-danger"></span>
-        by
-        <a href="#!" class="text-reset fw-semibold">easylearningbd.com</a>
+        from
+        <a href="#!" class="text-reset fw-semibold">20251web@gmail.com</a>
       </div>
     </div>
   </div>

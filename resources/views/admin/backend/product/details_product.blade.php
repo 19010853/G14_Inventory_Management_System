@@ -25,7 +25,7 @@
               <div class="d-flex flex-wrap">
                 @forelse ($product->images as $image)
                   <img
-                    src="{{ asset($image->image) }}"
+                    src="{{ Storage::url($image->image) }}"
                     alt="image"
                     class="me-2 mb-2"
                     width="100"
