@@ -1,4 +1,15 @@
 <div class="app-sidebar-menu">
+    <!-- DEBUG: Display User Roles -->
+    @if(Auth::check())
+        <div style="padding: 10px; background: #ff0; color: #000; border: 2px solid red;">
+            <strong>DEBUG INFO:</strong><br>
+            User ID: {{ Auth::user()->id }}<br>
+            User Name: {{ Auth::user()->name }}<br>
+            Roles: {{ Auth::user()->getRoleNames() }}
+        </div>
+    @endif
+    <!-- END DEBUG -->
+
   <div class="h-100" data-simplebar>
     <!--- Sidemenu -->
     <div id="sidebar-menu">
@@ -49,85 +60,77 @@
 
         <li class="menu-title">Pages</li>
 
-        @if (Auth::guard('web')->user()->can('brand.menu'))
-          <li>
-            <a href="#sidebarAuth" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
-              <span>Brand Manage</span>
-              <span class="menu-arrow"></span>
-            </a>
-            <div class="collapse" id="sidebarAuth">
-              <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.brand'))
+        <li>
+          <a href="#sidebarAuth" data-bs-toggle="collapse">
+            <i data-feather="users"></i>
+            <span>Brand Manage</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <div class="collapse" id="sidebarAuth">
+            <ul class="nav-second-level">
+              
                   <li>
                     <a href="{{ route('all.brand') }}" class="tp-link">
                       All Brand
                     </a>
                   </li>
-                @endif
-              </ul>
-            </div>
-          </li>
-        @endif
+                
+            </ul>
+          </div>
+        </li>
 
-        @if (Auth::guard('web')->user()->can('warehouse.menu'))
-          <li>
-            <a href="#WareHouse" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
-              <span>WareHouse Manage</span>
-              <span class="menu-arrow"></span>
-            </a>
-            <div class="collapse" id="WareHouse">
-              <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.warehouse'))
+        <li>
+          <a href="#WareHouse" data-bs-toggle="collapse">
+            <i data-feather="users"></i>
+            <span>WareHouse Manage</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <div class="collapse" id="WareHouse">
+            <ul class="nav-second-level">
+              
                   <li>
                     <a href="{{ route('all.warehouse') }}" class="tp-link">
                       All WareHouse
                     </a>
                   </li>
-                @endif
-              </ul>
-            </div>
-          </li>
-        @endif
+                
+            </ul>
+          </div>
+        </li>
 
-        @if (Auth::guard('web')->user()->can('supplier.menu'))
-          <li>
-            <a href="#Supplier" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
-              <span>Supplier Manage</span>
-              <span class="menu-arrow"></span>
-            </a>
-            <div class="collapse" id="Supplier">
-              <ul class="nav-second-level">
-                <li>
-                  <a href="{{ route('all.supplier') }}" class="tp-link">
-                    All Supplier
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </li>
-        @endif
+        <li>
+          <a href="#Supplier" data-bs-toggle="collapse">
+            <i data-feather="users"></i>
+            <span>Supplier Manage</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <div class="collapse" id="Supplier">
+            <ul class="nav-second-level">
+              <li>
+                <a href="{{ route('all.supplier') }}" class="tp-link">
+                  All Supplier
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
 
-        @if (Auth::guard('web')->user()->can('customer.menu'))
-          <li>
-            <a href="#Customer" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
-              <span>Customer Manage</span>
-              <span class="menu-arrow"></span>
-            </a>
-            <div class="collapse" id="Customer">
-              <ul class="nav-second-level">
-                <li>
-                  <a href="{{ route('all.customer') }}" class="tp-link">
-                    All Customer
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </li>
-        @endif
+        <li>
+          <a href="#Customer" data-bs-toggle="collapse">
+            <i data-feather="users"></i>
+            <span>Customer Manage</span>
+            <span class="menu-arrow"></span>
+          </a>
+          <div class="collapse" id="Customer">
+            <ul class="nav-second-level">
+              <li>
+                <a href="{{ route('all.customer') }}" class="tp-link">
+                  All Customer
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
 
         <li>
           <a href="#Product" data-bs-toggle="collapse">
