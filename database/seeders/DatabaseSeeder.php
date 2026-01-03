@@ -14,32 +14,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // First, run the seeder that creates all the permissions
         $this->call(PermissionSeeder::class);
 
-        // Read the admin credentials from the .env file
-        $adminName = env('ADMIN_NAME');
-        $adminEmail = env('ADMIN_EMAIL');
-        $adminPassword = env('ADMIN_PASSWORD');
+        $user = User::updateOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@example.com')],
+            [
+                'name' => env('ADMIN_NAME', 'Super Admin'),
+                'password' => Hash::make(env('ADMIN_PASSWORD', 'password')),
+                'role' => 'admin', // Ensure role is 'admin'
+                'status' => '1',
+                'email_verified_at' => now(),
+            ]
+        );
 
-        // Only proceed if all three environment variables are set
-        if ($adminName && $adminEmail && $adminPassword) {
-            
-            // Find the user by email, or create a new one if they don't exist.
-            // Update their name and password.
-            $admin = User::updateOrCreate(
-                ['email' => $adminEmail],
-                [
-                    'name' => $adminName,
-                    'password' => Hash::make($adminPassword),
-                ]
-            );
-
-            // Find the 'Super Admin' role, or create it if it doesn't exist.
-            $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
-
-            // Assign the 'Super Admin' role to the user.
-            $admin->assignRole($superAdminRole);
+        // Find and assign the Super Admin role
+        $superAdminRole = Role::where('name', 'Super Admin')->first();
+        if ($superAdminRole) {
+            $user->assignRole($superAdminRole);
         }
 
         // Optional: seed dummy users for local development
