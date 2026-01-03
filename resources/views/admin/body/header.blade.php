@@ -41,58 +41,47 @@
             aria-expanded="false"
           >
             <i data-feather="bell" class="noti-icon"></i>
-            <span class="badge bg-danger rounded-circle noti-icon-badge">
-              9
+            @php
+                $notifications = auth()->user()->unreadNotifications;
+            @endphp
+            <span class="badge bg-danger rounded-circle noti-icon-badge" id="notification-count">
+              {{ $notifications->count() }}
             </span>
           </a>
-          <div class="dropdown-menu dropdown-menu-end dropdown-lg">
-            <!-- item-->
-            <div class="dropdown-item noti-title">
-              <h5 class="m-0">
-                <span class="float-end">
-                  <a href="" class="text-dark">
-                    <small>Clear All</small>
-                  </a>
-                </span>
-                Notification
-              </h5>
-            </div>
-
-            <div class="noti-scroll" data-simplebar>
-              <!-- item-->
-              <a
-                href="javascript:void(0);"
-                class="dropdown-item notify-item text-muted link-primary active"
-              >
-                <div class="notify-icon">
-                  <img
-                    src="assets/images/users/user-12.jpg"
-                    class="img-fluid rounded-circle"
-                    alt=""
-                  />
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0">
+            <div class="p-3">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h6 class="m-0"> Notifications ({{ $notifications->count() }}) </h6>
+                    </div>
                 </div>
-                <div class="d-flex align-items-center justify-content-between">
-                  <p class="notify-details">Carl Steadham</p>
-                  <small class="text-muted">5 min ago</small>
-                </div>
-                <p class="mb-0 user-msg">
-                  <small class="fs-14">
-                    Completed
-                    <span class="text-reset">Improve workflow in Figma</span>
-                  </small>
-                </p>
-              </a>
             </div>
-
-            <!-- All-->
-            <a
-              href="javascript:void(0);"
-              class="dropdown-item text-center text-primary notify-item notify-all"
-            >
-              View all
-              <i class="fe-arrow-right"></i>
-            </a>
-          </div>
+            <div data-simplebar style="max-height: 230px;" id="notification-list">
+                @foreach($notifications as $notification)
+                <a href="{{ $notification->data['link'] }}" class="text-reset notification-item">
+                    <div class="d-flex">
+                        <div class="avatar-xs me-3">
+                            <span class="avatar-title bg-primary rounded-circle font-size-16">
+                                <i class="ri-shopping-cart-line"></i>
+                            </span>
+                        </div>
+                        <div class="flex-1">
+                            <h6 class="mb-1">{{ $notification->data['title'] }}</h6>
+                            <div class="font-size-12 text-muted">
+                                <p class="mb-1">{{ $notification->data['message'] }}</p>
+                                <p class="mb-0"><i class="mdi mdi-clock-outline"></i> {{ $notification->created_at->diffForHumans() }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+            <div class="p-2 border-top">
+                <a class="btn btn-sm btn-link font-size-14 w-100 text-center" href="javascript:void(0)">
+                    <i class="mdi mdi-arrow-right-circle me-1"></i> View all...
+                </a>
+            </div>
+        </div>
         </li>
 
         @php

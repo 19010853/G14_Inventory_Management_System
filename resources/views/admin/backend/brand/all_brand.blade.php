@@ -44,7 +44,7 @@
                       <td>{{ $item->name }}</td>
                       <td>
                         <img
-                          src="{{ asset($item->image) }}"
+                          src="{{ Storage::url($item->image) }}"
                           style="width: 70px; height: 40px"
                         />
                       </td>

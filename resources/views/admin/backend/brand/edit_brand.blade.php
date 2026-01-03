@@ -64,7 +64,7 @@
                   <label for="validationDefault02" class="form-label"></label>
                   <img
                     id="showImage"
-                    src="{{ asset($brand->image) }}"
+                    src="{{ Storage::url($brand->image) }}"
                     class="rounded-circle avatar-xl img-thumbnail float-start"
                     alt="image profile"
                   />
