@@ -29,11 +29,9 @@ class PermissionSeeder extends Seeder
             Permission::updateOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        $role = Role::where('name', 'Super Admin')->first();
+        $role = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
 
-        if ($role) {
-            $all_permissions = Permission::all();
-            $role->syncPermissions($all_permissions);
-        }
+        $all_permissions = Permission::all();
+        $role->syncPermissions($all_permissions);
     }
 }
