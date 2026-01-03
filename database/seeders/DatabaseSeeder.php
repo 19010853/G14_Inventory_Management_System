@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
@@ -15,33 +14,32 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // First, run the seeder that creates all the permissions
         $this->call(PermissionSeeder::class);
 
+        // Read the admin credentials from the .env file
         $adminName = env('ADMIN_NAME');
         $adminEmail = env('ADMIN_EMAIL');
         $adminPassword = env('ADMIN_PASSWORD');
 
-        // Only create/update seeded admin if the env vars are provided.
-        // This keeps production/staging flexible and avoids accidentally creating users.
+        // Only proceed if all three environment variables are set
         if ($adminName && $adminEmail && $adminPassword) {
-            \App\Models\User::factory()->create([
-        'name' => env('ADMIN_NAME', 'Admin'),
-        'email' => env('ADMIN_EMAIL', 'admin@gmail.com'),
-        'password' => bcrypt(env('ADMIN_PASSWORD', '12345678')),
-        'role' => 'admin', // Đảm bảo role là admin
-        'status' => '1',
-    ]);
+            
+            // Find the user by email, or create a new one if they don't exist.
+            // Update their name and password.
+            $admin = User::updateOrCreate(
+                ['email' => $adminEmail],
+                [
+                    'name' => $adminName,
+                    'password' => Hash::make($adminPassword),
+                ]
+            );
 
-            // If the app uses Spatie Permission, assign a role if it exists.
-            // Prefer 'Super Admin', otherwise fall back to 'Admin'.
-            if (method_exists($admin, 'assignRole')) {
-                $roleName = Role::where('name', 'Super Admin')->where('guard_name', 'web')->value('name')
-                    ?? Role::where('name', 'Admin')->where('guard_name', 'web')->value('name');
+            // Find the 'Super Admin' role, or create it if it doesn't exist.
+            $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
 
-                if ($roleName) {
-                    $admin->assignRole($roleName);
-                }
-            }
+            // Assign the 'Super Admin' role to the user.
+            $admin->assignRole($superAdminRole);
         }
 
         // Optional: seed dummy users for local development
