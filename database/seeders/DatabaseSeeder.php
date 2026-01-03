@@ -24,13 +24,13 @@ class DatabaseSeeder extends Seeder
         // Only create/update seeded admin if the env vars are provided.
         // This keeps production/staging flexible and avoids accidentally creating users.
         if ($adminName && $adminEmail && $adminPassword) {
-            $admin = User::updateOrCreate(
-                ['email' => $adminEmail],
-                [
-                    'name' => $adminName,
-                    'password' => Hash::make($adminPassword),
-                ]
-            );
+            \App\Models\User::factory()->create([
+        'name' => env('ADMIN_NAME', 'Admin'),
+        'email' => env('ADMIN_EMAIL', 'admin@gmail.com'),
+        'password' => bcrypt(env('ADMIN_PASSWORD', '12345678')),
+        'role' => 'admin', // Đảm bảo role là admin
+        'status' => '1',
+    ]);
 
             // If the app uses Spatie Permission, assign a role if it exists.
             // Prefer 'Super Admin', otherwise fall back to 'Admin'.
