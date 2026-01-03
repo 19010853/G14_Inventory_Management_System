@@ -82,13 +82,13 @@ class RoleController extends Controller
     // Show All Roles
     public function AllRoles(){
         $roles = Role::all();
-        return view('admin.backend.pages.role.all_role',compact('roles'));
+        return view('admin.pages.role.all_role',compact('roles'));
     }
     // End Method
 
     // Add New Roles
     public function AddRoles(){
-        return view('admin.backend.pages.role.add_role');
+        return view('admin.pages.role.add_role');
     }
     // End Method
 
@@ -109,7 +109,7 @@ class RoleController extends Controller
 
      public function EditRoles($id){
         $roles = Role::find($id);
-        return view('admin.backend.pages.role.edit_role',compact('roles'));
+        return view('admin.pages.role.edit_role',compact('roles'));
 
      }
      // End Method
@@ -148,7 +148,7 @@ class RoleController extends Controller
         $roles = Role::all();
         $permissions = Permission::all();
         $permission_groups = User::getpermissionGroups();
-        return view('admin.backend.pages.rolesetup.add_roles_permission',compact('roles','permissions','permission_groups'));
+        return view('admin.pages.rolesetup.add_roles_permission',compact('roles','permissions','permission_groups'));
 
     }
      // End Method
@@ -180,7 +180,7 @@ class RoleController extends Controller
     //Show All Roles with their Permissions
     public function AllRolesPermission(){
         $roles = Role::all();
-        return view('admin.backend.pages.rolesetup.all_roles_permission',compact('roles'));
+        return view('admin.pages.rolesetup.all_roles_permission',compact('roles'));
       }
       // End Method
 
@@ -189,7 +189,7 @@ class RoleController extends Controller
         $role = Role::find($id);
         $permissions = Permission::all();
         $permission_groups = User::getpermissionGroups();
-        return view('admin.backend.pages.rolesetup.edit_roles_permission',compact('role','permissions','permission_groups'));
+        return view('admin.pages.rolesetup.edit_roles_permission',compact('role','permissions','permission_groups'));
 
     }
     // End Method
@@ -234,14 +234,14 @@ class RoleController extends Controller
     //Show All Admin Roles with their Permissions
     public function AllAdmin(){
         $alladmin = User::where('role','admin')->latest()->get();
-        return view('admin.backend.pages.admin.all_admin',compact('alladmin'));
+        return view('admin.pages.admin.all_admin',compact('alladmin'));
     }
     // End Method
 
     // Add Admin Roles with their Permissions
     public function AddAdmin(){
         $roles = Role::all();
-        return view('admin.backend.pages.admin.add_admin',compact('roles'));
+        return view('admin.pages.admin.add_admin',compact('roles'));
     }
     // End Method
 
@@ -275,7 +275,7 @@ class RoleController extends Controller
     public function EditAdmin($id){
         $admin = User::find($id);
         $roles = Role::all();
-        return view('admin.backend.pages.admin.edit_admin',compact('admin','roles'));
+        return view('admin.pages.admin.edit_admin',compact('admin','roles'));
     }
     // End Method
 

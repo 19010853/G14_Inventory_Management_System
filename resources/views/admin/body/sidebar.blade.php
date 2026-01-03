@@ -3,7 +3,7 @@
     <!--- Sidemenu -->
     <div id="sidebar-menu">
       <div class="logo-box">
-        <a href="index.html" class="logo logo-light">
+        <a href="{{ route('dashboard') }}" class="logo logo-light">
           <span class="logo-sm">
             <img
               src="{{ asset('backend/assets/images/logo-sm.png') }}"
@@ -19,7 +19,7 @@
             />
           </span>
         </a>
-        <a href="index.html" class="logo logo-dark">
+        <a href="{{ route('dashboard') }}" class="logo logo-dark">
           <span class="logo-sm">
             <img
               src="{{ asset('backend/assets/images/logo-sm.png') }}"
@@ -300,25 +300,7 @@
           </div>
         </li>
 
-        <li>
-          <a href="#sidebarAdvancedUI" data-bs-toggle="collapse">
-            <i data-feather="cpu"></i>
-            <span>Extended UI</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <div class="collapse" id="sidebarAdvancedUI">
-            <ul class="nav-second-level">
-              <li>
-                <a href="extended-carousel.html" class="tp-link">Carousel</a>
-              </li>
-              <li>
-                <a href="extended-notifications.html" class="tp-link">
-                  Notifications
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
+
       </ul>
     </div>
     <!-- End Sidebar -->
