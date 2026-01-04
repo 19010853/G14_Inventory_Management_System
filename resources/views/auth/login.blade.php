@@ -2,14 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Login Page</title>
+    <title>Login - Inventory Management System | G14</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="A fully featured admin theme which can be used to build CRM, CMS, etc."
+      content="Login to G14 Inventory Management System - Secure access to your inventory management dashboard"
     />
-    <meta name="author" content="Zoyothemes" />
+    <meta name="author" content="Group 14 - Hoang, Khoi, Van, Tuyen" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    
+    {{-- Security and Verification Meta Tags --}}
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+    <link rel="canonical" href="{{ url('/login') }}" />
 
     <!-- App favicon -->
     <link
