@@ -239,7 +239,25 @@ class ProductController extends Controller
     // Product Details
     public function ProductDetails($id){
         try {
-            $product = Product::with(['images', 'warehouse', 'supplier', 'category', 'brand'])->findOrFail($id);
+            // Load product with all relationships, using null-safe approach
+            $product = Product::with([
+                'images' => function($query) {
+                    $query->select('id', 'product_id', 'image');
+                },
+                'warehouse' => function($query) {
+                    $query->select('id', 'name');
+                },
+                'supplier' => function($query) {
+                    $query->select('id', 'name');
+                },
+                'category' => function($query) {
+                    $query->select('id', 'category_name');
+                },
+                'brand' => function($query) {
+                    $query->select('id', 'name');
+                }
+            ])->findOrFail($id);
+            
             // Pass image disk to view for proper URL generation
             $imageDisk = $this->imageDisk();
 
@@ -250,9 +268,10 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             \Log::error('Failed to load product details: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
+            \Log::error('Product ID: ' . $id);
             
             $notification = array(
-                'message' => 'Failed to load product details. Please try again.',
+                'message' => 'Failed to load product details: ' . $e->getMessage(),
                 'alert-type' => 'error'
             );
             
