@@ -25,48 +25,91 @@
             <!-- end card header -->
 
             <div class="card-body">
-              <table
-                id="datatable"
-                class="table table-bordered dt-responsive table-responsive nowrap"
-              >
-                <thead>
-                  <tr>
-                    <th>Sl</th>
-                    <th>WareHouse Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>City</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @foreach ($warehouse as $key => $item)
+              <div class="table-responsive">
+                <table
+                  id="datatable"
+                  class="table table-bordered dt-responsive nowrap"
+                >
+                  <thead>
                     <tr>
-                      <td>{{ $key + 1 }}</td>
-                      <td>{{ $item->name }}</td>
-                      <td>{{ $item->email }}</td>
-                      <td>{{ $item->phone }}</td>
-                      <td>{{ $item->city }}</td>
-                      <td>
-                        <a
-                          href="{{ route('edit.warehouse', $item->id) }}"
-                          class="btn btn-success btn-sm"
-                        >
-                          Edit
-                        </a>
-                        <a
-                          href="{{ route('delete.warehouse', $item->id) }}"
-                          class="btn btn-danger btn-sm"
-                          id="delete"
-                        >
-                          Delete
-                        </a>
-                      </td>
+                      <th style="width: 50px;">Sl</th>
+                      <th style="min-width: 150px;">WareHouse Name</th>
+                      <th style="min-width: 180px;">Email</th>
+                      <th style="min-width: 120px;">Phone</th>
+                      <th style="min-width: 200px; max-width: 300px;">City</th>
+                      <th style="width: 120px;">Action</th>
                     </tr>
-                  @endforeach
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    @foreach ($warehouse as $key => $item)
+                      <tr>
+                        <td>{{ $key + 1 }}</td>
+                        <td>{{ $item->name }}</td>
+                        <td>{{ $item->email }}</td>
+                        <td>{{ $item->phone }}</td>
+                        <td style="word-wrap: break-word; word-break: break-word; white-space: normal; max-width: 300px;">
+                          {{ $item->city }}
+                        </td>
+                        <td>
+                          <a
+                            href="{{ route('edit.warehouse', $item->id) }}"
+                            class="btn btn-success btn-sm"
+                          >
+                            Edit
+                          </a>
+                          <a
+                            href="{{ route('delete.warehouse', $item->id) }}"
+                            class="btn btn-danger btn-sm"
+                            id="delete"
+                          >
+                            Delete
+                          </a>
+                        </td>
+                      </tr>
+                    @endforeach
+                  </tbody>
+                </table>
+              </div>
             </div>
+            
+            <style>
+              /* Responsive table styles for warehouse */
+              @media (max-width: 1200px) {
+                #datatable th:nth-child(5),
+                #datatable td:nth-child(5) {
+                  min-width: 250px;
+                  max-width: 350px;
+                }
+              }
+              
+              @media (max-width: 992px) {
+                #datatable th:nth-child(5),
+                #datatable td:nth-child(5) {
+                  min-width: 200px;
+                  max-width: 300px;
+                }
+              }
+              
+              /* Ensure City column wraps properly */
+              #datatable td:nth-child(5) {
+                word-wrap: break-word;
+                word-break: break-word;
+                white-space: normal;
+                line-height: 1.5;
+              }
+              
+              /* Responsive adjustments when sidebar is toggled */
+              .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+              }
+              
+              /* Ensure table doesn't break layout */
+              #datatable {
+                width: 100% !important;
+                table-layout: auto;
+              }
+            </style>
           </div>
         </div>
       </div>
