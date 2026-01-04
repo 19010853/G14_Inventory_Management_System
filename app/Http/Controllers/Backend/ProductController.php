@@ -238,7 +238,7 @@ class ProductController extends Controller
 
     // Product Details
     public function ProductDetails($id){
-        $product = Product::findOrFail($id);
+        $product = Product::with(['images', 'warehouse', 'supplier', 'category', 'brand'])->findOrFail($id);
         // Pass image disk to view for proper URL generation
         $imageDisk = $this->imageDisk();
 

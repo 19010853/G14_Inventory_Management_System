@@ -66,19 +66,19 @@
                 </li>
                 <li class="list-group-item">
                   <strong>Warehouse:</strong>
-                  {{ $product->warehouse->name }}
+                  {{ $product->warehouse->name ?? 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Supplier:</strong>
-                  {{ $product->supplier->name }}
+                  {{ $product->supplier->name ?? 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Category:</strong>
-                  {{ $product->category->category_name }}
+                  {{ $product->category->category_name ?? 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Brand:</strong>
-                  {{ $product->brand->name }}
+                  {{ $product->brand->name ?? 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Price:</strong>
