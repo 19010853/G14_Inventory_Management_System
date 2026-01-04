@@ -83,40 +83,72 @@ class ProductController extends Controller
 
     // Store Product
     public function StoreProduct(Request $request){
-        $product = Product::create([
-            'name' => $request->name,
-            'code' => $request->code,
-            'category_id' => $request->category_id,
-            'brand_id' => $request->brand_id,
-            'warehouse_id' => $request->warehouse_id,
-            'supplier_id' => $request->supplier_id,
-            'price' => $request->price,
-            'stock_alert' => $request->stock_alert,
-            'note' => $request->note,
-            'product_qty' => $request->product_qty,
-            'status' => $request->status,
-            'created_at' => now(),
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:product_categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
+            'supplier_id' => 'nullable|exists:suppliers,id',
+            'price' => 'nullable|numeric|min:0',
+            'stock_alert' => 'nullable|integer|min:0',
+            'product_qty' => 'nullable|integer|min:0',
+            'status' => 'nullable|string|max:255',
+            'note' => 'nullable|string',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $product_id = $product->id;
+        try {
+            $product = Product::create([
+                'name' => $request->name,
+                'code' => $request->code,
+                'category_id' => $request->category_id,
+                'brand_id' => $request->brand_id,
+                'warehouse_id' => $request->warehouse_id,
+                'supplier_id' => $request->supplier_id,
+                'price' => $request->price ?? 0,
+                'stock_alert' => $request->stock_alert ?? 0,
+                'note' => $request->note,
+                'product_qty' => $request->product_qty ?? 0,
+                'status' => $request->status ?? 'Pending',
+            ]);
 
-        // Multiple Image Upload
-        if ($request->hasFile('image')){
-            foreach($request->file('image') as $img){
-                $save_url = $this->storeProductImage($img);
+            $product_id = $product->id;
 
-                ProductImage::create([
-                    'product_id' => $product_id,
-                    'image' => $save_url,
-                ]);
+            // Multiple Image Upload
+            if ($request->hasFile('image')){
+                foreach($request->file('image') as $img){
+                    try {
+                        $save_url = $this->storeProductImage($img);
+
+                        ProductImage::create([
+                            'product_id' => $product_id,
+                            'image' => $save_url,
+                        ]);
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to store product image: ' . $e->getMessage());
+                        // Continue with other images even if one fails
+                    }
+                }
             }
-        }
 
-        $notification = array(
-            'message' => 'Product Inserted Successfully',
-            'alert-type' => 'success'
-        );
-        return redirect()->route('all.product')->with($notification);
+            $notification = array(
+                'message' => 'Product Inserted Successfully',
+                'alert-type' => 'success'
+            );
+            return redirect()->route('all.product')->with($notification);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Failed to store product: ' . $e->getMessage());
+            
+            $notification = array(
+                'message' => 'Failed to insert product: ' . $e->getMessage(),
+                'alert-type' => 'error'
+            );
+
+            return redirect()->back()->withInput()->with($notification);
+        }
     }
     // End Method
 
@@ -150,7 +182,7 @@ class ProductController extends Controller
         $product->stock_alert = $request->stock_alert;
         $product->note = $request->note;
         $product->supplier_id = $request->supplier_id;
-        $product->product_qty = $request->product_qty;
+        $product->product_quantity = $request->product_qty ?? 0;
         $product->status = $request->status;
         $product->save();
 

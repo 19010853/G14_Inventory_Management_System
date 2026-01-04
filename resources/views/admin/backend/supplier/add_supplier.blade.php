@@ -88,7 +88,8 @@
             required: true,
           },
           email: {
-            required: true,
+            required: false,
+            email: true,
           },
           address: {
             required: true,
@@ -99,7 +100,7 @@
             required: 'Please Enter Supplier Name',
           },
           email: {
-            required: 'Please Enter Supplier Email',
+            email: 'Please enter a valid email address',
           },
           address: {
             required: 'Please Enter Supplier address',

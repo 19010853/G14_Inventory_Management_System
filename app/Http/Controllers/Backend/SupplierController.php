@@ -24,6 +24,14 @@ class SupplierController extends Controller
 
     //Store Supplier
     public function StoreSupplier(Request $request){
+        // Clean email - if it's not a valid email format, set to null
+        $email = $request->email;
+        if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $email = null;
+            // Merge cleaned email back to request for validation
+            $request->merge(['email' => null]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|unique:suppliers,email',
@@ -34,7 +42,7 @@ class SupplierController extends Controller
         try {
             Supplier::create([
                 'name' => $request->name,
-                'email' => $request->email,
+                'email' => $email,
                 'phone' => $request->phone,
                 'address' => $request->address,
             ]);
@@ -45,11 +53,13 @@ class SupplierController extends Controller
             );
 
             return redirect()->route('all.supplier')->with($notification);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
         } catch (\Exception $e) {
             \Log::error('Failed to store supplier: ' . $e->getMessage());
             
             $notification = array(
-                'message' => 'Failed to insert supplier. Please try again.',
+                'message' => 'Failed to insert supplier: ' . $e->getMessage(),
                 'alert-type' => 'error'
             );
 

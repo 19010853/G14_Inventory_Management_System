@@ -9,6 +9,18 @@ class Product extends Model
     //
     protected $guarded = [];
 
+    // Accessor for product_qty (maps to product_quantity column)
+    public function getProductQtyAttribute()
+    {
+        return $this->attributes['product_quantity'] ?? 0;
+    }
+
+    // Mutator for product_qty (maps to product_quantity column)
+    public function setProductQtyAttribute($value)
+    {
+        $this->attributes['product_quantity'] = $value ?? 0;
+    }
+
     public function images(){
         return $this->hasMany(ProductImage::class);
     }
