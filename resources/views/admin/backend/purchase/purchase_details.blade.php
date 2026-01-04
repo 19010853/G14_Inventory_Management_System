@@ -36,15 +36,15 @@
                   <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Name:</strong>
-                      <span>{{ $purchase->supplier->name }}</span>
+                      <span>{{ $purchase->supplier->name ?? 'N/A' }}</span>
                     </div>
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Email:</strong>
-                      <span>{{ $purchase->supplier->email }}</span>
+                      <span>{{ $purchase->supplier->email ?? 'N/A' }}</span>
                     </div>
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Phone:</strong>
-                      <span>{{ $purchase->supplier->phone }}</span>
+                      <span>{{ $purchase->supplier->phone ?? 'N/A' }}</span>
                     </div>
                   </div>
                 </div>
@@ -69,7 +69,7 @@
                   <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Warehouse:</strong>
-                      <span>{{ $purchase->warehouse->name }}</span>
+                      <span>{{ $purchase->warehouse->name ?? 'N/A' }}</span>
                     </div>
                   </div>
                 </div>
@@ -142,22 +142,26 @@
                             </tr>
                           </thead>
                           <tbody>
-                            @foreach ($purchase->purchaseItems as $key => $item)
+                            @forelse ($purchase->purchaseItems as $key => $item)
                               <tr>
                                 <td>{{ $key + 1 }}</td>
-                                <td>{{ $item->product->name }}</td>
-                                <td>{{ $item->quantity }}</td>
+                                <td>{{ $item->product->name ?? 'N/A' }}</td>
+                                <td>{{ $item->quantity ?? 0 }}</td>
                                 <td>
-                                  {{ number_format($item->net_unit_cost, 2) }}
+                                  {{ number_format($item->net_unit_cost ?? 0, 2) }}
                                 </td>
                                 <td>
-                                  {{ number_format($item->discount, 2) }}
+                                  {{ number_format($item->discount ?? 0, 2) }}
                                 </td>
                                 <td>
-                                  {{ number_format($item->subtotal, 2) }}
+                                  {{ number_format($item->subtotal ?? 0, 2) }}
                                 </td>
                               </tr>
-                            @endforeach
+                            @empty
+                              <tr>
+                                <td colspan="6" class="text-center">No items found</td>
+                              </tr>
+                            @endforelse
                           </tbody>
                         </table>
                       </div>

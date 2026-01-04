@@ -93,11 +93,11 @@
     <tr data-id={{ $item->id  }}>
        
         <td class="d-flex align-items-center gap-2">
-            <input type="text" class="form-control" value="{{ $item->product->code }} - {{ $item->product->name }}" readonly style="max-width: 300px" >
+            <input type="text" class="form-control" value="{{ ($item->product->code ?? '') }} - {{ $item->product->name ?? 'N/A' }}" readonly style="max-width: 300px" >
             <button type="button" class="btn btn-primary btn-sm edit-discount-btn" 
             data-id="{{ $item->id }}"
-            data-name="{{ $item->product->name }}"
-            data-cost="{{ $item->net_unit_cost }}"
+            data-name="{{ $item->product->name ?? 'N/A' }}"
+            data-cost="{{ $item->net_unit_cost ?? 0 }}"
             data-bs-toggle="modal" data-bs-target="#discountModal" >
             <span class="mdi mdi-book-edit "></span> 
             </button> 
@@ -108,7 +108,7 @@
 
     </td>
     <td>
-        <input type="number" name="products[{{ $item->product->id }}][stock]" class="form-control" value="{{ $item->product->product_qty }}" style="max-width: 80px;" readonly>
+        <input type="number" name="products[{{ $item->product->id }}][stock]" class="form-control" value="{{ $item->product->product_quantity ?? 0 }}" style="max-width: 80px;" readonly>
     </td>
 
     <td>

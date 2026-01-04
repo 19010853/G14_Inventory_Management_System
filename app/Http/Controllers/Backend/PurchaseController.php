@@ -139,10 +139,18 @@ class PurchaseController extends Controller
 
     // Edit Purchase Methods
     public function EditPurchase($id){
-        $editData = Purchase::with('purchaseItems.product')->findOrFail($id);
-        $suppliers = Supplier::all();
-        $warehouses = Warehouse::all();
-        return view('admin.backend.purchase.edit_purchase',compact('editData','suppliers','warehouses'));
+        try {
+            $editData = Purchase::with(['supplier', 'warehouse', 'purchaseItems.product'])->findOrFail($id);
+            $suppliers = Supplier::all();
+            $warehouses = Warehouse::all();
+            return view('admin.backend.purchase.edit_purchase', compact('editData', 'suppliers', 'warehouses'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            abort(404, 'Purchase not found');
+        } catch (\Exception $e) {
+            \Log::error('Edit purchase error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            abort(500, 'Failed to load purchase for editing: ' . $e->getMessage());
+        }
     }
     // End Methods
 
@@ -221,8 +229,19 @@ class PurchaseController extends Controller
 
     // Show Purchase Details Methods
     public function DetailsPurchase($id){
-        $purchase = Purchase::with(['supplier', 'purchaseItems.product'])->find($id);
-        return view('admin.backend.purchase.purchase_details',compact('purchase'));
+        try {
+            $purchase = Purchase::with(['supplier', 'warehouse', 'purchaseItems.product'])->find($id);
+            
+            if (!$purchase) {
+                abort(404, 'Purchase not found');
+            }
+            
+            return view('admin.backend.purchase.purchase_details', compact('purchase'));
+        } catch (\Exception $e) {
+            \Log::error('Purchase details error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            abort(500, 'Failed to load purchase details: ' . $e->getMessage());
+        }
     }
     // End Methods
 
