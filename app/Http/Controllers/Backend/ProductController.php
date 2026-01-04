@@ -237,7 +237,7 @@ class ProductController extends Controller
     // End Method
 
     // Product Details
-    public function ProductDetails($id){
+    public function DetailsProduct($id){
         try {
             // Load product with all relationships, using null-safe approach
             $product = Product::with([
