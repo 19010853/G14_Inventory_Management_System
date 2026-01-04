@@ -1,5 +1,8 @@
 @extends('admin.admin_master')
 @section('admin')
+  @php
+    use Illuminate\Support\Facades\Storage;
+  @endphp
   <div class="content">
     <!-- Start Content-->
     <div class="container-xxl">
@@ -23,33 +26,35 @@
             <div class="col-md-4">
               <h5 class="mb-3">Product Images</h5>
               <div class="d-flex flex-wrap">
-                @forelse ($product->images ?? [] as $image)
-                  @php
-                    $imageUrl = asset('upload/no_image.jpg');
-                    try {
-                      if ($image && $image->image) {
-                        $imageUrl = \Illuminate\Support\Facades\Storage::disk($imageDisk ?? 'public')->url($image->image);
-                      }
-                    } catch (\Exception $e) {
+                @if(isset($product->images) && $product->images->count() > 0)
+                  @foreach($product->images as $image)
+                    @php
                       $imageUrl = asset('upload/no_image.jpg');
-                    }
-                  @endphp
-                  <img
-                    src="{{ $imageUrl }}"
-                    alt="image"
-                    class="me-2 mb-2"
-                    width="100"
-                    height="100"
-                    style="
-                      object-fit: cover;
-                      border: 1px solid #ddd;
-                      border-radius: 5px;
-                    "
-                    onerror="this.src='{{ asset('upload/no_image.jpg') }}'"
-                  />
-                @empty
+                      try {
+                        if ($image && !empty($image->image)) {
+                          $imageUrl = Storage::disk($imageDisk ?? 'public')->url($image->image);
+                        }
+                      } catch (\Exception $e) {
+                        $imageUrl = asset('upload/no_image.jpg');
+                      }
+                    @endphp
+                    <img
+                      src="{{ $imageUrl }}"
+                      alt="image"
+                      class="me-2 mb-2"
+                      width="100"
+                      height="100"
+                      style="
+                        object-fit: cover;
+                        border: 1px solid #ddd;
+                        border-radius: 5px;
+                      "
+                      onerror="this.src='{{ asset('upload/no_image.jpg') }}'"
+                    />
+                  @endforeach
+                @else
                   <p class="text-danger">No Image Available</p>
-                @endforelse
+                @endif
               </div>
             </div>
 
@@ -59,51 +64,55 @@
               <ul class="list-group">
                 <li class="list-group-item">
                   <strong>Name:</strong>
-                  {{ $product->name }}
+                  {{ $product->name ?? 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Code:</strong>
-                  {{ $product->code }}
+                  {{ $product->code ?? 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Warehouse:</strong>
-                  {{ $product->warehouse ? $product->warehouse->name : 'N/A' }}
+                  {{ ($product->warehouse && $product->warehouse->name) ? $product->warehouse->name : 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Supplier:</strong>
-                  {{ $product->supplier ? $product->supplier->name : 'N/A' }}
+                  {{ ($product->supplier && $product->supplier->name) ? $product->supplier->name : 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Category:</strong>
-                  {{ $product->category ? $product->category->category_name : 'N/A' }}
+                  {{ ($product->category && $product->category->category_name) ? $product->category->category_name : 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Brand:</strong>
-                  {{ $product->brand ? $product->brand->name : 'N/A' }}
+                  {{ ($product->brand && $product->brand->name) ? $product->brand->name : 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Price:</strong>
-                  {{ $product->price }}
+                  ${{ number_format($product->price ?? 0, 2) }}
                 </li>
                 <li class="list-group-item">
-                  <strong>Stock Aleart:</strong>
-                  {{ $product->stock_alert }}
+                  <strong>Stock Alert:</strong>
+                  {{ $product->stock_alert ?? 0 }}
                 </li>
                 <li class="list-group-item">
                   <strong>Product Qty:</strong>
-                  {{ $product->product_qty }}
+                  {{ $product->product_quantity ?? 0 }}
                 </li>
                 <li class="list-group-item">
                   <strong>Product Status:</strong>
-                  {{ $product->status }}
+                  {{ $product->status ?? 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Product Note:</strong>
-                  {{ $product->note }}
+                  {{ $product->note ?? 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Create On:</strong>
-                  {{ \Carbon\Carbon::parse($product->created_at)->format('d F Y') }}
+                  @if($product->created_at)
+                    {{ \Carbon\Carbon::parse($product->created_at)->format('d F Y') }}
+                  @else
+                    N/A
+                  @endif
                 </li>
               </ul>
             </div>

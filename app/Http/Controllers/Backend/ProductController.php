@@ -245,10 +245,18 @@ class ProductController extends Controller
 
             return view('admin.backend.product.details_product',compact('product', 'imageDisk'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('Product not found: ' . $id);
             abort(404, 'Product not found');
         } catch (\Exception $e) {
             \Log::error('Failed to load product details: ' . $e->getMessage());
-            abort(500, 'Failed to load product details');
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            $notification = array(
+                'message' => 'Failed to load product details. Please try again.',
+                'alert-type' => 'error'
+            );
+            
+            return redirect()->route('all.product')->with($notification);
         }
     }
 }
