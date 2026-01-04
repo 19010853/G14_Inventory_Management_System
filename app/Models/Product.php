@@ -12,7 +12,7 @@ class Product extends Model
     // Accessor for product_qty (maps to product_quantity column)
     public function getProductQtyAttribute()
     {
-        return $this->attributes['product_quantity'] ?? 0;
+        return $this->getAttribute('product_quantity') ?? 0;
     }
 
     // Mutator for product_qty (maps to product_quantity column)

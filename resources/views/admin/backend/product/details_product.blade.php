@@ -23,12 +23,13 @@
             <div class="col-md-4">
               <h5 class="mb-3">Product Images</h5>
               <div class="d-flex flex-wrap">
-                @forelse ($product->images as $image)
+                @forelse ($product->images ?? [] as $image)
                   @php
+                    $imageUrl = asset('upload/no_image.jpg');
                     try {
-                      $imageUrl = $image->image 
-                        ? Storage::disk($imageDisk ?? 'public')->url($image->image) 
-                        : asset('upload/no_image.jpg');
+                      if ($image && $image->image) {
+                        $imageUrl = \Illuminate\Support\Facades\Storage::disk($imageDisk ?? 'public')->url($image->image);
+                      }
                     } catch (\Exception $e) {
                       $imageUrl = asset('upload/no_image.jpg');
                     }
@@ -66,19 +67,19 @@
                 </li>
                 <li class="list-group-item">
                   <strong>Warehouse:</strong>
-                  {{ $product->warehouse->name ?? 'N/A' }}
+                  {{ $product->warehouse ? $product->warehouse->name : 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Supplier:</strong>
-                  {{ $product->supplier->name ?? 'N/A' }}
+                  {{ $product->supplier ? $product->supplier->name : 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Category:</strong>
-                  {{ $product->category->category_name ?? 'N/A' }}
+                  {{ $product->category ? $product->category->category_name : 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Brand:</strong>
-                  {{ $product->brand->name ?? 'N/A' }}
+                  {{ $product->brand ? $product->brand->name : 'N/A' }}
                 </li>
                 <li class="list-group-item">
                   <strong>Price:</strong>

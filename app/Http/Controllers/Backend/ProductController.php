@@ -238,10 +238,17 @@ class ProductController extends Controller
 
     // Product Details
     public function ProductDetails($id){
-        $product = Product::with(['images', 'warehouse', 'supplier', 'category', 'brand'])->findOrFail($id);
-        // Pass image disk to view for proper URL generation
-        $imageDisk = $this->imageDisk();
+        try {
+            $product = Product::with(['images', 'warehouse', 'supplier', 'category', 'brand'])->findOrFail($id);
+            // Pass image disk to view for proper URL generation
+            $imageDisk = $this->imageDisk();
 
-        return view('admin.backend.product.details_product',compact('product', 'imageDisk'));
+            return view('admin.backend.product.details_product',compact('product', 'imageDisk'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            abort(404, 'Product not found');
+        } catch (\Exception $e) {
+            \Log::error('Failed to load product details: ' . $e->getMessage());
+            abort(500, 'Failed to load product details');
+        }
     }
 }
