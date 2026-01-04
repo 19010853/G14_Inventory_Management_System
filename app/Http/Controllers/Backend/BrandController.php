@@ -28,8 +28,22 @@ class BrandController extends Controller
         $image = $manager->read($uploadedFile)->resize(100, 90);
         $path = self::BRAND_DIR.'/'.$name;
 
-        Storage::disk($this->imageDisk())
-            ->put($path, (string) $image->toJpeg(85), ['visibility' => 'public']);
+        $disk = $this->imageDisk();
+        
+        try {
+            // For S3, ensure visibility is set correctly
+            if ($disk === 's3') {
+                Storage::disk($disk)->put($path, (string) $image->toJpeg(85), [
+                    'visibility' => 'public',
+                    'ContentType' => 'image/jpeg'
+                ]);
+            } else {
+                Storage::disk($disk)->put($path, (string) $image->toJpeg(85), ['visibility' => 'public']);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to store brand image: ' . $e->getMessage());
+            throw $e;
+        }
 
         return $path;
     }
@@ -112,7 +126,9 @@ class BrandController extends Controller
             abort(403, 'Unauthorized Action');
         }
         $brand = Brand::find($id);
-        return view('admin.backend.brand.edit_brand',compact('brand'));
+        // Pass image disk to view for proper URL generation
+        $imageDisk = $this->imageDisk();
+        return view('admin.backend.brand.edit_brand',compact('brand', 'imageDisk'));
     }
     //End Method
 

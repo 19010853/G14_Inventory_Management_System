@@ -58,6 +58,8 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
             'report' => false,
+            // Note: If AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are empty,
+            // AWS SDK will automatically use IAM Role credentials from EC2 instance metadata
         ],
 
     ],

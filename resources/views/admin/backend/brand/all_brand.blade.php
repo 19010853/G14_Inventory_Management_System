@@ -44,9 +44,13 @@
                       <td>{{ $item->name }}</td>
                       <td>
                         @php
-                          $imageUrl = $item->image 
-                            ? Storage::disk($imageDisk ?? 'public')->url($item->image) 
-                            : asset('upload/no_image.jpg');
+                          try {
+                            $imageUrl = $item->image 
+                              ? Storage::disk($imageDisk ?? 'public')->url($item->image) 
+                              : asset('upload/no_image.jpg');
+                          } catch (\Exception $e) {
+                            $imageUrl = asset('upload/no_image.jpg');
+                          }
                         @endphp
                         <img
                           src="{{ $imageUrl }}"

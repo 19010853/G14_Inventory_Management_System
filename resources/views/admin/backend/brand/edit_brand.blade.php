@@ -62,11 +62,17 @@
 
                 <div class="col-md-6">
                   <label for="validationDefault02" class="form-label"></label>
+                  @php
+                    $currentImageUrl = $brand->image 
+                      ? Storage::disk($imageDisk ?? 'public')->url($brand->image) 
+                      : asset('upload/no_image.jpg');
+                  @endphp
                   <img
                     id="showImage"
-                    src="{{ Storage::url($brand->image) }}"
+                    src="{{ $currentImageUrl }}"
                     class="rounded-circle avatar-xl img-thumbnail float-start"
                     alt="image profile"
+                    onerror="this.src='{{ asset('upload/no_image.jpg') }}'"
                   />
                 </div>
 
