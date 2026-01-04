@@ -58,6 +58,7 @@
                           href="{{ route('delete.supplier', $item->id) }}"
                           class="btn btn-danger btn-sm"
                           id="delete"
+                          data-delete-text="this supplier"
                         >
                           Delete
                         </a>

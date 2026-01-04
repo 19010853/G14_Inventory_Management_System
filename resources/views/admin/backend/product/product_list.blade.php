@@ -102,6 +102,7 @@
                           href="{{ route('delete.product', $item->id) }}"
                           class="btn btn-danger btn-sm"
                           id="delete"
+                          data-delete-text="this product"
                         >
                           <span class="mdi mdi-delete-circle mdi-18px"></span>
                         </a>

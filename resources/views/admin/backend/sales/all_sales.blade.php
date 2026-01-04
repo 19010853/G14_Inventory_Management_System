@@ -95,6 +95,7 @@
                           href="{{ route('delete.sale', $item->id) }}"
                           class="btn btn-danger btn-sm"
                           id="delete"
+                          data-delete-text="this sale"
                         >
                           <span class="mdi mdi-delete-circle mdi-18px"></span>
                         </a>

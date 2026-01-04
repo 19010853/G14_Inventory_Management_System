@@ -76,7 +76,7 @@
                             class="btn btn-danger btn-sm"
                             id="delete"
                             title="Delete"
-                            onclick="return confirm('Are you sure you want to delete this brand?')"
+                            data-delete-text="this brand"
                           >
                             Delete
                           </a>

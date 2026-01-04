@@ -64,6 +64,7 @@
                           href="{{ route('delete.category', $item->id) }}"
                           class="btn btn-danger btn-sm"
                           id="delete"
+                          data-delete-text="this category"
                         >
                           Delete
                         </a>

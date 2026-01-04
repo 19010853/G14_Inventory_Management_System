@@ -182,6 +182,36 @@
     <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteConfirmModalLabel">
+              <i class="mdi mdi-alert-circle text-danger me-2"></i>
+              Confirm Delete
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-0">Are you sure you want to delete this data?</p>
+            <p class="text-muted small mt-2 mb-0">This action cannot be undone.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="mdi mdi-close me-1"></i> Cancel
+            </button>
+            <a href="#" id="confirmDeleteBtn" class="btn btn-danger">
+              <i class="mdi mdi-delete me-1"></i> Delete
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Script -->
+    <script src="{{ asset('backend/assets/js/code.js') }}"></script>
+
     @vite('resources/js/app.js')
     <script type="module">
     window.Echo.private('App.Models.User.{{ auth()->id() }}')

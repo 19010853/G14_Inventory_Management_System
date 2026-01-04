@@ -52,6 +52,7 @@
                           href="{{ route('delete.roles', $item->id) }}"
                           class="btn btn-danger btn-sm"
                           id="delete"
+                          data-delete-text="this role"
                         >
                           Delete
                         </a>

@@ -54,6 +54,7 @@
                           href="{{ route('delete.permission', $item->id) }}"
                           class="btn btn-danger btn-sm"
                           id="delete"
+                          data-delete-text="this permission"
                         >
                           Delete
                         </a>

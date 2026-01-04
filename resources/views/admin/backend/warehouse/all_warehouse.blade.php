@@ -57,13 +57,14 @@
                           >
                             Edit
                           </a>
-                          <a
-                            href="{{ route('delete.warehouse', $item->id) }}"
-                            class="btn btn-danger btn-sm"
-                            id="delete"
-                          >
-                            Delete
-                          </a>
+                        <a
+                          href="{{ route('delete.warehouse', $item->id) }}"
+                          class="btn btn-danger btn-sm"
+                          id="delete"
+                          data-delete-text="this warehouse"
+                        >
+                          Delete
+                        </a>
                         </td>
                       </tr>
                     @endforeach
