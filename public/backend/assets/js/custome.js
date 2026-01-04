@@ -90,15 +90,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let row = `
       <tr data-id="${productId}">
-          <td>
-              ${productCode} - ${productName}
-              <button type="button" class="btn btn-primary btn-sm edit-discount-btn"
-                  data-id="${productId}"
-                  data-name="${productName}"
-                  data-cost="${netUnitCost}"
-                  data-bs-toggle="modal">
-                  <span class="mdi mdi-book-edit "></span>
-              </button>
+          <td style="word-wrap: break-word; word-break: break-word; white-space: normal; line-height: 1.5;">
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 5px;">
+                <span style="flex: 1; min-width: 0;">${productCode} - ${productName}</span>
+                <button type="button" class="btn btn-primary btn-sm edit-discount-btn"
+                    data-id="${productId}"
+                    data-name="${productName}"
+                    data-cost="${netUnitCost}"
+                    data-bs-toggle="modal"
+                    style="flex-shrink: 0;">
+                    <span class="mdi mdi-book-edit "></span>
+                </button>
+              </div>
               <input type="hidden" name="products[${productId}][id]" value="${productId}">
               <input type="hidden" name="products[${productId}][name]" value="${productName}">
               <input type="hidden" name="products[${productId}][code]" value="${productCode}">

@@ -111,12 +111,12 @@ class PurchaseController extends Controller
                     'purchase_id' => $purchase->id,
                     'product_id' => $productData['id'],
                     'net_unit_cost' => $netUnitCost,
-                    'stock' => $product->product_qty + $productData['quantity'],
+                    'stock' => $product->product_quantity + $productData['quantity'],
                     'quantity' => $productData['quantity'],
                     'discount' => $productData['discount'] ?? 0,
                     'subtotal' => $subtotal,
                 ]);
-                $product->increment('product_qty', $productData['quantity']);
+                $product->increment('product_quantity', $productData['quantity']);
             }
 
             $purchase->update(['grand_total' => $grandTotal + $request->shipping - $request->discount]);
@@ -178,7 +178,7 @@ class PurchaseController extends Controller
             foreach ($oldPurchaseItems as $oldItems) {
                 $product = Product::find($oldItems->product_id);
                 if ($product) {
-                    $product->decrement('product_qty', $oldItems->quantity);
+                    $product->decrement('product_quantity', $oldItems->quantity);
                     // Decrement old quantity from purchase items table
                 }
             }
@@ -201,7 +201,7 @@ class PurchaseController extends Controller
                 /// Update product stock by incremeting new quantity
                 $product = Product::find($product_id);
                 if ($product) {
-                    $product->increment('product_qty',$productData['quantity']);
+                    $product->increment('product_quantity',$productData['quantity']);
                     // Increment new quantity
                  }
                }
@@ -246,7 +246,7 @@ class PurchaseController extends Controller
             foreach ($purchaseItems as $item) {
                 $product = Product::find($item->product_id);
                 if ($product) {
-                    $product->decrement('product_qty', $item->quantity);
+                    $product->decrement('product_quantity', $item->quantity);
                 }
             }
             PurchaseItem::where('purchase_id', $id)->delete();

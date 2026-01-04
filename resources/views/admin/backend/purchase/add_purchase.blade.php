@@ -77,24 +77,49 @@
   <div class="row">
      <div class="col-md-12">
         <label class="form-label">Order items: <span class="text-danger">*</span></label>
-        <table class="table table-striped table-bordered dataTable" style="width: 100%;">
-           <thead>
-              <tr role="row">
-                 <th>Product</th>
-                 <th>Net Unit Cost</th>
-                 <th>Stock</th>
-                 <th>Qty</th>
-                 <th>Discount</th>
-                 <th>Subtotal</th>
-                 <th>Action</th>
-              </tr>
-           </thead>
-           <tbody>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered dataTable" style="width: 100%;">
+             <thead>
+                <tr role="row">
+                   <th style="min-width: 200px; max-width: 300px;">Product</th>
+                   <th>Net Unit Cost</th>
+                   <th>Stock</th>
+                   <th>Qty</th>
+                   <th>Discount</th>
+                   <th>Subtotal</th>
+                   <th>Action</th>
+                </tr>
+             </thead>
+             <tbody>
 
-           </tbody>
-        </table>
+             </tbody>
+          </table>
+        </div>
      </div>
   </div>
+  
+  <style>
+    /* Responsive table styles for purchase order items */
+    .table-responsive table tbody td:first-child {
+      word-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
+      line-height: 1.5;
+      max-width: 300px;
+    }
+    
+    .table-responsive table tbody td:first-child button {
+      margin-top: 5px;
+      display: inline-block;
+    }
+    
+    @media (max-width: 768px) {
+      .table-responsive table tbody td:first-child {
+        max-width: 150px;
+        font-size: 0.9em;
+      }
+    }
+  </style>
 
 <div class="row">
  <div class="col-md-6 ms-auto">
