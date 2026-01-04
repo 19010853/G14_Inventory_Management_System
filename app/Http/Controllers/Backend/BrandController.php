@@ -102,21 +102,58 @@ class BrandController extends Controller
 
     //Store Brand
     public function StoreBrand(Request $request){
-        $data = [
-            'name' => $request->name,
-        ];
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-        if ($request->file('image')){
-            $data['image'] = $this->storeBrandImage($request->file('image'));
+        try {
+            $image = $request->file('image');
+            
+            // 1. Khởi tạo Manager v3
+            $manager = new ImageManager(new Driver());
+            $name_gen = hexdec(uniqid()).'.'.$image->getClientOriginalExtension();
+            
+            // 2. Resize và encode ảnh (Cú pháp v3)
+            $img = $manager->read($image)->resize(300, 300)->toJpeg();
+
+            // 3. Đẩy trực tiếp lên S3 (IAM Role sẽ tự xác thực)
+            $path = 'upload/brand/'.$name_gen;
+            $disk = $this->imageDisk();
+            
+            if ($disk === 's3') {
+                Storage::disk('s3')->put($path, (string) $img, [
+                    'visibility' => 'public',
+                    'ContentType' => 'image/jpeg'
+                ]);
+            } else {
+                Storage::disk($disk)->put($path, (string) $img, ['visibility' => 'public']);
+            }
+
+            // 4. Lưu path vào DB (không lưu full URL để tránh vấn đề khi switch disk)
+            Brand::create([
+                'name' => $request->name,
+                'image' => $path,
+                'created_at' => \Carbon\Carbon::now(),
+            ]);
+
+            $notification = array(
+                'message' => 'Brand Inserted Successfully',
+                'alert-type' => 'success'
+            );
+            return redirect()->route('all.brand')->with($notification);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Failed to store brand: ' . $e->getMessage());
+            
+            $notification = array(
+                'message' => 'Failed to insert brand: ' . $e->getMessage(),
+                'alert-type' => 'error'
+            );
+
+            return redirect()->back()->withInput()->with($notification);
         }
-
-        Brand::create($data);
-
-        $notification = array(
-            'message' => 'Brand Inserted Successfully',
-            'alert-type' => 'success'
-        );
-        return redirect()->route('all.brand')->with($notification);
     }
     //End Method
 
