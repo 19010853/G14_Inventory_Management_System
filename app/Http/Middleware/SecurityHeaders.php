@@ -19,8 +19,8 @@ class SecurityHeaders
         try {
             $response = $next($request);
 
-            // Only set headers if response is successful
-            if ($response instanceof Response && $response->getStatusCode() < 400) {
+            // Only set headers if response is successful and is a Response instance
+            if ($response instanceof Response && method_exists($response, 'getStatusCode') && $response->getStatusCode() < 400) {
                 // Prevent MIME type sniffing
                 $response->headers->set('X-Content-Type-Options', 'nosniff');
                 

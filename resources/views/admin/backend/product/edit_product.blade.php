@@ -24,6 +24,7 @@
               enctype="multipart/form-data"
             >
               @csrf
+              <input type="hidden" name="id" value="{{ $editData->id }}" />
 
               <div class="row">
                 <div class="col-xl-8">

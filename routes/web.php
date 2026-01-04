@@ -81,26 +81,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/delete/customer/{id}', 'DeleteCustomer')->name('delete.customer');
 });
 
-Route::controller(ProductCategoryController::class)->group(function(){
-    Route::get('/all/category', 'AllCategory')->name('all.category');
-    Route::get('/all/category', 'AllCategory')->name('all.category');
-    Route::post('/store/category', 'StoreCategory')->name('store.category');
-    Route::get('/edit/category/{id}', 'EditCategory');
-    Route::post('/update/category', 'UpdateCategory')->name('update.category');
-    Route::get('/delete/category/{id}', 'DeleteCategory')->name('delete.category');
-});
+    Route::controller(ProductCategoryController::class)->group(function(){
+        Route::get('/all/category', 'AllCategory')->name('all.category');
+        Route::post('/store/category', 'StoreCategory')->name('store.category');
+        Route::get('/edit/category/{id}', 'EditCategory')->name('edit.category');
+        Route::post('/update/category', 'UpdateCategory')->name('update.category');
+        Route::get('/delete/category/{id}', 'DeleteCategory')->name('delete.category');
+    });
 
-Route::controller(ProductController::class)->group(function(){
-    Route::get('/all/product', 'AllProduct')->name('all.product');
-    Route::get('/add/product', 'AddProduct')->name('add.product');
-    Route::post('/store/product', 'StoreProduct')->name('store.product');
-    Route::get('/edit/product/{id}', 'EditProduct')->name('edit.product');
-    Route::post('/update/product', 'UpdateProduct')->name('update.product');
-    Route::get('/delete/product/{id}', 'DeleteProduct')->name('delete.product');
-    Route::get('/details/product/{id}', 'DetailsProduct')->name('details.product');
-});
+    Route::controller(ProductController::class)->group(function(){
+        Route::get('/all/product', 'AllProduct')->name('all.product');
+        Route::get('/add/product', 'AddProduct')->name('add.product');
+        Route::post('/store/product', 'StoreProduct')->name('store.product');
+        Route::get('/edit/product/{id}', 'EditProduct')->name('edit.product');
+        Route::post('/update/product', 'UpdateProduct')->name('update.product');
+        Route::get('/delete/product/{id}', 'DeleteProduct')->name('delete.product');
+        Route::get('/details/product/{id}', 'DetailsProduct')->name('details.product');
+    });
 
-Route::controller(PurchaseController::class)->group(function(){
+    Route::controller(PurchaseController::class)->group(function(){
     Route::get('/all/purchase', 'AllPurchase')->name('all.purchase');
     Route::get('/add/purchase', 'AddPurchase')->name('add.purchase');
     Route::get('/purchase/product/search', 'PurchaseProductSearch')->name('purchase.product.search');

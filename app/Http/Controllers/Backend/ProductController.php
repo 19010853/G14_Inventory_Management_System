@@ -169,46 +169,93 @@ class ProductController extends Controller
 
     // Update Product
     public function UpdateProduct(Request $request){
-        $product_id = $request->id;
+        $request->validate([
+            'id' => 'required|exists:products,id',
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:product_categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
+            'warehouse_id' => 'nullable|exists:warehouses,id',
+            'supplier_id' => 'nullable|exists:suppliers,id',
+            'price' => 'nullable|numeric|min:0',
+            'stock_alert' => 'nullable|integer|min:0',
+            'product_qty' => 'nullable|integer|min:0',
+            'status' => 'nullable|string|max:255',
+            'note' => 'nullable|string',
+            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-        $product = Product::find($product_id);
+        try {
+            $product_id = $request->id;
+            $product = Product::findOrFail($product_id);
 
-        $product->name = $request->name;
-        $product->code = $request->code;
-        $product->category_id = $request->category_id;
-        $product->brand_id = $request->brand_id;
-        $product->warehouse_id = $request->warehouse_id;
-        $product->price = $request->price;
-        $product->stock_alert = $request->stock_alert;
-        $product->note = $request->note;
-        $product->supplier_id = $request->supplier_id;
-        $product->product_quantity = $request->product_qty ?? 0;
-        $product->status = $request->status;
-        $product->save();
+            $product->name = $request->name;
+            $product->code = $request->code;
+            $product->category_id = $request->category_id;
+            $product->brand_id = $request->brand_id;
+            $product->warehouse_id = $request->warehouse_id;
+            $product->price = $request->price ?? 0;
+            $product->stock_alert = $request->stock_alert ?? 0;
+            $product->note = $request->note;
+            $product->supplier_id = $request->supplier_id;
+            $product->product_quantity = $request->product_qty ?? 0;
+            $product->status = $request->status ?? 'Pending';
+            $product->save();
 
-        if ($request->hasFile('image')){
-            foreach($request->file('image') as $img){
-                $product->imgs()->create([
-                    'image' => $this->storeProductImage($img),
-                ]);
-            }
-        }
+            // Multiple Image Upload
+            if ($request->hasFile('image')){
+                foreach($request->file('image') as $img){
+                    try {
+                        $save_url = $this->storeProductImage($img);
 
-        if ($request->has('remove_image')){
-            foreach($request->remove_image as $removeImageId){
-                $img = ProductImage::find($removeImageId);
-                if ($img){
-                    $this->deleteImageIfExists($img->image);
-                    $img->delete();
+                        ProductImage::create([
+                            'product_id' => $product_id,
+                            'image' => $save_url,
+                        ]);
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to store product image: ' . $e->getMessage());
+                        // Continue with other images even if one fails
+                    }
                 }
             }
-        }
 
-        $notification = array(
-            'message' => 'Product Updated Successfully',
-            'alert-type' => 'success'
-        );
-        return redirect()->route('all.product')->with($notification);
+            // Remove images
+            if ($request->has('remove_image')){
+                foreach($request->remove_image as $removeImageId){
+                    try {
+                        $img = ProductImage::find($removeImageId);
+                        if ($img){
+                            $this->deleteImageIfExists($img->image);
+                            $img->delete();
+                        }
+                    } catch (\Exception $e) {
+                        \Log::error('Failed to remove product image: ' . $e->getMessage());
+                        // Continue with other images even if one fails
+                    }
+                }
+            }
+
+            $notification = array(
+                'message' => 'Product Updated Successfully',
+                'alert-type' => 'success'
+            );
+            return redirect()->route('all.product')->with($notification);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('Product not found for update: ' . $request->id);
+            abort(404, 'Product not found');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (\Exception $e) {
+            \Log::error('Failed to update product: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            $notification = array(
+                'message' => 'Failed to update product: ' . $e->getMessage(),
+                'alert-type' => 'error'
+            );
+
+            return redirect()->back()->withInput()->with($notification);
+        }
     }
     // End Method
 
