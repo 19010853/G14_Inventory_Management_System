@@ -24,20 +24,37 @@ class SupplierController extends Controller
 
     //Store Supplier
     public function StoreSupplier(Request $request){
-
-        Supplier::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'address' => $request->address,
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:suppliers,email',
+            'phone' => 'nullable|string|max:255',
+            'address' => 'nullable|string',
         ]);
 
-        $notification = array(
-            'message' => 'Supplier Inserted Successfully',
-            'alert-type' => 'success'
-        );
+        try {
+            Supplier::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+            ]);
 
-        return redirect()->route('all.supplier')->with($notification);
+            $notification = array(
+                'message' => 'Supplier Inserted Successfully',
+                'alert-type' => 'success'
+            );
+
+            return redirect()->route('all.supplier')->with($notification);
+        } catch (\Exception $e) {
+            \Log::error('Failed to store supplier: ' . $e->getMessage());
+            
+            $notification = array(
+                'message' => 'Failed to insert supplier. Please try again.',
+                'alert-type' => 'error'
+            );
+
+            return redirect()->back()->withInput()->with($notification);
+        }
     }
     // End Method
 
