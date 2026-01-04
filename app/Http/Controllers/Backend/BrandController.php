@@ -126,14 +126,17 @@ class BrandController extends Controller
                     'visibility' => 'public',
                     'ContentType' => 'image/jpeg'
                 ]);
+                // Lấy URL tuyệt đối để lưu vào Database
+                $save_url = Storage::disk('s3')->url($path);
             } else {
                 Storage::disk($disk)->put($path, (string) $img, ['visibility' => 'public']);
+                $save_url = $path; // For local storage, save path only
             }
 
-            // 4. Lưu path vào DB (không lưu full URL để tránh vấn đề khi switch disk)
+            // 4. Lưu vào DB
             Brand::create([
                 'name' => $request->name,
-                'image' => $path,
+                'image' => ($disk === 's3') ? $save_url : $path,
                 'created_at' => \Carbon\Carbon::now(),
             ]);
 
@@ -146,6 +149,7 @@ class BrandController extends Controller
             return redirect()->back()->withErrors($e->validator)->withInput();
         } catch (\Exception $e) {
             \Log::error('Failed to store brand: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
             
             $notification = array(
                 'message' => 'Failed to insert brand: ' . $e->getMessage(),
