@@ -11,6 +11,9 @@
     <meta name="author" content="Group 14 - Hoang, Khoi, Van, Tuyen" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     
+    {{-- Google Site Verification --}}
+    <meta name="google-site-verification" content="xNGJHYuGpHJBuivESbON96TW4_RdbtDtBjbt3oiyyxI" />
+    
     {{-- Security and Verification Meta Tags --}}
     <meta name="robots" content="noindex, nofollow" />
     <meta name="googlebot" content="noindex, nofollow" />

@@ -10,6 +10,9 @@
     />
     <meta name="author" content="Zoyothemes" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    
+    {{-- Google Site Verification --}}
+    <meta name="google-site-verification" content="xNGJHYuGpHJBuivESbON96TW4_RdbtDtBjbt3oiyyxI" />
 
     <!-- App favicon -->
     <link
