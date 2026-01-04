@@ -126,20 +126,20 @@
             <h5>Supplier Info</h5>
             <p>
               <strong>Name:</strong>
-              {{ $purchase->supplier->name }}
+              {{ $purchase->supplier->name ?? 'N/A' }}
             </p>
             <p>
               <strong>Email:</strong>
-              {{ $purchase->supplier->email }}
+              {{ $purchase->supplier->email ?? 'N/A' }}
             </p>
             <p>
               <strong>Phone:</strong>
-              {{ $purchase->supplier->phone }}
+              {{ $purchase->supplier->phone ?? 'N/A' }}
             </p>
           </td>
           <td class="info-box">
             <h5>Warehouse</h5>
-            <p>{{ $purchase->warehouse->name }}</p>
+            <p>{{ $purchase->warehouse->name ?? 'N/A' }}</p>
           </td>
           <td class="info-box">
             <h5>Purchase Info</h5>
@@ -172,16 +172,20 @@
           </tr>
         </thead>
         <tbody>
-          @foreach ($purchase->purchaseItems as $key => $item)
+          @forelse ($purchase->purchaseItems as $key => $item)
             <tr>
               <td>{{ $key + 1 }}</td>
-              <td>{{ $item->product->name }}</td>
-              <td>{{ $item->quantity }}</td>
-              <td>${{ number_format($item->net_unit_cost, 2) }}</td>
-              <td>${{ number_format($item->discount, 2) }}</td>
-              <td>${{ number_format($item->subtotal, 2) }}</td>
+              <td>{{ $item->product->name ?? 'N/A' }}</td>
+              <td>{{ $item->quantity ?? 0 }}</td>
+              <td>${{ number_format($item->net_unit_cost ?? 0, 2) }}</td>
+              <td>${{ number_format($item->discount ?? 0, 2) }}</td>
+              <td>${{ number_format($item->subtotal ?? 0, 2) }}</td>
             </tr>
-          @endforeach
+          @empty
+            <tr>
+              <td colspan="6" style="text-align: center;">No items found</td>
+            </tr>
+          @endforelse
         </tbody>
       </table>
 

@@ -228,10 +228,31 @@ class PurchaseController extends Controller
 
     // Generate PDF Invoice Methods
     public function InvoicePurchase($id){
-        $purchase = Purchase::with(['supplier', 'warehouse', 'purchaseItems.product'])->find($id);
+        try {
+            $purchase = Purchase::with(['supplier', 'warehouse', 'purchaseItems.product'])->find($id);
 
-        $pdf = Pdf::loadView('admin.backend.purchase.invoice_pdf',compact('purchase'));
-        return $pdf->download('purchase_'.$id.'.pdf');
+            if (!$purchase) {
+                abort(404, 'Purchase not found');
+            }
+
+            // Check if required relationships exist
+            if (!$purchase->supplier) {
+                \Log::error('Purchase invoice error: Supplier not found for purchase ID: ' . $id);
+                abort(500, 'Supplier information is missing');
+            }
+
+            if (!$purchase->warehouse) {
+                \Log::error('Purchase invoice error: Warehouse not found for purchase ID: ' . $id);
+                abort(500, 'Warehouse information is missing');
+            }
+
+            $pdf = Pdf::loadView('admin.backend.purchase.invoice_pdf', compact('purchase'));
+            return $pdf->download('purchase_'.$id.'.pdf');
+        } catch (\Exception $e) {
+            \Log::error('Purchase invoice generation error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            abort(500, 'Failed to generate invoice: ' . $e->getMessage());
+        }
     }
     // End Methods
 
