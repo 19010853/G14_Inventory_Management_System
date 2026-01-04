@@ -20,6 +20,7 @@ class ProductController extends Controller
 
     private function imageDisk(): string
     {
+        // Allow switching between local/public/s3 from .env via FILESYSTEM_DISK
         return config('filesystems.default', 'public');
     }
 
@@ -28,11 +29,26 @@ class ProductController extends Controller
         $manager = new ImageManager(new Driver());
         $name = hexdec(uniqid()).'.'.$uploadedFile->getClientOriginalExtension();
 
+        // Resize with Intervention then store via Laravel filesystem (S3-compatible)
         $image = $manager->read($uploadedFile)->resize(150, 150);
         $path = self::PRODUCT_DIR.'/'.$name;
 
-        Storage::disk($this->imageDisk())
-            ->put($path, (string) $image->toJpeg(85), ['visibility' => 'public']);
+        $disk = $this->imageDisk();
+        
+        try {
+            // For S3, ensure visibility is set correctly
+            if ($disk === 's3') {
+                Storage::disk($disk)->put($path, (string) $image->toJpeg(85), [
+                    'visibility' => 'public',
+                    'ContentType' => 'image/jpeg'
+                ]);
+            } else {
+                Storage::disk($disk)->put($path, (string) $image->toJpeg(85), ['visibility' => 'public']);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to store product image: ' . $e->getMessage());
+            throw $e;
+        }
 
         return $path;
     }
@@ -49,7 +65,9 @@ class ProductController extends Controller
     // All Product
     public function AllProduct(){
         $allData = Product::orderBy('id','DESC')->get();
-        return view('admin.backend.product.product_list',compact('allData'));
+        // Pass image disk to view for proper URL generation
+        $imageDisk = $this->imageDisk();
+        return view('admin.backend.product.product_list',compact('allData', 'imageDisk'));
     }
     // End Method
 
@@ -110,8 +128,10 @@ class ProductController extends Controller
         $suppliers = Supplier::all();
         $warehouses = Warehouse::all();
         $multiImgs = ProductImage::where('product_id',$id)->get();
+        // Pass image disk to view for proper URL generation
+        $imageDisk = $this->imageDisk();
 
-        return view('admin.backend.product.edit_product',compact('categories','brands','suppliers','warehouses','editData','multiImgs'));
+        return view('admin.backend.product.edit_product',compact('categories','brands','suppliers','warehouses','editData','multiImgs','imageDisk'));
     }
     // End Method
 
@@ -187,7 +207,9 @@ class ProductController extends Controller
     // Product Details
     public function ProductDetails($id){
         $product = Product::findOrFail($id);
+        // Pass image disk to view for proper URL generation
+        $imageDisk = $this->imageDisk();
 
-        return view('admin.backend.product.details_product',compact('product'));
+        return view('admin.backend.product.details_product',compact('product', 'imageDisk'));
     }
 }

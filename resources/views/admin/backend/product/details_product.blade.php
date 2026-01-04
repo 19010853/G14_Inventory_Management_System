@@ -24,8 +24,17 @@
               <h5 class="mb-3">Product Images</h5>
               <div class="d-flex flex-wrap">
                 @forelse ($product->images as $image)
+                  @php
+                    try {
+                      $imageUrl = $image->image 
+                        ? Storage::disk($imageDisk ?? 'public')->url($image->image) 
+                        : asset('upload/no_image.jpg');
+                    } catch (\Exception $e) {
+                      $imageUrl = asset('upload/no_image.jpg');
+                    }
+                  @endphp
                   <img
-                    src="{{ Storage::url($image->image) }}"
+                    src="{{ $imageUrl }}"
                     alt="image"
                     class="me-2 mb-2"
                     width="100"
@@ -35,6 +44,7 @@
                       border: 1px solid #ddd;
                       border-radius: 5px;
                     "
+                    onerror="this.src='{{ asset('upload/no_image.jpg') }}'"
                   />
                 @empty
                   <p class="text-danger">No Image Available</p>

@@ -145,7 +145,50 @@
                       Multiple Image:
                       <span class="text-danger">*</span>
                     </label>
+                    
+                    {{-- Display existing images --}}
+                    @if($multiImgs->count() > 0)
+                      <div class="mb-3">
+                        <label class="form-label text-muted small">Current Images:</label>
+                        <div class="row">
+                          @foreach($multiImgs as $img)
+                            @php
+                              try {
+                                $currentImageUrl = $img->image 
+                                  ? Storage::disk($imageDisk ?? 'public')->url($img->image) 
+                                  : asset('upload/no_image.jpg');
+                              } catch (\Exception $e) {
+                                $currentImageUrl = asset('upload/no_image.jpg');
+                              }
+                            @endphp
+                            <div class="col-md-4 mb-2 position-relative">
+                              <img
+                                src="{{ $currentImageUrl }}"
+                                alt="Product Image"
+                                class="img-fluid rounded"
+                                style="max-height: 100px; width: 100%; object-fit: cover; border: 1px solid #ddd;"
+                                onerror="this.src='{{ asset('upload/no_image.jpg') }}'"
+                              />
+                              <div class="form-check position-absolute" style="top: 5px; right: 5px;">
+                                <input
+                                  class="form-check-input"
+                                  type="checkbox"
+                                  name="remove_image[]"
+                                  value="{{ $img->id }}"
+                                  id="remove_img_{{ $img->id }}"
+                                />
+                                <label class="form-check-label text-white bg-danger rounded px-1" for="remove_img_{{ $img->id }}" style="font-size: 10px;">
+                                  Remove
+                                </label>
+                              </div>
+                            </div>
+                          @endforeach
+                        </div>
+                      </div>
+                    @endif
+                    
                     <div class="mb-3">
+                      <label class="form-label text-muted small">Add New Images:</label>
                       <input
                         name="image[]"
                         accept=".png, .jpg, .jpeg"

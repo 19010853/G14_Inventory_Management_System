@@ -47,12 +47,21 @@
                       <td>
                         @php
                           $primaryImage = $item->images->first()->image ?? null;
+                          try {
+                            $imageUrl = $primaryImage 
+                              ? Storage::disk($imageDisk ?? 'public')->url($primaryImage) 
+                              : asset('upload/no_image.jpg');
+                          } catch (\Exception $e) {
+                            $imageUrl = asset('upload/no_image.jpg');
+                          }
                         @endphp
 
                         <img
-                          src="{{ $primaryImage ? Storage::url($primaryImage) : asset('upload/no_image.jpg') }}"
+                          src="{{ $imageUrl }}"
                           alt="img"
                           width="40px"
+                          style="object-fit: cover;"
+                          onerror="this.src='{{ asset('upload/no_image.jpg') }}'"
                         />
                       </td>
                       <td>{{ $item->name }}</td>
