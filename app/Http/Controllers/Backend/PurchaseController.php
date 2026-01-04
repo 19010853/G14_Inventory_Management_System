@@ -45,18 +45,18 @@ class PurchaseController extends Controller
             ->when($warehouse_id, function($q) use ($warehouse_id) {
                 $q->where('warehouse_id', $warehouse_id);
             })
-            ->select('id', 'name', 'code', 'price', 'product_quantity')
+            ->select('id', 'name', 'code', 'price', 'product_qty')
             ->limit(10)
             ->get();
 
-            // Map product_quantity to product_qty for frontend compatibility
+            // Return products with product_qty
             $products = $products->map(function($product) {
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
                     'code' => $product->code,
                     'price' => $product->price,
-                    'product_qty' => $product->product_quantity ?? 0,
+                    'product_qty' => $product->product_qty ?? 0,
                 ];
             });
 
@@ -111,12 +111,12 @@ class PurchaseController extends Controller
                     'purchase_id' => $purchase->id,
                     'product_id' => $productData['id'],
                     'net_unit_cost' => $netUnitCost,
-                    'stock' => $product->product_quantity + $productData['quantity'],
+                    'stock' => $product->product_qty + $productData['quantity'],
                     'quantity' => $productData['quantity'],
                     'discount' => $productData['discount'] ?? 0,
                     'subtotal' => $subtotal,
                 ]);
-                $product->increment('product_quantity', $productData['quantity']);
+                $product->increment('product_qty', $productData['quantity']);
             }
 
             $purchase->update(['grand_total' => $grandTotal + $request->shipping - $request->discount]);
@@ -186,7 +186,7 @@ class PurchaseController extends Controller
             foreach ($oldPurchaseItems as $oldItems) {
                 $product = Product::find($oldItems->product_id);
                 if ($product) {
-                    $product->decrement('product_quantity', $oldItems->quantity);
+                    $product->decrement('product_qty', $oldItems->quantity);
                     // Decrement old quantity from purchase items table
                 }
             }
@@ -209,7 +209,7 @@ class PurchaseController extends Controller
                 /// Update product stock by incremeting new quantity
                 $product = Product::find($product_id);
                 if ($product) {
-                    $product->increment('product_quantity',$productData['quantity']);
+                    $product->increment('product_qty',$productData['quantity']);
                     // Increment new quantity
                  }
                }
@@ -286,7 +286,7 @@ class PurchaseController extends Controller
             foreach ($purchaseItems as $item) {
                 $product = Product::find($item->product_id);
                 if ($product) {
-                    $product->decrement('product_quantity', $item->quantity);
+                    $product->decrement('product_qty', $item->quantity);
                 }
             }
             PurchaseItem::where('purchase_id', $id)->delete();

@@ -251,7 +251,7 @@ class ProductController extends Controller
             $product->stock_alert = $request->stock_alert ?? 0;
             $product->note = $request->note;
             $product->supplier_id = $request->supplier_id;
-            $product->product_quantity = $request->product_qty ?? 0;
+            $product->product_qty = $request->product_qty ?? 0;
             $product->status = $request->status ?? 'Pending';
             $product->save();
 

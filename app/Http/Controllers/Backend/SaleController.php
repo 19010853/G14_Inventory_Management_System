@@ -80,7 +80,7 @@ class SaleController extends Controller
             'subtotal' => $subtotal,
                 ]);
 
-                $product->decrement('product_quantity', $productData['quantity']);
+                $product->decrement('product_qty', $productData['quantity']);
 
                 $sales->update(['grand_total' => $grandTotal + $request->shipping - $request->discount]);
 

@@ -108,7 +108,7 @@
 
     </td>
     <td>
-        <input type="number" name="products[{{ $item->product->id }}][stock]" class="form-control" value="{{ $item->product->product_quantity ?? 0 }}" style="max-width: 80px;" readonly>
+        <input type="number" name="products[{{ $item->product->id }}][stock]" class="form-control" value="{{ $item->product->product_qty ?? 0 }}" style="max-width: 80px;" readonly>
     </td>
 
     <td>

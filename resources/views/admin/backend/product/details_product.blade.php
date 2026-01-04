@@ -96,7 +96,7 @@
                 </li>
                 <li class="list-group-item">
                   <strong>Product Qty:</strong>
-                  {{ isset($product->product_quantity) ? $product->product_quantity : ($product->product_qty ?? 0) }}
+                  {{ $product->product_qty ?? 0 }}
                 </li>
                 <li class="list-group-item">
                   <strong>Product Status:</strong>
