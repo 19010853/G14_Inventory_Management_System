@@ -8,6 +8,7 @@ Dự án Hệ thống Quản lý Kho hàng được xây dựng trên nền tả
 - [Cấu trúc dự án](#cấu-trúc-dự-án)
 - [Khởi tạo nhanh (5 phút)](#khởi-tạo-nhanh-5-phút)
 - [Hướng dẫn cài đặt chi tiết](#hướng-dẫn-cài-đặt-chi-tiết)
+- [Hướng dẫn Deploy lên EC2 Server](#hướng-dẫn-deploy-lên-ec2-server) ⭐
 - [Định dạng Code với Prettier](#định-dạng-code-code-formatting-với-prettier)
 - [Quy trình làm việc nhóm với Git và CSDL](#quy-trình-làm-việc-nhóm-với-git-và-csdl)
 - [Các lệnh Artisan/NPM thường dùng](#các-lệnh-artisannpm-thường-dùng)
@@ -169,6 +170,46 @@ php artisan serve
 ```
 
 Bây giờ bạn có thể truy cập dự án tại địa chỉ `http://127.0.0.1:8000`.
+
+---
+
+## Hướng dẫn Deploy lên EC2 Server
+
+Để cập nhật code từ máy local (Cursor) lên server EC2, vui lòng xem file **[DEPLOYMENT.md](./DEPLOYMENT.md)** để có hướng dẫn chi tiết.
+
+### Cấu hình S3 cho Production
+
+Nếu bạn cần cấu hình S3 để lưu trữ ảnh, vui lòng xem file **[S3_SETUP_GUIDE.md](./S3_SETUP_GUIDE.md)** để có hướng dẫn chi tiết về:
+- Cấu hình AWS credentials
+- Test kết nối S3
+- Troubleshooting các vấn đề thường gặp
+
+**Tóm tắt nhanh:**
+
+### Phương pháp 1: Sử dụng Git (Khuyến nghị)
+
+```bash
+# Trên máy local (Cursor)
+git add .
+git commit -m "feat: Mô tả thay đổi"
+git push origin main
+
+# Trên EC2 server
+cd /var/www/G14_Inventory_Management_System
+git pull origin main
+composer install --no-dev
+npm install && npm run build
+php artisan migrate --force
+php artisan config:cache
+php artisan route:cache
+```
+
+### Phương pháp 2: Sử dụng script deploy tự động
+
+1. Chỉnh sửa file `deploy.sh` với thông tin server của bạn
+2. Chạy: `chmod +x deploy.sh && ./deploy.sh`
+
+Xem chi tiết tại: [DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ---
 
