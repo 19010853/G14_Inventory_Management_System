@@ -17,6 +17,8 @@ class PermissionSeeder extends Seeder
         $permissions = [
             'brand.menu',
             'all.brand',
+            'edit.brand',
+            'delete.brand',
             'warehouse.menu',
             'all.warehouse',
             'supplier.menu',

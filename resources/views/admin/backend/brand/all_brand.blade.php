@@ -43,9 +43,16 @@
                       <td>{{ $key + 1 }}</td>
                       <td>{{ $item->name }}</td>
                       <td>
+                        @php
+                          $imageUrl = $item->image 
+                            ? Storage::disk($imageDisk ?? 'public')->url($item->image) 
+                            : asset('upload/no_image.jpg');
+                        @endphp
                         <img
-                          src="{{ Storage::url($item->image) }}"
-                          style="width: 70px; height: 40px"
+                          src="{{ $imageUrl }}"
+                          alt="{{ $item->name }}"
+                          style="width: 70px; height: 40px; object-fit: cover;"
+                          onerror="this.src='{{ asset('upload/no_image.jpg') }}'"
                         />
                       </td>
                       <td>
@@ -53,6 +60,7 @@
                           <a
                             href="{{ route('edit.brand', $item->id) }}"
                             class="btn btn-success btn-sm"
+                            title="Edit"
                           >
                             Edit
                           </a>
@@ -63,6 +71,8 @@
                             href="{{ route('delete.brand', $item->id) }}"
                             class="btn btn-danger btn-sm"
                             id="delete"
+                            title="Delete"
+                            onclick="return confirm('Are you sure you want to delete this brand?')"
                           >
                             Delete
                           </a>

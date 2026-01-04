@@ -43,13 +43,40 @@ class BrandController extends Controller
         Storage::disk($this->imageDisk())->delete($path);
     }
 
+    /**
+     * Get the public URL for a brand image
+     * Works with both local storage and S3
+     */
+    private function getImageUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        $disk = $this->imageDisk();
+        
+        // For S3, use temporaryUrl or url method
+        if ($disk === 's3') {
+            // Check if file exists before generating URL
+            if (Storage::disk($disk)->exists($path)) {
+                return Storage::disk($disk)->url($path);
+            }
+            return null;
+        }
+        
+        // For local/public disks, use url helper
+        return Storage::disk($disk)->url($path);
+    }
+
     //All Brand
     public function AllBrand(){
         if (!auth()->user()->hasPermissionTo('all.brand')) {
             abort(403, 'Unauthorized Action');
         }
         $brand = Brand::latest()->get();
-        return view('admin.backend.brand.all_brand',compact('brand'));
+        // Pass image disk to view for proper URL generation
+        $imageDisk = $this->imageDisk();
+        return view('admin.backend.brand.all_brand',compact('brand', 'imageDisk'));
     }
     //End Method
 
@@ -61,15 +88,15 @@ class BrandController extends Controller
 
     //Store Brand
     public function StoreBrand(Request $request){
+        $data = [
+            'name' => $request->name,
+        ];
 
         if ($request->file('image')){
-            $save_url = $this->storeBrandImage($request->file('image'));
-
-            Brand::create([
-                'name'=>$request->name,
-                'image'=>$save_url,
-            ]);
+            $data['image'] = $this->storeBrandImage($request->file('image'));
         }
+
+        Brand::create($data);
 
         $notification = array(
             'message' => 'Brand Inserted Successfully',
