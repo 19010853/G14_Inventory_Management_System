@@ -39,9 +39,13 @@
                           type="text"
                           name="name"
                           placeholder="Enter Name"
-                          class="form-control"
-                          value="{{ $editData->name }}"
+                          class="form-control @error('name') is-invalid @enderror"
+                          value="{{ old('name', $editData->name) }}"
+                          required
                         />
+                        @error('name')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                       <div class="col-md-6 mb-3">
                         <label class="form-label">
@@ -51,9 +55,13 @@
                         <input
                           type="text"
                           name="code"
-                          class="form-control"
-                          value="{{ $editData->code }}"
+                          class="form-control @error('code') is-invalid @enderror"
+                          value="{{ old('code', $editData->code) }}"
+                          required
                         />
+                        @error('code')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                       <div class="col-md-6 mb-3">
                         <div class="form-group w-100">
@@ -64,18 +72,22 @@
                           <select
                             name="category_id"
                             id="category_id"
-                            class="form-control form-select"
+                            class="form-control form-select @error('category_id') is-invalid @enderror"
+                            required
                           >
                             <option value="">Select Category</option>
                             @foreach ($categories as $item)
                               <option
                                 value="{{ $item->id }}"
-                                {{ $item->id == $editData->category_id ? 'selected' : '' }}
+                                {{ old('category_id', $editData->category_id) == $item->id ? 'selected' : '' }}
                               >
                                 {{ $item->category_name }}
                               </option>
                             @endforeach
                           </select>
+                          @error('category_id')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                          @enderror
                         </div>
                       </div>
                       <div class="col-md-6 mb-3">
@@ -87,28 +99,41 @@
                           <select
                             name="brand_id"
                             id="brand_id"
-                            class="form-control form-select"
+                            class="form-control form-select @error('brand_id') is-invalid @enderror"
+                            required
                           >
                             <option value="">Select Brand</option>
                             @foreach ($brands as $item)
                               <option
                                 value="{{ $item->id }}"
-                                {{ $item->id == $editData->brand_id ? 'selected' : '' }}
+                                {{ old('brand_id', $editData->brand_id) == $item->id ? 'selected' : '' }}
                               >
                                 {{ $item->name }}
                               </option>
                             @endforeach
                           </select>
+                          @error('brand_id')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                          @enderror
                         </div>
                       </div>
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Product Price:</label>
+                        <label class="form-label">
+                          Product Price:
+                          <span class="text-danger">*</span>
+                        </label>
                         <input
-                          type="text"
+                          type="number"
                           name="price"
-                          class="form-control"
-                          value="{{ $editData->price }}"
+                          class="form-control @error('price') is-invalid @enderror"
+                          value="{{ old('price', $editData->price) }}"
+                          step="0.01"
+                          min="0"
+                          required
                         />
+                        @error('price')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
 
                       <div class="col-md-6 mb-3">
@@ -119,11 +144,14 @@
                         <input
                           type="number"
                           name="stock_alert"
-                          class="form-control"
-                          value="{{ $editData->stock_alert }}"
+                          class="form-control @error('stock_alert') is-invalid @enderror"
+                          value="{{ old('stock_alert', $editData->stock_alert) }}"
                           min="0"
                           required
                         />
+                        @error('stock_alert')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
 
                       <div class="col-md-12">
@@ -196,8 +224,14 @@
                         multiple=""
                         type="file"
                         id="multiImg"
-                        class="upload-input-file form-control"
+                        class="upload-input-file form-control @error('image') is-invalid @enderror @error('image.*') is-invalid @enderror"
                       />
+                      @error('image')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                      @enderror
+                      @error('image.*')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                      @enderror
                     </div>
 
                     <div class="row" id="preview_img"></div>
@@ -215,18 +249,22 @@
                         <select
                           name="warehouse_id"
                           id="warehouse_id"
-                          class="form-control form-select"
+                          class="form-control form-select @error('warehouse_id') is-invalid @enderror"
+                          required
                         >
                           <option value="">Select Warehouse</option>
                           @foreach ($warehouses as $item)
                             <option
                               value="{{ $item->id }}"
-                              {{ $item->id == $editData->warehouse_id ? 'selected' : '' }}
+                              {{ old('warehouse_id', $editData->warehouse_id) == $item->id ? 'selected' : '' }}
                             >
                               {{ $item->name }}
                             </option>
                           @endforeach
                         </select>
+                        @error('warehouse_id')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -238,18 +276,22 @@
                         <select
                           name="supplier_id"
                           id="supplier_id"
-                          class="form-control form-select"
+                          class="form-control form-select @error('supplier_id') is-invalid @enderror"
+                          required
                         >
                           <option value="">Select Supplier</option>
                           @foreach ($suppliers as $item)
                             <option
                               value="{{ $item->id }}"
-                              {{ $item->id == $editData->supplier_id ? 'selected' : '' }}
+                              {{ old('supplier_id', $editData->supplier_id) == $item->id ? 'selected' : '' }}
                             >
                               {{ $item->name }}
                             </option>
                           @endforeach
                         </select>
+                        @error('supplier_id')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                     </div>
 
@@ -261,11 +303,14 @@
                       <input
                         type="number"
                         name="product_qty"
-                        class="form-control"
-                        value="{{ $editData->product_qty }}"
+                        class="form-control @error('product_qty') is-invalid @enderror"
+                        value="{{ old('product_qty', $editData->product_qty) }}"
                         min="1"
                         required
                       />
+                      @error('product_qty')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                      @enderror
                     </div>
 
                     <div class="col-md-12">
@@ -277,24 +322,26 @@
                         <select
                           name="status"
                           id="status"
-                          class="form-control form-select"
+                          class="form-control form-select @error('status') is-invalid @enderror"
+                          required
                         >
-                          <option selected="">Select Status</option>
-
+                          <option value="">Select Status</option>
                           <option
                             value="Received"
-                            {{ isset($editData->status) && $editData->status == 'Received' ? 'selected' : '' }}
+                            {{ old('status', $editData->status) == 'Received' ? 'selected' : '' }}
                           >
                             Received
                           </option>
-
                           <option
                             value="Pending"
-                            {{ isset($editData->status) && $editData->status == 'Pending' ? 'selected' : '' }}
+                            {{ old('status', $editData->status) == 'Pending' ? 'selected' : '' }}
                           >
                             Pending
                           </option>
                         </select>
+                        @error('status')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                     </div>
                   </div>

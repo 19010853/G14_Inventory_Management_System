@@ -37,8 +37,13 @@
                           type="text"
                           name="name"
                           placeholder="Enter Name"
-                          class="form-control"
+                          class="form-control @error('name') is-invalid @enderror"
+                          value="{{ old('name') }}"
+                          required
                         />
+                        @error('name')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                       <div class="col-md-6 mb-3">
                         <label class="form-label">
@@ -48,9 +53,14 @@
                         <input
                           type="text"
                           name="code"
-                          class="form-control"
+                          class="form-control @error('code') is-invalid @enderror"
                           placeholder="Enter Code"
+                          value="{{ old('code') }}"
+                          required
                         />
+                        @error('code')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                       <div class="col-md-6 mb-3">
                         <div class="form-group w-100">
@@ -61,15 +71,19 @@
                           <select
                             name="category_id"
                             id="category_id"
-                            class="form-control form-select"
+                            class="form-control form-select @error('category_id') is-invalid @enderror"
+                            required
                           >
                             <option value="">Select Category</option>
                             @foreach ($categories as $item)
-                              <option value="{{ $item->id }}">
+                              <option value="{{ $item->id }}" {{ old('category_id') == $item->id ? 'selected' : '' }}>
                                 {{ $item->category_name }}
                               </option>
                             @endforeach
                           </select>
+                          @error('category_id')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                          @enderror
                         </div>
                       </div>
                       <div class="col-md-6 mb-3">
@@ -81,25 +95,39 @@
                           <select
                             name="brand_id"
                             id="brand_id"
-                            class="form-control form-select"
+                            class="form-control form-select @error('brand_id') is-invalid @enderror"
+                            required
                           >
                             <option value="">Select Brand</option>
                             @foreach ($brands as $item)
-                              <option value="{{ $item->id }}">
+                              <option value="{{ $item->id }}" {{ old('brand_id') == $item->id ? 'selected' : '' }}>
                                 {{ $item->name }}
                               </option>
                             @endforeach
                           </select>
+                          @error('brand_id')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                          @enderror
                         </div>
                       </div>
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Product Price:</label>
+                        <label class="form-label">
+                          Product Price:
+                          <span class="text-danger">*</span>
+                        </label>
                         <input
-                          type="text"
+                          type="number"
                           name="price"
-                          class="form-control"
+                          class="form-control @error('price') is-invalid @enderror"
                           placeholder="Enter product price"
+                          step="0.01"
+                          min="0"
+                          value="{{ old('price') }}"
+                          required
                         />
+                        @error('price')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
 
                       <div class="col-md-6 mb-3">
@@ -110,11 +138,15 @@
                         <input
                           type="number"
                           name="stock_alert"
-                          class="form-control"
+                          class="form-control @error('stock_alert') is-invalid @enderror"
                           placeholder="Enter Stock Alert"
                           min="0"
+                          value="{{ old('stock_alert') }}"
                           required
                         />
+                        @error('stock_alert')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
 
                       <div class="col-md-12">
@@ -142,8 +174,15 @@
                         multiple=""
                         type="file"
                         id="multiImg"
-                        class="upload-input-file form-control"
+                        class="upload-input-file form-control @error('image') is-invalid @enderror @error('image.*') is-invalid @enderror"
+                        required
                       />
+                      @error('image')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                      @enderror
+                      @error('image.*')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                      @enderror
                     </div>
 
                     <div class="row" id="preview_img"></div>
@@ -161,15 +200,19 @@
                         <select
                           name="warehouse_id"
                           id="warehouse_id"
-                          class="form-control form-select"
+                          class="form-control form-select @error('warehouse_id') is-invalid @enderror"
+                          required
                         >
                           <option value="">Select Warehouse</option>
                           @foreach ($warehouses as $item)
-                            <option value="{{ $item->id }}">
+                            <option value="{{ $item->id }}" {{ old('warehouse_id') == $item->id ? 'selected' : '' }}>
                               {{ $item->name }}
                             </option>
                           @endforeach
                         </select>
+                        @error('warehouse_id')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                     </div>
                     <div class="col-md-12 mb-3">
@@ -181,15 +224,19 @@
                         <select
                           name="supplier_id"
                           id="supplier_id"
-                          class="form-control form-select"
+                          class="form-control form-select @error('supplier_id') is-invalid @enderror"
+                          required
                         >
                           <option value="">Select Supplier</option>
                           @foreach ($suppliers as $item)
-                            <option value="{{ $item->id }}">
+                            <option value="{{ $item->id }}" {{ old('supplier_id') == $item->id ? 'selected' : '' }}>
                               {{ $item->name }}
                             </option>
                           @endforeach
                         </select>
+                        @error('supplier_id')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                     </div>
 
@@ -201,11 +248,15 @@
                       <input
                         type="number"
                         name="product_qty"
-                        class="form-control"
+                        class="form-control @error('product_qty') is-invalid @enderror"
                         placeholder="Enter Product Quantity"
                         min="1"
+                        value="{{ old('product_qty') }}"
                         required
                       />
+                      @error('product_qty')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                      @enderror
                     </div>
 
                     <div class="col-md-12">
@@ -217,12 +268,16 @@
                         <select
                           name="status"
                           id="status"
-                          class="form-control form-select"
+                          class="form-control form-select @error('status') is-invalid @enderror"
+                          required
                         >
-                          <option selected="">Select Status</option>
-                          <option value="Received">Received</option>
-                          <option value="Pending">Pending</option>
+                          <option value="">Select Status</option>
+                          <option value="Received" {{ old('status') == 'Received' ? 'selected' : '' }}>Received</option>
+                          <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
                         </select>
+                        @error('status')
+                          <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                       </div>
                     </div>
                   </div>

@@ -85,17 +85,36 @@ class ProductController extends Controller
     public function StoreProduct(Request $request){
         $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:255',
-            'category_id' => 'nullable|exists:product_categories,id',
-            'brand_id' => 'nullable|exists:brands,id',
-            'warehouse_id' => 'nullable|exists:warehouses,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
-            'price' => 'nullable|numeric|min:0',
-            'stock_alert' => 'nullable|integer|min:0',
-            'product_qty' => 'nullable|integer|min:0',
-            'status' => 'nullable|string|max:255',
+            'code' => 'required|string|max:255',
+            'category_id' => 'required|exists:product_categories,id',
+            'brand_id' => 'required|exists:brands,id',
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'price' => 'required|numeric|min:0',
+            'stock_alert' => 'required|integer|min:0',
+            'product_qty' => 'required|integer|min:0',
+            'status' => 'required|string|max:255|in:Received,Pending',
             'note' => 'nullable|string',
-            'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'required|array|min:1',
+            'image.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'name.required' => 'Product Name is required.',
+            'code.required' => 'Code is required.',
+            'category_id.required' => 'Product Category is required.',
+            'brand_id.required' => 'Brand is required.',
+            'warehouse_id.required' => 'Warehouse is required.',
+            'supplier_id.required' => 'Supplier is required.',
+            'price.required' => 'Product Price is required.',
+            'stock_alert.required' => 'Stock Alert is required.',
+            'product_qty.required' => 'Product Quantity is required.',
+            'status.required' => 'Status is required.',
+            'image.required' => 'At least one image is required.',
+            'image.array' => 'Images must be an array.',
+            'image.min' => 'At least one image is required.',
+            'image.*.required' => 'Image file is required.',
+            'image.*.image' => 'File must be an image.',
+            'image.*.mimes' => 'Image must be jpeg, png, jpg, or gif.',
+            'image.*.max' => 'Image size must not exceed 2MB.',
         ]);
 
         try {
@@ -169,20 +188,54 @@ class ProductController extends Controller
 
     // Update Product
     public function UpdateProduct(Request $request){
+        // First validate the ID exists
         $request->validate([
             'id' => 'required|exists:products,id',
+        ]);
+        
+        // Now we can safely check image count
+        $existingImageCount = ProductImage::where('product_id', $request->id)->count();
+        $removedImageCount = count($request->input('remove_image', []));
+        $remainingImageCount = $existingImageCount - $removedImageCount;
+        
+        // If all existing images are removed, require at least one new image
+        $imageValidation = $remainingImageCount <= 0 
+            ? 'required|array|min:1' 
+            : 'nullable|array';
+        
+        $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:255',
-            'category_id' => 'nullable|exists:product_categories,id',
-            'brand_id' => 'nullable|exists:brands,id',
-            'warehouse_id' => 'nullable|exists:warehouses,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
-            'price' => 'nullable|numeric|min:0',
-            'stock_alert' => 'nullable|integer|min:0',
-            'product_qty' => 'nullable|integer|min:0',
-            'status' => 'nullable|string|max:255',
+            'code' => 'required|string|max:255',
+            'category_id' => 'required|exists:product_categories,id',
+            'brand_id' => 'required|exists:brands,id',
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'price' => 'required|numeric|min:0',
+            'stock_alert' => 'required|integer|min:0',
+            'product_qty' => 'required|integer|min:0',
+            'status' => 'required|string|max:255|in:Received,Pending',
             'note' => 'nullable|string',
+            'image' => $imageValidation,
             'image.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'id.required' => 'Product ID is required.',
+            'id.exists' => 'Product not found.',
+            'name.required' => 'Product Name is required.',
+            'code.required' => 'Code is required.',
+            'category_id.required' => 'Product Category is required.',
+            'brand_id.required' => 'Brand is required.',
+            'warehouse_id.required' => 'Warehouse is required.',
+            'supplier_id.required' => 'Supplier is required.',
+            'price.required' => 'Product Price is required.',
+            'stock_alert.required' => 'Stock Alert is required.',
+            'product_qty.required' => 'Product Quantity is required.',
+            'status.required' => 'Status is required.',
+            'image.required' => 'At least one image is required. Please add new images or keep existing ones.',
+            'image.array' => 'Images must be an array.',
+            'image.min' => 'At least one image is required. Please add new images or keep existing ones.',
+            'image.*.image' => 'File must be an image.',
+            'image.*.mimes' => 'Image must be jpeg, png, jpg, or gif.',
+            'image.*.max' => 'Image size must not exceed 2MB.',
         ]);
 
         try {
