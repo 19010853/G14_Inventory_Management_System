@@ -47,7 +47,7 @@
                   @foreach ($allData as $key => $item)
                     <tr>
                       <td>{{ $key + 1 }}</td>
-                      <td>{{ $item['warehouse']['name'] }}</td>
+                      <td>{{ $item->warehouse->name ?? 'N/A' }}</td>
                       <td>{{ $item->status }}</td>
                       <td>${{ $item->grand_total }}</td>
                       <td>Cash</td>

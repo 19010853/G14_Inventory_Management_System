@@ -84,13 +84,13 @@ class SupplierController extends Controller
     // All Customer
     public function AllCustomer(){
         $customer = Customer::latest()->get();
-        return view('admin.backend.supplier.all_customer',compact('customer'));
+        return view('admin.backend.customer.all_customer',compact('customer'));
     }
     // End Method
 
     // Add Customer
     public function AddCustomer(){
-        return view('admin.backend.supplier.add_customer');
+        return view('admin.backend.customer.add_customer');
     }
     // End Method
 
@@ -115,7 +115,7 @@ class SupplierController extends Controller
     // Edit Customer
     public function EditCustomer($id){
         $customer = Customer::find($id);
-        return view('admin.backend.supplier.edit_customer',compact('customer'));
+        return view('admin.backend.customer.edit_customer',compact('customer'));
     }
     // End Method
 

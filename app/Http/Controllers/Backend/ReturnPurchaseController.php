@@ -18,8 +18,8 @@ class ReturnPurchaseController extends Controller
     //
     // All Return Purchase Methods
     public function AllReturnPurchase(){
-        $allData = ReturnPurchase::orderBy('id', 'desc')->get();
-        return view('admin.backend.return_purchase.all_return_purchase',compact('allData'));
+        $allData = ReturnPurchase::with('warehouse', 'supplier')->orderBy('id', 'desc')->get();
+        return view('admin.backend.return-purchase.all_return_purchase',compact('allData'));
     }
     // End Methods
 
