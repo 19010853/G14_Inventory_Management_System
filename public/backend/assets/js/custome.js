@@ -25,24 +25,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function fetchProducts(query, warehouse_id) {
     fetch(
-      productSearchUrl + '?query=' + query + '&warehouse_id=' + warehouse_id,
+      productSearchUrl + '?query=' + encodeURIComponent(query) + '&warehouse_id=' + encodeURIComponent(warehouse_id),
+      {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin'
+      }
     )
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then((data) => {
         productList.innerHTML = '';
-        if (data.length > 0) {
+        if (data && data.length > 0) {
           data.forEach((product) => {
             let item = `<a href="#" class="list-group-item list-group-item-action product-item"
                             data-id="${product.id}"
-                            data-code="${product.code}"
-                            data-name="${product.name}"
-                            data-cost="${product.price}"
-                            data-stock="${product.product_qty}">
+                            data-code="${product.code || ''}"
+                            data-name="${product.name || ''}"
+                            data-cost="${product.price || 0}"
+                            data-stock="${product.product_qty || 0}">
                             <span class="mdi mdi-text-search"></span>
-                            ${product.code} - ${product.name}
+                            ${product.code || ''} - ${product.name || ''}
                             </a> `;
             productList.innerHTML += item;
-            // console.log(item);
           });
 
           // add event listener for product selection
@@ -55,6 +67,10 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           productList.innerHTML = '<p class="text-muted">No Product Found</p>';
         }
+      })
+      .catch((error) => {
+        console.error('Error fetching products:', error);
+        productList.innerHTML = '<p class="text-danger">Error loading products. Please try again.</p>';
       });
   }
 

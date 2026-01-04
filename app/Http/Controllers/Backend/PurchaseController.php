@@ -30,21 +30,41 @@ class PurchaseController extends Controller
 
     // Purchase Product Search Methods
     public function PurchaseProductSearch(Request $request){
-        $query = $request->input('query');
-        $warehouse_id = $request->input('warehouse_id');
+        try {
+            $query = $request->input('query');
+            $warehouse_id = $request->input('warehouse_id');
 
-        $products = Product::where(function($q) use ($query){
-            $q->where('name', 'LIKE', "%{$query}%")
-              ->orWhere('code', 'LIKE', "%{$query}%");
-        })
-        ->when($warehouse_id, function($q) use ($warehouse_id) {
-            $q->where('warehouse_id', $warehouse_id);
-        })
-        ->select('id', 'name', 'code', 'price', 'product_qty')
-        ->limit(10)
-        ->get();
+            if (empty($query) || strlen($query) < 2) {
+                return response()->json([]);
+            }
 
-        return response()->json($products);
+            $products = Product::where(function($q) use ($query){
+                $q->where('name', 'LIKE', "%{$query}%")
+                  ->orWhere('code', 'LIKE', "%{$query}%");
+            })
+            ->when($warehouse_id, function($q) use ($warehouse_id) {
+                $q->where('warehouse_id', $warehouse_id);
+            })
+            ->select('id', 'name', 'code', 'price', 'product_quantity')
+            ->limit(10)
+            ->get();
+
+            // Map product_quantity to product_qty for frontend compatibility
+            $products = $products->map(function($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'code' => $product->code,
+                    'price' => $product->price,
+                    'product_qty' => $product->product_quantity ?? 0,
+                ];
+            });
+
+            return response()->json($products);
+        } catch (\Exception $e) {
+            \Log::error('PurchaseProductSearch error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to search products'], 500);
+        }
     }
     // End Methods
 
