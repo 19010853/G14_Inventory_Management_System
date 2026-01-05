@@ -37,10 +37,43 @@ class SaleController extends Controller
     public function StoreSale(Request $request){
         $request->validate([
             'date' => 'required|date',
-            'status' => 'required',
-            'customer_id' => 'required',
-            'warehouse_id' => 'required',
+            'status' => 'required|in:Sale,Pending,Ordered',
+            'customer_id' => 'required|exists:customers,id',
+            'warehouse_id' => 'required|exists:warehouses,id',
             'products' => 'required|array|min:1',
+            'products.*.id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|numeric|min:1',
+            'products.*.cost' => 'nullable|numeric|min:0',
+            'products.*.net_unit_cost' => 'nullable|numeric|min:0',
+            'products.*.discount' => 'nullable|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
+            'shipping' => 'nullable|numeric|min:0',
+            'paid_amount' => 'nullable|numeric|min:0',
+            'due_amount' => 'nullable|numeric|min:0',
+            'note' => 'nullable|string|max:1000',
+        ], [
+            'date.required' => 'The date field is required.',
+            'date.date' => 'The date must be a valid date.',
+            'status.required' => 'The status field is required.',
+            'status.in' => 'The status must be one of: Sale, Pending, or Ordered.',
+            'customer_id.required' => 'Please select a customer.',
+            'customer_id.exists' => 'The selected customer is invalid.',
+            'warehouse_id.required' => 'Please select a warehouse.',
+            'warehouse_id.exists' => 'The selected warehouse is invalid.',
+            'products.required' => 'Please add at least one product to the order.',
+            'products.min' => 'Please add at least one product to the order.',
+            'products.*.id.required' => 'Product ID is required.',
+            'products.*.id.exists' => 'One or more selected products are invalid.',
+            'products.*.quantity.required' => 'Product quantity is required.',
+            'products.*.quantity.numeric' => 'Product quantity must be a number.',
+            'products.*.quantity.min' => 'Product quantity must be at least 1.',
+            'products.*.cost.numeric' => 'Product cost must be a number.',
+            'products.*.net_unit_cost.numeric' => 'Net unit cost must be a number.',
+            'products.*.discount.numeric' => 'Product discount must be a number.',
+            'discount.numeric' => 'Discount must be a number.',
+            'shipping.numeric' => 'Shipping must be a number.',
+            'paid_amount.numeric' => 'Paid amount must be a number.',
+            'due_amount.numeric' => 'Due amount must be a number.',
         ]);
 
         try {
@@ -107,6 +140,9 @@ class SaleController extends Controller
 
             return redirect()->route('all.sale')->with($notification);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->withErrors($e->errors());
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Store Sale error: ' . $e->getMessage());

@@ -12,6 +12,17 @@
 
  <div class="card">
     <div class="card-body">
+    @if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Please fix the following errors:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
     <form action="{{ route('store.sale')}}" method="post" enctype="multipart/form-data">
        @csrf
 
@@ -22,7 +33,7 @@
        <div class="row">
           <div class="col-md-4 mb-3">
              <label class="form-label">Date:  <span class="text-danger">*</span></label>
-             <input type="date" name="date" value="<?php echo date('Y-m-d'); ?>" class="form-control">
+             <input type="date" name="date" value="{{ old('date', date('Y-m-d')) }}" class="form-control @error('date') is-invalid @enderror">
              @error('date')
              <span class="text-danger">{{ $message }}</span>
              @enderror
@@ -31,12 +42,15 @@
           <div class="col-md-4 mb-3">
                 <div class="form-group w-100">
                 <label class="form-label" for="formBasic">Warehouse : <span class="text-danger">*</span></label>
-                <select name="warehouse_id" id="warehouse_id" class="form-control form-select">
+                <select name="warehouse_id" id="warehouse_id" class="form-control form-select @error('warehouse_id') is-invalid @enderror">
                       <option value="">Select Warehouse</option>
                       @foreach ($warehouses as $item)
-                      <option value="{{ $item->id }}">{{ $item->name }}</option>
+                      <option value="{{ $item->id }}" {{ old('warehouse_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                       @endforeach
                 </select>
+                @error('warehouse_id')
+                <span class="text-danger">{{ $message }}</span>
+                @enderror
                 <small id="warehouse_error" class="text-danger d-none">Please select the first warehouse.</small>
                 </div>
           </div>
@@ -44,13 +58,13 @@
           <div class="col-md-4 mb-3">
              <div class="form-group w-100">
                 <label class="form-label" for="formBasic">Customer : <span class="text-danger">*</span></label>
-                <select name="customer_id" id="customer_id" class="form-control form-select">
+                <select name="customer_id" id="customer_id" class="form-control form-select @error('customer_id') is-invalid @enderror">
                    <option value="">Select Customer</option>
                    @foreach ($customers as $item)
-                   <option value="{{ $item->id }}">{{ $item->name }}</option>
+                   <option value="{{ $item->id }}" {{ old('customer_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                    @endforeach
                 </select>
-                @error('supplier_id')
+                @error('customer_id')
                 <span class="text-danger">{{ $message }}</span>
                 @enderror
              </div>
@@ -77,6 +91,11 @@
   <div class="row">
      <div class="col-md-12">
         <label class="form-label">Order items: <span class="text-danger">*</span></label>
+        @error('products')
+        <div class="alert alert-danger">
+            <span class="text-danger">{{ $message }}</span>
+        </div>
+        @enderror
         <table class="table table-striped table-bordered dataTable" style="width: 100%;">
            <thead>
               <tr role="row">
@@ -121,7 +140,10 @@
                   <tr>
                       <td class="py-3">Paid Amount</td>
                       <td class="py-3" id="paidAmount">
-                      <input type="text" name="paid_amount" placeholder="Enter amount paid" class="form-control">
+                      <input type="number" step="0.01" name="paid_amount" placeholder="Enter amount paid" class="form-control @error('paid_amount') is-invalid @enderror" value="{{ old('paid_amount', '0') }}" min="0">
+                      @error('paid_amount')
+                      <span class="text-danger small d-block">{{ $message }}</span>
+                      @enderror
                       </td>
                    </tr>
                    <!-- new add full paid functionality  -->
@@ -150,20 +172,26 @@
       <div class="row">
          <div class="col-md-4">
             <label class="form-label">Discount: </label>
-            <input type="number" id="inputDiscount" name="discount" class="form-control" value="0.00">
+            <input type="number" step="0.01" id="inputDiscount" name="discount" class="form-control @error('discount') is-invalid @enderror" value="{{ old('discount', '0.00') }}" min="0">
+            @error('discount')
+            <span class="text-danger">{{ $message }}</span>
+            @enderror
          </div>
          <div class="col-md-4">
             <label class="form-label">Shipping: </label>
-            <input type="number" id="inputShipping" name="shipping" class="form-control" value="0.00">
+            <input type="number" step="0.01" id="inputShipping" name="shipping" class="form-control @error('shipping') is-invalid @enderror" value="{{ old('shipping', '0.00') }}" min="0">
+            @error('shipping')
+            <span class="text-danger">{{ $message }}</span>
+            @enderror
          </div>
          <div class="col-md-4">
             <div class="form-group w-100">
                <label class="form-label" for="formBasic">Status : <span class="text-danger">*</span></label>
-               <select name="status" id="status" class="form-control form-select">
+               <select name="status" id="status" class="form-control form-select @error('status') is-invalid @enderror">
                   <option value="">Select Status</option>
-                  <option value="Sale">Sale</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Ordered">Ordered</option>
+                  <option value="Sale" {{ old('status') == 'Sale' ? 'selected' : '' }}>Sale</option>
+                  <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                  <option value="Ordered" {{ old('status') == 'Ordered' ? 'selected' : '' }}>Ordered</option>
                </select>
                @error('status')
                   <span class="text-danger">{{ $message }}</span>
@@ -174,7 +202,10 @@
 
       <div class="col-md-12 mt-2">
          <label class="form-label">Notes: </label>
-         <textarea class="form-control" name="note" rows="3" placeholder="Enter Notes"></textarea>
+         <textarea class="form-control @error('note') is-invalid @enderror" name="note" rows="3" placeholder="Enter Notes">{{ old('note') }}</textarea>
+         @error('note')
+         <span class="text-danger">{{ $message }}</span>
+         @enderror
       </div>
    </div>
 </div>
