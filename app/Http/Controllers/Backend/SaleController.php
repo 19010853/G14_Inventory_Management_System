@@ -26,10 +26,10 @@ class SaleController extends Controller
 
     // Add Sale
     public function AddSale(){
-        $customer = Customer::all();
+        $customers = Customer::all();
         $warehouses = Warehouse::all();
 
-        return view('admin.backend.sales.add_sale',compact('customer','warehouses'));
+        return view('admin.backend.sales.add_sales',compact('customers','warehouses'));
     }
     //End Method
 
