@@ -301,10 +301,7 @@ setTimeout(function() {
             document.querySelectorAll('.product-item').forEach((item) => {
               item.addEventListener('click', function (e) {
                 e.preventDefault();
-                // Use the existing addProductToTable function from custome.js
-                if (typeof addProductToTable === 'function') {
-                  addProductToTable(this);
-                }
+                addProductToTransferTable(this);
               });
             });
           } else {
@@ -321,6 +318,171 @@ setTimeout(function() {
             productError.style.display = 'block';
           }
         });
+    }
+    
+    // Function to add product to transfer table
+    function addProductToTransferTable(productElement) {
+      // Find the correct tbody for order items table (not summary table)
+      let orderItemsTable = document.querySelector('.table.table-striped.table-bordered.dataTable');
+      let orderItemsTableBody = orderItemsTable ? orderItemsTable.querySelector('tbody') : null;
+      
+      if (!orderItemsTableBody) {
+        console.error('Order items table body not found');
+        return;
+      }
+      
+      let productId = productElement.getAttribute('data-id');
+      let productCode = productElement.getAttribute('data-code');
+      let productName = productElement.getAttribute('data-name');
+      let netUnitCost = parseFloat(productElement.getAttribute('data-cost'));
+      let stock = parseInt(productElement.getAttribute('data-stock'));
+
+      // Check if product already exists in table
+      if (orderItemsTableBody.querySelector(`tr[data-id="${productId}"]`)) {
+        alert('Product already added.');
+        return;
+      }
+
+      let row = `
+        <tr data-id="${productId}">
+            <td style="word-wrap: break-word; word-break: break-word; white-space: normal; line-height: 1.5;">
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 5px;">
+                  <span style="flex: 1; min-width: 0;">${productCode} - ${productName}</span>
+                  <button type="button" class="btn btn-primary btn-sm edit-discount-btn"
+                      data-id="${productId}"
+                      data-name="${productName}"
+                      data-cost="${netUnitCost}"
+                      data-bs-toggle="modal"
+                      style="flex-shrink: 0;">
+                      <span class="mdi mdi-book-edit "></span>
+                  </button>
+                </div>
+                <input type="hidden" name="products[${productId}][id]" value="${productId}">
+                <input type="hidden" name="products[${productId}][name]" value="${productName}">
+                <input type="hidden" name="products[${productId}][code]" value="${productCode}">
+            </td>
+            <td>${netUnitCost.toFixed(2)}
+                <input type="hidden" name="products[${productId}][cost]" value="${netUnitCost}">
+            </td>
+            <td style="color:#ffc121">${stock}</td>
+            <td>
+                <div class="input-group">
+                    <button class="btn btn-outline-secondary decrement-qty" type="button">−</button>
+                    <input type="text" class="form-control text-center qty-input"
+                        name="products[${productId}][quantity]" value="1" min="1" max="${stock}"
+                        data-cost="${netUnitCost}" style="width: 30px;">
+                    <button class="btn btn-outline-secondary increment-qty" type="button">+</button>
+                </div>
+            </td>
+            <td>
+                <input type="number" class="form-control discount-input"
+                    name="products[${productId}][discount]" value="0" min="0" style="width:100px">
+            </td>
+            <td class="subtotal">${netUnitCost.toFixed(2)}</td>
+            <td><button class="btn btn-danger btn-sm remove-product"><span class="mdi mdi-delete-circle mdi-18px"></span></button></td>
+        </tr>
+      `;
+
+      orderItemsTableBody.innerHTML += row;
+      productList.innerHTML = '';
+      productSearchInput.value = '';
+
+      // Update grand total
+      updateTransferGrandTotal();
+    }
+    
+    // Set up event delegation once for the transfer table
+    let orderItemsTable = document.querySelector('.table.table-striped.table-bordered.dataTable');
+    let orderItemsTableBody = orderItemsTable ? orderItemsTable.querySelector('tbody') : null;
+    
+    if (orderItemsTableBody) {
+      // Quantity and discount inputs - use event delegation
+      orderItemsTableBody.addEventListener('input', function(e) {
+        if (e.target.classList.contains('qty-input') || e.target.classList.contains('discount-input')) {
+          let row = e.target.closest('tr');
+          let qty = parseInt(row.querySelector('.qty-input').value) || 1;
+          let unitCost = parseFloat(row.querySelector('.qty-input').getAttribute('data-cost')) || 0;
+          let discount = parseFloat(row.querySelector('.discount-input').value) || 0;
+          let subtotal = unitCost * qty - discount;
+          row.querySelector('.subtotal').textContent = subtotal.toFixed(2);
+          updateTransferGrandTotal();
+        }
+      });
+
+      // Increment and decrement buttons - use event delegation
+      orderItemsTableBody.addEventListener('click', function(e) {
+        if (e.target.closest('.increment-qty')) {
+          e.preventDefault();
+          let button = e.target.closest('.increment-qty');
+          let input = button.closest('.input-group').querySelector('.qty-input');
+          let max = parseInt(input.getAttribute('max'));
+          let value = parseInt(input.value);
+          if (value < max) {
+            input.value = value + 1;
+            updateTransferSubtotal(button.closest('tr'));
+          }
+        } else if (e.target.closest('.decrement-qty')) {
+          e.preventDefault();
+          let button = e.target.closest('.decrement-qty');
+          let input = button.closest('.input-group').querySelector('.qty-input');
+          let min = parseInt(input.getAttribute('min'));
+          let value = parseInt(input.value);
+          if (value > min) {
+            input.value = value - 1;
+            updateTransferSubtotal(button.closest('tr'));
+          }
+        } else if (e.target.closest('.remove-product')) {
+          e.preventDefault();
+          e.target.closest('tr').remove();
+          updateTransferGrandTotal();
+        }
+      });
+    }
+    
+    function updateTransferSubtotal(row) {
+      let qty = parseFloat(row.querySelector('.qty-input').value);
+      let discount = parseFloat(row.querySelector('.discount-input').value) || 0;
+      let netUnitCost = parseFloat(row.querySelector('.qty-input').dataset.cost);
+      let subtotal = netUnitCost * qty - discount;
+      row.querySelector('.subtotal').innerText = subtotal.toFixed(2);
+      updateTransferGrandTotal();
+    }
+    
+    // Grand total update function for transfer
+    function updateTransferGrandTotal() {
+      let grandTotal = 0;
+      document.querySelectorAll('.subtotal').forEach(function (item) {
+        grandTotal += parseFloat(item.textContent) || 0;
+      });
+      
+      let discount = parseFloat(document.getElementById('inputDiscount').value) || 0;
+      let shipping = parseFloat(document.getElementById('inputShipping').value) || 0;
+      grandTotal = grandTotal - discount + shipping;
+      
+      if (grandTotal < 0) {
+        grandTotal = 0;
+      }
+      
+      document.getElementById('grandTotal').textContent = `TK ${grandTotal.toFixed(2)}`;
+      document.querySelector("input[name='grand_total']").value = grandTotal.toFixed(2);
+    }
+    
+    // Event listeners for discount and shipping
+    let discountInput = document.getElementById('inputDiscount');
+    let shippingInput = document.getElementById('inputShipping');
+    
+    if (discountInput) {
+      discountInput.addEventListener('input', function() {
+        updateTransferGrandTotal();
+        document.getElementById('displayDiscount').textContent = 'TK ' + (this.value || '0.00');
+      });
+    }
+    
+    if (shippingInput) {
+      shippingInput.addEventListener('input', function() {
+        updateTransferGrandTotal();
+        document.getElementById('shippingDisplay').textContent = 'TK ' + (this.value || '0.00');
+      });
     }
     
     // Also listen to warehouse change to clear product list
