@@ -12,17 +12,6 @@
 
  <div class="card">
     <div class="card-body">
-    @if ($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Please fix the following errors:</strong>
-        <ul class="mb-0 mt-2">
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
     <form action="{{ route('store.return.sale')}}" method="post" enctype="multipart/form-data" id="saleReturnForm">
        @csrf
 
@@ -259,8 +248,13 @@
         let productId = productElement.getAttribute('data-id');
         let productCode = productElement.getAttribute('data-code');
         let productName = productElement.getAttribute('data-name');
-        let netUnitCost = parseFloat(productElement.getAttribute('data-cost'));
-        let stock = parseInt(productElement.getAttribute('data-stock'));
+        let netUnitCost = parseFloat(productElement.getAttribute('data-cost')) || 0;
+        let stock = parseInt(productElement.getAttribute('data-stock')) || 0;
+        
+        // Ensure netUnitCost is a valid number
+        if (isNaN(netUnitCost) || netUnitCost < 0) {
+            netUnitCost = 0;
+        }
         
         // Check if product already exists in table
         let orderItemsTableBody = document.querySelector('tbody');
