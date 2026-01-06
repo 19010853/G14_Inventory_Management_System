@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Customer;
-use App\Models\WareHouse;
+use App\Models\Warehouse;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use App\Models\Sale;
@@ -27,8 +27,14 @@ class TransferController extends Controller
 
     // Add New Transfer Method
     public function AddTransfer(){
-        $warehouses = WareHouse::all();
-        return view('admin.backend.transfer.add_transfer',compact('warehouses'));
+        try {
+            $warehouses = Warehouse::all();
+            return view('admin.backend.transfer.add_transfer', compact('warehouses'));
+        } catch (\Exception $e) {
+            \Log::error('Add Transfer error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->back()->withErrors(['error' => 'Failed to load transfer form: ' . $e->getMessage()]);
+        }
     }
     // End Method
 
@@ -122,7 +128,7 @@ class TransferController extends Controller
     // Edit Transfer Method
     public function EditTransfer($id){
         $editData = Transfer::with(['fromWarehouse','toWarehouse','transferItems.product'])->findOrFail($id);
-        $warehouses = WareHouse::all();
+        $warehouses = Warehouse::all();
         return view('admin.backend.transfer.edit_transfer',compact('warehouses','editData'));
 
     }
@@ -247,8 +253,8 @@ class TransferController extends Controller
     public function DetailsTransfer($id){
     $transfer = Transfer::with(['transferItems.product'])->findOrFail($id);
     $product = Product::find($transfer->product_id);
-    $fromWarehouse = WareHouse::find($transfer->from_warehouse_id);
-    $toWarehouse = WareHouse::find($transfer->to_warehouse_id);
+    $fromWarehouse = Warehouse::find($transfer->from_warehouse_id);
+    $toWarehouse = Warehouse::find($transfer->to_warehouse_id);
     return view('admin.backend.transfer.details_transfer',compact('transfer','product','fromWarehouse','toWarehouse'));
 
    }
