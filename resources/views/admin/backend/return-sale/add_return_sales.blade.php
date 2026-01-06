@@ -12,7 +12,18 @@
 
  <div class="card">
     <div class="card-body">
-    <form action="{{ route('store.return.sale')}}" method="post" enctype="multipart/form-data">
+    @if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Please fix the following errors:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+    <form action="{{ route('store.return.sale')}}" method="post" enctype="multipart/form-data" id="saleReturnForm">
        @csrf
 
 
@@ -80,6 +91,11 @@
   <div class="row">
      <div class="col-md-12">
         <label class="form-label">Order items: <span class="text-danger">*</span></label>
+        @error('products')
+        <div class="alert alert-danger">
+            <span class="text-danger">{{ $message }}</span>
+        </div>
+        @enderror
         <table class="table table-striped table-bordered dataTable" style="width: 100%;">
            <thead>
               <tr role="row">
@@ -185,12 +201,49 @@
 
      <div class="col-xl-12">
         <div class="d-flex mt-5 justify-content-end">
-           <button class="btn btn-primary me-3" type="submit">Save</button>
+           <button class="btn btn-primary me-3" type="submit" id="submitBtn">Save</button>
            <a class="btn btn-secondary" href="{{ route('all.return.sale') }}">Cancel</a>
         </div>
      </div>
   </div>
 </form>
+
+<script>
+    // Form validation before submit
+    document.getElementById('saleReturnForm').addEventListener('submit', function(e) {
+        let tbody = document.querySelector('tbody');
+        let rows = tbody.querySelectorAll('tr[data-id]');
+        
+        if (rows.length === 0) {
+            e.preventDefault();
+            alert('Please add at least one product to return.');
+            return false;
+        }
+        
+        // Ensure all required fields are filled
+        let customerId = document.getElementById('customer_id').value;
+        let warehouseId = document.getElementById('warehouse_id').value;
+        let status = document.getElementById('status').value;
+        
+        if (!customerId) {
+            e.preventDefault();
+            alert('Please select a customer.');
+            return false;
+        }
+        
+        if (!warehouseId) {
+            e.preventDefault();
+            alert('Please select a warehouse.');
+            return false;
+        }
+        
+        if (!status) {
+            e.preventDefault();
+            alert('Please select a status.');
+            return false;
+        }
+    });
+</script>
             </div>
          </div>
       </div>
@@ -201,69 +254,70 @@
 <script>
     var productSearchUrl = "{{ route('purchase.product.search') }}"
     
-    // Override addProductToTable function for sale return
+    // Override addProductToTable function for sale return - define immediately
+    window.addProductToTable = function(productElement) {
+        let productId = productElement.getAttribute('data-id');
+        let productCode = productElement.getAttribute('data-code');
+        let productName = productElement.getAttribute('data-name');
+        let netUnitCost = parseFloat(productElement.getAttribute('data-cost'));
+        let stock = parseInt(productElement.getAttribute('data-stock'));
+        
+        // Check if product already exists in table
+        let orderItemsTableBody = document.querySelector('tbody');
+        if (orderItemsTableBody.querySelector(`tr[data-id="${productId}"]`)) {
+            alert('Product already added.');
+            return;
+        }
+        
+        let row = `
+            <tr data-id="${productId}">
+                <td style="word-wrap: break-word; word-break: break-word; white-space: normal; line-height: 1.5;">
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 5px;">
+                        <span style="flex: 1; min-width: 0;">${productCode} - ${productName}</span>
+                    </div>
+                    <input type="hidden" name="products[${productId}][id]" value="${productId}">
+                </td>
+                <td>${netUnitCost.toFixed(2)}
+                    <input type="hidden" name="products[${productId}][net_unit_cost]" value="${netUnitCost}">
+                </td>
+                <td style="color:#ffc121">${stock}</td>
+                <td>
+                    <div class="input-group">
+                        <button class="btn btn-outline-secondary decrement-qty" type="button">−</button>
+                        <input type="text" class="form-control text-center qty-input"
+                            name="products[${productId}][quantity]" value="1" min="1" max="${stock}"
+                            data-cost="${netUnitCost}" style="width: 30px;">
+                        <button class="btn btn-outline-secondary increment-qty" type="button">+</button>
+                    </div>
+                </td>
+                <td>
+                    <input type="number" class="form-control discount-input"
+                        name="products[${productId}][discount]" value="0" min="0" style="width:100px">
+                </td>
+                <td class="subtotal">${netUnitCost.toFixed(2)}</td>
+                <td><button type="button" class="btn btn-danger btn-sm remove-product"><span class="mdi mdi-delete-circle mdi-18px"></span></button></td>
+            </tr>
+        `;
+        
+        orderItemsTableBody.innerHTML += row;
+        document.getElementById('product_list').innerHTML = '';
+        document.getElementById('product_search').value = '';
+        
+        // Update events for new row
+        updateSaleReturnEvents();
+        updateSaleReturnGrandTotal();
+    };
+    
+    // Override click handler for product items
     document.addEventListener('DOMContentLoaded', function() {
-        // Wait for custome.js to load, then override
-        setTimeout(function() {
-            if (typeof addProductToTable === 'function') {
-                // Store original function
-                let originalAddProductToTable = addProductToTable;
-                
-                // Override function
-                window.addProductToTable = function(productElement) {
-                    let productId = productElement.getAttribute('data-id');
-                    let productCode = productElement.getAttribute('data-code');
-                    let productName = productElement.getAttribute('data-name');
-                    let netUnitCost = parseFloat(productElement.getAttribute('data-cost'));
-                    let stock = parseInt(productElement.getAttribute('data-stock'));
-                    
-                    // Check if product already exists in table
-                    let orderItemsTableBody = document.querySelector('tbody');
-                    if (orderItemsTableBody.querySelector(`tr[data-id="${productId}"]`)) {
-                        alert('Product already added.');
-                        return;
-                    }
-                    
-                    let row = `
-                        <tr data-id="${productId}">
-                            <td style="word-wrap: break-word; word-break: break-word; white-space: normal; line-height: 1.5;">
-                                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 5px;">
-                                    <span style="flex: 1; min-width: 0;">${productCode} - ${productName}</span>
-                                </div>
-                                <input type="hidden" name="products[${productId}][id]" value="${productId}">
-                            </td>
-                            <td>${netUnitCost.toFixed(2)}
-                                <input type="hidden" name="products[${productId}][net_unit_cost]" value="${netUnitCost}">
-                            </td>
-                            <td style="color:#ffc121">${stock}</td>
-                            <td>
-                                <div class="input-group">
-                                    <button class="btn btn-outline-secondary decrement-qty" type="button">−</button>
-                                    <input type="text" class="form-control text-center qty-input"
-                                        name="products[${productId}][quantity]" value="1" min="1" max="${stock}"
-                                        data-cost="${netUnitCost}" style="width: 30px;">
-                                    <button class="btn btn-outline-secondary increment-qty" type="button">+</button>
-                                </div>
-                            </td>
-                            <td>
-                                <input type="number" class="form-control discount-input"
-                                    name="products[${productId}][discount]" value="0" min="0" style="width:100px">
-                            </td>
-                            <td class="subtotal">${netUnitCost.toFixed(2)}</td>
-                            <td><button type="button" class="btn btn-danger btn-sm remove-product"><span class="mdi mdi-delete-circle mdi-18px"></span></button></td>
-                        </tr>
-                    `;
-                    
-                    orderItemsTableBody.innerHTML += row;
-                    document.getElementById('product_list').innerHTML = '';
-                    document.getElementById('product_search').value = '';
-                    
-                    // Update events for new row
-                    updateSaleReturnEvents();
-                    updateSaleReturnGrandTotal();
-                };
+        // Use event delegation for product items
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.product-item')) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.addProductToTable(e.target.closest('.product-item'));
             }
-        }, 100);
+        });
     });
     
     // Update events for sale return
