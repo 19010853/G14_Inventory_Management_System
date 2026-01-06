@@ -21,8 +21,8 @@
     <div class="card">
        <div class="row">
           <div class="col-md-4 mb-3">
-             <label class="form-label">Date:  <span class="text-danger">*</span></label>
-             <input type="date" name="date" value="<?php echo date('Y-m-d'); ?>" class="form-control">
+                <label class="form-label">Date:  <span class="text-danger">*</span></label>
+             <input type="date" name="date" value="{{ old('date', date('Y-m-d')) }}" class="form-control {{ $errors->has('date') ? 'is-invalid' : '' }}">
              @error('date')
              <span class="text-danger">{{ $message }}</span>
              @enderror
@@ -31,12 +31,15 @@
           <div class="col-md-4 mb-3">
                 <div class="form-group w-100">
                 <label class="form-label" for="formBasic">Warehouse : <span class="text-danger">*</span></label>
-                <select name="warehouse_id" id="warehouse_id" class="form-control form-select">
+                <select name="warehouse_id" id="warehouse_id" class="form-control form-select {{ $errors->has('warehouse_id') ? 'is-invalid' : '' }}">
                       <option value="">Select Warehouse</option>
                       @foreach ($warehouses as $item)
-                      <option value="{{ $item->id }}">{{ $item->name }}</option>
+                      <option value="{{ $item->id }}" {{ old('warehouse_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                       @endforeach
                 </select>
+                @error('warehouse_id')
+                <span class="text-danger">{{ $message }}</span>
+                @enderror
                 <small id="warehouse_error" class="text-danger d-none">Please select the first warehouse.</small>
                 </div>
           </div>
@@ -44,13 +47,13 @@
           <div class="col-md-4 mb-3">
              <div class="form-group w-100">
                 <label class="form-label" for="formBasic">Customer : <span class="text-danger">*</span></label>
-                <select name="customer_id" id="customer_id" class="form-control form-select">
+                <select name="customer_id" id="customer_id" class="form-control form-select {{ $errors->has('customer_id') ? 'is-invalid' : '' }}">
                    <option value="">Select Customer</option>
                    @foreach ($customers as $item)
-                   <option value="{{ $item->id }}">{{ $item->name }}</option>
+                   <option value="{{ $item->id }}" {{ old('customer_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                    @endforeach
                 </select>
-                @error('supplier_id')
+                @error('customer_id')
                 <span class="text-danger">{{ $message }}</span>
                 @enderror
              </div>
@@ -159,11 +162,11 @@
          <div class="col-md-4">
             <div class="form-group w-100">
                <label class="form-label" for="formBasic">Status : <span class="text-danger">*</span></label>
-               <select name="status" id="status" class="form-control form-select">
+               <select name="status" id="status" class="form-control form-select {{ $errors->has('status') ? 'is-invalid' : '' }}">
                   <option value="">Select Status</option>
-                  <option value="Return">Return</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Ordered">Ordered</option>
+                  <option value="Return" {{ old('status') == 'Return' ? 'selected' : '' }}>Return</option>
+                  <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                  <option value="Ordered" {{ old('status') == 'Ordered' ? 'selected' : '' }}>Ordered</option>
                </select>
                @error('status')
                   <span class="text-danger">{{ $message }}</span>

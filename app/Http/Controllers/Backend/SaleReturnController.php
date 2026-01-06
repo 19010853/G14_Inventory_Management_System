@@ -31,71 +31,108 @@ class SaleReturnController extends Controller
 
      // Store Sale Return
     public function StoreSalesReturn(Request $request){
+        try {
+            $request->validate([
+                'date' => 'required|date',
+                'status' => 'required|in:Return,Pending,Ordered',
+                'warehouse_id' => 'required|exists:warehouses,id',
+                'customer_id' => 'required|exists:customers,id',
+                'products' => 'required|array|min:1',
+                'products.*.id' => 'required|exists:products,id',
+                'products.*.quantity' => 'required|numeric|min:1',
+                'products.*.net_unit_cost' => 'required|numeric|min:0',
+                'products.*.discount' => 'nullable|numeric|min:0',
+                'discount' => 'nullable|numeric|min:0',
+                'shipping' => 'nullable|numeric|min:0',
+                'paid_amount' => 'nullable|numeric|min:0',
+                'due_amount' => 'nullable|numeric|min:0',
+                'note' => 'nullable|string|max:1000',
+            ], [
+                'date.required' => 'The date field is required.',
+                'date.date' => 'The date must be a valid date.',
+                'status.required' => 'The status field is required.',
+                'status.in' => 'The status must be one of: Return, Pending, or Ordered.',
+                'warehouse_id.required' => 'Please select a warehouse.',
+                'warehouse_id.exists' => 'The selected warehouse is invalid.',
+                'customer_id.required' => 'Please select a customer.',
+                'customer_id.exists' => 'The selected customer is invalid.',
+                'products.required' => 'Please add at least one product to return.',
+                'products.min' => 'Please add at least one product to return.',
+                'products.*.id.required' => 'Product ID is required.',
+                'products.*.id.exists' => 'One or more selected products are invalid.',
+                'products.*.quantity.required' => 'Product quantity is required.',
+                'products.*.quantity.numeric' => 'Product quantity must be a number.',
+                'products.*.quantity.min' => 'Product quantity must be at least 1.',
+                'products.*.net_unit_cost.required' => 'Net unit cost is required.',
+                'products.*.net_unit_cost.numeric' => 'Net unit cost must be a number.',
+                'products.*.discount.numeric' => 'Product discount must be a number.',
+                'discount.numeric' => 'Discount must be a number.',
+                'shipping.numeric' => 'Shipping must be a number.',
+                'paid_amount.numeric' => 'Paid amount must be a number.',
+                'due_amount.numeric' => 'Due amount must be a number.',
+            ]);
 
-        $request->validate([
-            'date' => 'required|date',
-            'status' => 'required',
-        ]);
+            DB::beginTransaction();
 
-    try {
+            $grandTotal = 0;
 
-        DB::beginTransaction();
+            $sales = SaleReturn::create([
+                'date' => $request->date,
+                'warehouse_id' => $request->warehouse_id,
+                'customer_id' => $request->customer_id,
+                'discount' => $request->discount ?? 0,
+                'shipping' => $request->shipping ?? 0,
+                'status' => $request->status,
+                'note' => $request->note ?? null,
+                'grand_total' => 0,
+                'paid_amount' => $request->paid_amount ?? 0,
+                'due_amount' => $request->due_amount ?? 0,
+            ]);
 
-        $grandTotal = 0;
+            /// Store Sales Items & Update Stock
+            foreach($request->products as $productData){
+                $product = Product::findOrFail($productData['id']);
+                $netUnitCost = $productData['net_unit_cost'] ?? $product->price;
 
-        $sales = SaleReturn::create([
-            'date' => $request->date,
-            'warehouse_id' => $request->warehouse_id,
-            'customer_id' => $request->customer_id,
-            'discount' => $request->discount ?? 0,
-            'shipping' => $request->shipping ?? 0,
-            'status' => $request->status,
-            'note' => $request->note,
-            'grand_total' => 0,
-            'paid_amount' => $request->paid_amount,
-            'due_amount' => $request->due_amount,
+                if ($netUnitCost === null) {
+                    throw new \Exception("Net Unit cost is missing for the product id " . $productData['id']);
+                }
 
-        ]);
+                $subtotal = ($netUnitCost * $productData['quantity']) - ($productData['discount'] ?? 0);
+                $grandTotal += $subtotal;
 
-        /// Store Sales Items & Update Stock
-    foreach($request->products as $productData){
-        $product = Product::findOrFail($productData['id']);
-        $netUnitCost = $productData['net_unit_cost'] ?? $product->price;
+                SaleReturnItem::create([
+                    'sale_return_id' => $sales->id,
+                    'product_id' => $productData['id'],
+                    'net_unit_cost' => $netUnitCost,
+                    'stock' => $product->product_qty + $productData['quantity'],
+                    'quantity' => $productData['quantity'],
+                    'discount' => $productData['discount'] ?? 0,
+                    'subtotal' => $subtotal,
+                ]);
 
-        if ($netUnitCost === null) {
-            throw new \Exception("Net Unit cost is missing ofr the product id" . $productData['id']);
+                $product->increment('product_qty', $productData['quantity']);
+            }
+
+            $sales->update(['grand_total' => $grandTotal + ($request->shipping ?? 0) - ($request->discount ?? 0)]);
+
+            DB::commit();
+
+            $notification = array(
+                'message' => 'Sales Return Stored Successfully',
+                'alert-type' => 'success'
+            );
+            return redirect()->route('all.return.sale')->with($notification);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput()->withErrors($e->errors());
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Store Sales Return error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->back()->withInput()->withErrors(['error' => 'Failed to store sales return: ' . $e->getMessage()]);
         }
-
-        $subtotal = ($netUnitCost * $productData['quantity']) - ($productData['discount'] ?? 0);
-        $grandTotal += $subtotal;
-
-        SaleReturnItem::create([
-            'sale_return_id' => $sales->id,
-            'product_id' => $productData['id'],
-            'net_unit_cost' => $netUnitCost,
-            'stock' => $product->product_qty + $productData['quantity'],
-            'quantity' => $productData['quantity'],
-            'discount' => $productData['discount'] ?? 0,
-            'subtotal' => $subtotal,
-        ]);
-
-        $product->increment('product_qty', $productData['quantity']);
-    }
-
-    $sales->update(['grand_total' => $grandTotal + $request->shipping - $request->discount]);
-
-    DB::commit();
-
-    $notification = array(
-        'message' => 'Sales Return Stored Successfully',
-        'alert-type' => 'success'
-     );
-     return redirect()->route('all.return.sale')->with($notification);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json(['error' => $e->getMessage()], 500);
-      }
     }
     // End Method
 
