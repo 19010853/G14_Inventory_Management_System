@@ -12,17 +12,6 @@
 
  <div class="card">
     <div class="card-body">
-    @if ($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <strong>Please fix the following errors:</strong>
-        <ul class="mb-0 mt-2">
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
     <form action="{{ route('store.transfer')}}" method="post" enctype="multipart/form-data">
        @csrf
 
@@ -84,6 +73,7 @@
                    <input type="search" id="product_search" name="search" class="form-control" placeholder="Search product by code or name">
              </div>
              <div id="product_list" class="list-group mt-2"></div>
+             <div id="product_error" class="text-danger mt-2" style="display: none;"></div>
           </div>
        </div>
 
@@ -222,6 +212,134 @@
 
 <script>
     var productSearchUrl = "{{ route('purchase.product.search') }}"
+</script>
+
+<script>
+// Override product search for transfer form - runs after custome.js
+setTimeout(function() {
+  let productSearchInput = document.getElementById('product_search');
+  let fromWarehouseDropdown = document.getElementById('from_warehouse_id');
+  let productList = document.getElementById('product_list');
+  let productError = document.getElementById('product_error');
+  
+  // Only override if this is transfer form (has from_warehouse_id)
+  if (productSearchInput && fromWarehouseDropdown && productList) {
+    // Clone and replace to remove existing listeners
+    let newInput = productSearchInput.cloneNode(true);
+    productSearchInput.parentNode.replaceChild(newInput, productSearchInput);
+    productSearchInput = newInput;
+    
+    productSearchInput.addEventListener('keyup', function (e) {
+      e.stopPropagation(); // Prevent custome.js handler
+      let query = this.value.trim();
+      let warehouse_id = fromWarehouseDropdown.value;
+      
+      // Clear previous errors
+      if (productError) {
+        productError.style.display = 'none';
+        productError.textContent = '';
+      }
+      
+      if (!warehouse_id) {
+        productList.innerHTML = '';
+        if (productError) {
+          productError.textContent = 'Please select the warehouse first';
+          productError.style.display = 'block';
+        }
+        return;
+      }
+      
+      if (query.length > 1) {
+        fetchProductsForTransfer(query, warehouse_id);
+      } else {
+        productList.innerHTML = '';
+        if (productError) {
+          productError.style.display = 'none';
+        }
+      }
+    });
+    
+    function fetchProductsForTransfer(query, warehouse_id) {
+      fetch(
+        productSearchUrl + '?query=' + encodeURIComponent(query) + '&warehouse_id=' + encodeURIComponent(warehouse_id),
+        {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          credentials: 'same-origin'
+        }
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          productList.innerHTML = '';
+          if (productError) {
+            productError.style.display = 'none';
+          }
+          
+          if (data && data.length > 0) {
+            data.forEach((product) => {
+              let item = `<a href="#" class="list-group-item list-group-item-action product-item"
+                              data-id="${product.id}"
+                              data-code="${product.code || ''}"
+                              data-name="${product.name || ''}"
+                              data-cost="${product.price || 0}"
+                              data-stock="${product.product_qty || 0}">
+                              <span class="mdi mdi-text-search"></span>
+                              ${product.code || ''} - ${product.name || ''}
+                              </a> `;
+              productList.innerHTML += item;
+            });
+
+            // Add event listener for product selection
+            document.querySelectorAll('.product-item').forEach((item) => {
+              item.addEventListener('click', function (e) {
+                e.preventDefault();
+                // Use the existing addProductToTable function from custome.js
+                if (typeof addProductToTable === 'function') {
+                  addProductToTable(this);
+                }
+              });
+            });
+          } else {
+            if (productError) {
+              productError.textContent = 'Product not found';
+              productError.style.display = 'block';
+            }
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching products:', error);
+          if (productError) {
+            productError.textContent = 'Error loading products. Please try again.';
+            productError.style.display = 'block';
+          }
+        });
+    }
+    
+    // Also listen to warehouse change to clear product list
+    fromWarehouseDropdown.addEventListener('change', function() {
+      if (!this.value) {
+        productList.innerHTML = '';
+        productSearchInput.value = '';
+        if (productError) {
+          productError.textContent = 'Please select the warehouse first';
+          productError.style.display = 'block';
+        }
+      } else {
+        if (productError) {
+          productError.style.display = 'none';
+        }
+      }
+    });
+  }
+}, 100); // Run after custome.js
 </script>
 
 
