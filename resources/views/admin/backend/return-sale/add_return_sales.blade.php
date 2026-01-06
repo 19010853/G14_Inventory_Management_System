@@ -200,6 +200,189 @@
 
 <script>
     var productSearchUrl = "{{ route('purchase.product.search') }}"
+    
+    // Override addProductToTable function for sale return
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for custome.js to load, then override
+        setTimeout(function() {
+            if (typeof addProductToTable === 'function') {
+                // Store original function
+                let originalAddProductToTable = addProductToTable;
+                
+                // Override function
+                window.addProductToTable = function(productElement) {
+                    let productId = productElement.getAttribute('data-id');
+                    let productCode = productElement.getAttribute('data-code');
+                    let productName = productElement.getAttribute('data-name');
+                    let netUnitCost = parseFloat(productElement.getAttribute('data-cost'));
+                    let stock = parseInt(productElement.getAttribute('data-stock'));
+                    
+                    // Check if product already exists in table
+                    let orderItemsTableBody = document.querySelector('tbody');
+                    if (orderItemsTableBody.querySelector(`tr[data-id="${productId}"]`)) {
+                        alert('Product already added.');
+                        return;
+                    }
+                    
+                    let row = `
+                        <tr data-id="${productId}">
+                            <td style="word-wrap: break-word; word-break: break-word; white-space: normal; line-height: 1.5;">
+                                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 5px;">
+                                    <span style="flex: 1; min-width: 0;">${productCode} - ${productName}</span>
+                                </div>
+                                <input type="hidden" name="products[${productId}][id]" value="${productId}">
+                            </td>
+                            <td>${netUnitCost.toFixed(2)}
+                                <input type="hidden" name="products[${productId}][net_unit_cost]" value="${netUnitCost}">
+                            </td>
+                            <td style="color:#ffc121">${stock}</td>
+                            <td>
+                                <div class="input-group">
+                                    <button class="btn btn-outline-secondary decrement-qty" type="button">−</button>
+                                    <input type="text" class="form-control text-center qty-input"
+                                        name="products[${productId}][quantity]" value="1" min="1" max="${stock}"
+                                        data-cost="${netUnitCost}" style="width: 30px;">
+                                    <button class="btn btn-outline-secondary increment-qty" type="button">+</button>
+                                </div>
+                            </td>
+                            <td>
+                                <input type="number" class="form-control discount-input"
+                                    name="products[${productId}][discount]" value="0" min="0" style="width:100px">
+                            </td>
+                            <td class="subtotal">${netUnitCost.toFixed(2)}</td>
+                            <td><button type="button" class="btn btn-danger btn-sm remove-product"><span class="mdi mdi-delete-circle mdi-18px"></span></button></td>
+                        </tr>
+                    `;
+                    
+                    orderItemsTableBody.innerHTML += row;
+                    document.getElementById('product_list').innerHTML = '';
+                    document.getElementById('product_search').value = '';
+                    
+                    // Update events for new row
+                    updateSaleReturnEvents();
+                    updateSaleReturnGrandTotal();
+                };
+            }
+        }, 100);
+    });
+    
+    // Update events for sale return
+    function updateSaleReturnEvents() {
+        document.querySelectorAll('.qty-input, .discount-input').forEach((input) => {
+            // Remove existing listeners by cloning
+            let newInput = input.cloneNode(true);
+            input.parentNode.replaceChild(newInput, input);
+            
+            newInput.addEventListener('input', function() {
+                let row = this.closest('tr');
+                let qty = parseInt(row.querySelector('.qty-input').value) || 1;
+                let netUnitCost = parseFloat(row.querySelector('.qty-input').getAttribute('data-cost')) || 0;
+                let discount = parseFloat(row.querySelector('.discount-input').value) || 0;
+                
+                let subtotal = netUnitCost * qty - discount;
+                row.querySelector('.subtotal').textContent = subtotal.toFixed(2);
+                
+                updateSaleReturnGrandTotal();
+            });
+        });
+        
+        // Increment quantity
+        document.querySelectorAll('.increment-qty').forEach((button) => {
+            let newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            newButton.addEventListener('click', function() {
+                let input = this.closest('.input-group').querySelector('.qty-input');
+                let max = parseInt(input.getAttribute('max'));
+                let value = parseInt(input.value) || 1;
+                if (value < max) {
+                    input.value = value + 1;
+                    input.dispatchEvent(new Event('input'));
+                }
+            });
+        });
+        
+        // Decrement quantity
+        document.querySelectorAll('.decrement-qty').forEach((button) => {
+            let newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            newButton.addEventListener('click', function() {
+                let input = this.closest('.input-group').querySelector('.qty-input');
+                let min = parseInt(input.getAttribute('min'));
+                let value = parseInt(input.value) || 1;
+                if (value > min) {
+                    input.value = value - 1;
+                    input.dispatchEvent(new Event('input'));
+                }
+            });
+        });
+        
+        // Remove product row
+        document.querySelectorAll('.remove-product').forEach((button) => {
+            let newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+            
+            newButton.addEventListener('click', function() {
+                this.closest('tr').remove();
+                updateSaleReturnGrandTotal();
+            });
+        });
+    }
+    
+    // Update grand total for sale return
+    function updateSaleReturnGrandTotal() {
+        let grandTotal = 0;
+        
+        document.querySelectorAll('.subtotal').forEach(function(item) {
+            grandTotal += parseFloat(item.textContent) || 0;
+        });
+        
+        let discount = parseFloat(document.getElementById('inputDiscount').value) || 0;
+        let shipping = parseFloat(document.getElementById('inputShipping').value) || 0;
+        
+        grandTotal = grandTotal - discount + shipping;
+        
+        if (grandTotal < 0) {
+            grandTotal = 0;
+        }
+        
+        document.getElementById('grandTotal').textContent = `TK ${grandTotal.toFixed(2)}`;
+        document.querySelector("input[name='grand_total']").value = grandTotal.toFixed(2);
+        
+        updateSaleReturnDueAmount();
+    }
+    
+    // Update due amount for sale return
+    function updateSaleReturnDueAmount() {
+        let grandTotal = parseFloat(document.querySelector("input[name='grand_total']").value) || 0;
+        let paidAmount = parseFloat(document.querySelector("input[name='paid_amount']").value) || 0;
+        let dueAmount = grandTotal - paidAmount;
+        
+        if (dueAmount < 0) {
+            dueAmount = 0;
+        }
+        
+        document.getElementById('dueAmount').textContent = `TK ${dueAmount.toFixed(2)}`;
+        document.querySelector("input[name='due_amount']").value = dueAmount.toFixed(2);
+    }
+    
+    // Add event listeners for discount, shipping, and paid amount
+    document.addEventListener('DOMContentLoaded', function() {
+        let discountInput = document.getElementById('inputDiscount');
+        let shippingInput = document.getElementById('inputShipping');
+        let paidAmountInput = document.querySelector("input[name='paid_amount']");
+        
+        if (discountInput) {
+            discountInput.addEventListener('input', updateSaleReturnGrandTotal);
+        }
+        if (shippingInput) {
+            shippingInput.addEventListener('input', updateSaleReturnGrandTotal);
+        }
+        if (paidAmountInput) {
+            paidAmountInput.addEventListener('input', updateSaleReturnDueAmount);
+        }
+    });
 </script>
 
 
