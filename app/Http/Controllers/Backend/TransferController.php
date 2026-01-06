@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\Customer;
 use App\Models\Warehouse;
 use Intervention\Image\ImageManager;
@@ -97,10 +98,10 @@ class TransferController extends Controller
 
         /// Store Sales Items & Update Stock
     foreach($request->products as $productData){
-        $product = Product::findOrFail($productData['id']);
+        $product = Product::with('images')->findOrFail($productData['id']);
         $netUnitCost = $product->price;
         $quantity = $productData['quantity'];
-        $discount = $productData['discount'];
+        $discount = $productData['discount'] ?? 0;
         $subtotal = ($netUnitCost * $quantity) - $discount;
 
         TransferItem::create([
@@ -119,26 +120,54 @@ class TransferController extends Controller
             ->decrement('product_qty',$quantity);
 
         // Check if the product exists in to_warehouse
-
-        $existingProduct = Product::where('name',$product->name)
+        $existingProduct = Product::with('images')->where('name',$product->name)
             ->where('brand_id', $product->brand_id)
             ->where('warehouse_id', $request->to_warehouse_id)
             ->first();
 
         if ($existingProduct) {
             $existingProduct->increment('product_qty',$quantity);
+            
+            // Copy images from source product if destination product has no images
+            if ($existingProduct->images->isEmpty() && $product->images->isNotEmpty()) {
+                foreach ($product->images as $sourceImage) {
+                    ProductImage::create([
+                        'product_id' => $existingProduct->id,
+                        'image' => $sourceImage->image,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
         } else {
-            // if not exists then create new product without code
-            Product::create([
+            // if not exists then create new product with all details from source product
+            $newProduct = Product::create([
                 'name' => $product->name,
+                'code' => $product->code ?? null,
+                'category_id' => $product->category_id ?? null,
                 'brand_id' => $product->brand_id,
+                'supplier_id' => $product->supplier_id ?? null,
                 'warehouse_id' => $request->to_warehouse_id,
                 'price' => $product->price,
+                'stock_alert' => $product->stock_alert ?? 0,
                 'product_qty' => $quantity,
-                'status' => 1, // Assuing active status
+                'status' => $product->status ?? 1,
+                'note' => $product->note ?? null,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            
+            // Copy all images from source product to new product
+            if ($product->images->isNotEmpty()) {
+                foreach ($product->images as $sourceImage) {
+                    ProductImage::create([
+                        'product_id' => $newProduct->id,
+                        'image' => $sourceImage->image,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
         }
 
     }
