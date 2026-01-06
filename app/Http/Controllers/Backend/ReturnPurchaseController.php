@@ -100,17 +100,52 @@ class ReturnPurchaseController extends Controller
 
     // Show Details Return Purchase Methods
     public function DetailsReturnPurchase($id) {
-        $purchase = ReturnPurchase::with(['supplier', 'purchaseItems.product'])->find($id);
-        return view('admin.backend.return-purchase.return_purchase_details',compact('purchase'));
+        try {
+            $purchase = ReturnPurchase::with(['supplier', 'warehouse', 'purchaseItems.product'])->find($id);
+            
+            if (!$purchase) {
+                abort(404, 'Return Purchase not found');
+            }
+            
+            return view('admin.backend.return-purchase.return_purchase_details', compact('purchase'));
+        } catch (\Exception $e) {
+            \Log::error('Return Purchase details error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            abort(500, 'Failed to load return purchase details: ' . $e->getMessage());
+        }
     }
     // End Method
 
     // Generate PDF Invoice Methods
     public function InvoiceReturnPurchase($id) {
-        $purchase = ReturnPurchase::with(['supplier', 'purchaseItems.product'])->find($id);
+        try {
+            $purchase = ReturnPurchase::with(['supplier', 'warehouse', 'purchaseItems.product'])->find($id);
 
-        $pdf = Pdf::loadView('admin.backend.return-purchase.invoice_pdf',compact('purchase'));
-        return $pdf->download('purchase_'.$id.'.pdf');
+            if (!$purchase) {
+                abort(404, 'Return Purchase not found');
+            }
+
+            // Check if required relationships exist
+            if (!$purchase->supplier) {
+                \Log::error('Return Purchase invoice error: Supplier not found for return purchase ID: ' . $id);
+                abort(500, 'Supplier information is missing');
+            }
+
+            if (!$purchase->warehouse) {
+                \Log::error('Return Purchase invoice error: Warehouse not found for return purchase ID: ' . $id);
+                abort(500, 'Warehouse information is missing');
+            }
+
+            $pdf = Pdf::loadView('admin.backend.return-purchase.invoice_purchase', compact('purchase'));
+            return $pdf->download('return_purchase_'.$id.'.pdf');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('Return Purchase invoice error: Model not found - ' . $e->getMessage());
+            abort(404, 'Return Purchase not found');
+        } catch (\Exception $e) {
+            \Log::error('Return Purchase invoice generation error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            abort(500, 'Failed to generate invoice: ' . $e->getMessage());
+        }
     }
     // End Method
 
