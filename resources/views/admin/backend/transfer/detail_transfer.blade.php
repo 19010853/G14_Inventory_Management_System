@@ -40,15 +40,19 @@
                     </div>
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Date:</strong>
-                      <span>{{ $transfer->date }}</span>
+                      <span>{{ $transfer->date ?? 'N/A' }}</span>
                     </div>
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Status:</strong>
-                      <span>{{ $transfer->status }}</span>
+                      <span>{{ $transfer->status ?? 'N/A' }}</span>
                     </div>
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Note:</strong>
-                      <span>{{ $transfer->note }}</span>
+                      <span>{{ $transfer->note ?? 'N/A' }}</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                      <strong class="me-2 text-muted">Grand Total:</strong>
+                      <span>${{ number_format($transfer->grand_total ?? 0, 2) }}</span>
                     </div>
                   </div>
                 </div>
@@ -73,7 +77,7 @@
                   <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Warehouse Name:</strong>
-                      <span>{{ $transfer->fromWarehouse->name }}</span>
+                      <span>{{ $transfer->fromWarehouse->name ?? 'N/A' }}</span>
                     </div>
                   </div>
                 </div>
@@ -99,7 +103,7 @@
                   <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
                       <strong class="me-2 text-muted">Warehouse Name:</strong>
-                      <span>{{ $transfer->toWarehouse->name }}</span>
+                      <span>{{ $transfer->toWarehouse->name ?? 'N/A' }}</span>
                     </div>
                   </div>
                 </div>
@@ -137,22 +141,26 @@
                             </tr>
                           </thead>
                           <tbody>
-                            @foreach ($transfer->transferItems as $key => $item)
+                            @forelse ($transfer->transferItems as $key => $item)
                               <tr>
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $item->product->name ?? 'N/A' }}</td>
-                                <td>{{ $item->quantity }}</td>
+                                <td>{{ $item->quantity ?? 0 }}</td>
                                 <td>
-                                  {{ number_format($item->net_unit_cost, 2) }}
+                                  {{ number_format($item->net_unit_cost ?? 0, 2) }}
                                 </td>
                                 <td>
-                                  {{ number_format($item->discount, 2) }}
+                                  {{ number_format($item->discount ?? 0, 2) }}
                                 </td>
                                 <td>
-                                  {{ number_format($item->subtotal, 2) }}
+                                  {{ number_format($item->subtotal ?? 0, 2) }}
                                 </td>
                               </tr>
-                            @endforeach
+                            @empty
+                              <tr>
+                                <td colspan="6" class="text-center">No items found</td>
+                              </tr>
+                            @endforelse
                           </tbody>
                         </table>
                       </div>

@@ -318,12 +318,22 @@ class TransferController extends Controller
 
     // Show Transfer Details Method
     public function DetailsTransfer($id){
-    $transfer = Transfer::with(['transferItems.product'])->findOrFail($id);
-    $product = Product::find($transfer->product_id);
-    $fromWarehouse = Warehouse::find($transfer->from_warehouse_id);
-    $toWarehouse = Warehouse::find($transfer->to_warehouse_id);
-    return view('admin.backend.transfer.details_transfer',compact('transfer','product','fromWarehouse','toWarehouse'));
-
-   }
+        try {
+            $transfer = Transfer::with(['fromWarehouse', 'toWarehouse', 'transferItems.product'])->findOrFail($id);
+            
+            if (!$transfer) {
+                abort(404, 'Transfer not found');
+            }
+            
+            return view('admin.backend.transfer.detail_transfer', compact('transfer'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            \Log::error('Transfer details error: Model not found - ' . $e->getMessage());
+            abort(404, 'Transfer not found');
+        } catch (\Exception $e) {
+            \Log::error('Transfer details error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            abort(500, 'Failed to load transfer details: ' . $e->getMessage());
+        }
+    }
     // End Method
 }
