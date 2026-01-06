@@ -12,6 +12,17 @@
 
  <div class="card">
     <div class="card-body">
+    @if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Please fix the following errors:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
     <form action="{{ route('store.transfer')}}" method="post" enctype="multipart/form-data">
        @csrf
 
@@ -22,7 +33,7 @@
        <div class="row">
           <div class="col-md-4 mb-3">
              <label class="form-label">Date:  <span class="text-danger">*</span></label>
-             <input type="date" name="date" value="<?php echo date('Y-m-d'); ?>" class="form-control">
+             <input type="date" name="date" value="{{ old('date', date('Y-m-d')) }}" class="form-control @error('date') is-invalid @enderror">
              @error('date')
              <span class="text-danger">{{ $message }}</span>
              @enderror
@@ -31,12 +42,15 @@
           <div class="col-md-4 mb-3">
                 <div class="form-group w-100">
                 <label class="form-label" for="formBasic">From Warehouse : <span class="text-danger">*</span></label>
-                <select name="from_warehouse_id" id="warehouse_id" class="form-control form-select">
+                <select name="from_warehouse_id" id="from_warehouse_id" class="form-control form-select @error('from_warehouse_id') is-invalid @enderror">
                       <option value="">Select Warehouse</option>
                       @foreach ($warehouses as $item)
-                      <option value="{{ $item->id }}">{{ $item->name }}</option>
+                      <option value="{{ $item->id }}" {{ old('from_warehouse_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                       @endforeach
                 </select>
+                @error('from_warehouse_id')
+                <span class="text-danger">{{ $message }}</span>
+                @enderror
                 <small id="warehouse_error" class="text-danger d-none">Please select the first warehouse.</small>
                 </div>
           </div>
@@ -44,12 +58,15 @@
           <div class="col-md-4 mb-3">
             <div class="form-group w-100">
             <label class="form-label" for="formBasic">To Warehouse : <span class="text-danger">*</span></label>
-            <select name="to_warehouse_id" id="warehouse_id" class="form-control form-select">
+            <select name="to_warehouse_id" id="to_warehouse_id" class="form-control form-select @error('to_warehouse_id') is-invalid @enderror">
                   <option value="">Select Warehouse</option>
                   @foreach ($warehouses as $item)
-                  <option value="{{ $item->id }}">{{ $item->name }}</option>
+                  <option value="{{ $item->id }}" {{ old('to_warehouse_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                   @endforeach
             </select>
+            @error('to_warehouse_id')
+            <span class="text-danger">{{ $message }}</span>
+            @enderror
             <small id="warehouse_error" class="text-danger d-none">Please select the first warehouse.</small>
             </div>
       </div>
@@ -149,20 +166,26 @@
       <div class="row">
          <div class="col-md-4">
             <label class="form-label">Discount: </label>
-            <input type="number" id="inputDiscount" name="discount" class="form-control" value="0.00">
+            <input type="number" step="0.01" id="inputDiscount" name="discount" class="form-control @error('discount') is-invalid @enderror" value="{{ old('discount', '0.00') }}" min="0">
+            @error('discount')
+            <span class="text-danger">{{ $message }}</span>
+            @enderror
          </div>
          <div class="col-md-4">
             <label class="form-label">Shipping: </label>
-            <input type="number" id="inputShipping" name="shipping" class="form-control" value="0.00">
+            <input type="number" step="0.01" id="inputShipping" name="shipping" class="form-control @error('shipping') is-invalid @enderror" value="{{ old('shipping', '0.00') }}" min="0">
+            @error('shipping')
+            <span class="text-danger">{{ $message }}</span>
+            @enderror
          </div>
          <div class="col-md-4">
             <div class="form-group w-100">
                <label class="form-label" for="formBasic">Status : <span class="text-danger">*</span></label>
-               <select name="status" id="status" class="form-control form-select">
+               <select name="status" id="status" class="form-control form-select @error('status') is-invalid @enderror">
                   <option value="">Select Status</option>
-                  <option value="Transfer">Transfer</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Ordered">Ordered</option>
+                  <option value="Transfer" {{ old('status') == 'Transfer' ? 'selected' : '' }}>Transfer</option>
+                  <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                  <option value="Ordered" {{ old('status') == 'Ordered' ? 'selected' : '' }}>Ordered</option>
                </select>
                @error('status')
                   <span class="text-danger">{{ $message }}</span>
@@ -173,7 +196,10 @@
 
       <div class="col-md-12 mt-2">
          <label class="form-label">Notes: </label>
-         <textarea class="form-control" name="note" rows="3" placeholder="Enter Notes"></textarea>
+         <textarea class="form-control @error('note') is-invalid @enderror" name="note" rows="3" placeholder="Enter Notes">{{ old('note') }}</textarea>
+         @error('note')
+         <span class="text-danger">{{ $message }}</span>
+         @enderror
       </div>
    </div>
 </div>
