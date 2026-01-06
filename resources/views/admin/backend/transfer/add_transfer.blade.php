@@ -88,24 +88,94 @@
             <span class="text-danger">{{ $message }}</span>
         </div>
         @enderror
-        <table class="table table-striped table-bordered dataTable" style="width: 100%;">
-           <thead>
-              <tr role="row">
-                 <th>Product</th>
-                 <th>Net Unit Cost</th>
-                 <th>Stock</th>
-                 <th>Qty</th>
-                 <th>Discount</th>
-                 <th>Subtotal</th>
-                 <th>Action</th>
-              </tr>
-           </thead>
-           <tbody>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered dataTable" style="width: 100%;">
+             <thead>
+                <tr role="row">
+                   <th style="min-width: 200px; max-width: 350px;">Product</th>
+                   <th>Net Unit Cost</th>
+                   <th>Stock</th>
+                   <th>Qty</th>
+                   <th>Discount</th>
+                   <th>Subtotal</th>
+                   <th>Action</th>
+                </tr>
+             </thead>
+             <tbody>
 
-           </tbody>
-        </table>
+             </tbody>
+          </table>
+        </div>
      </div>
   </div>
+  
+  <style>
+    /* Responsive table styles for transfer order items */
+    .table-responsive table tbody td:first-child {
+      word-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
+      line-height: 1.5;
+      max-width: 350px;
+      min-width: 200px;
+    }
+    
+    .table-responsive table tbody td:first-child > div {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .table-responsive table tbody td:first-child > div > span {
+      flex: 1;
+      min-width: 0;
+      word-wrap: break-word;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    
+    .table-responsive table tbody td:first-child button {
+      flex-shrink: 0;
+      margin-top: 0;
+    }
+    
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 1200px) {
+      .table-responsive table tbody td:first-child {
+        max-width: 280px;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .table-responsive table tbody td:first-child {
+        max-width: 250px;
+        font-size: 0.95em;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .table-responsive table tbody td:first-child {
+        max-width: 200px;
+        font-size: 0.9em;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .table-responsive table tbody td:first-child {
+        max-width: 150px;
+        font-size: 0.85em;
+      }
+    }
+    
+    /* Ensure table is scrollable on very small screens */
+    @media (max-width: 768px) {
+      .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+  </style>
 
 <div class="row">
  <div class="col-md-6 ms-auto">
@@ -350,9 +420,9 @@ setTimeout(function() {
 
       let row = `
         <tr data-id="${productId}">
-            <td style="word-wrap: break-word; word-break: break-word; white-space: normal; line-height: 1.5;">
+            <td>
                 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 5px;">
-                  <span style="flex: 1; min-width: 0;">${productCode} - ${productName}</span>
+                  <span style="flex: 1; min-width: 0; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word;">${productCode} - ${productName}</span>
                   <button type="button" class="btn btn-primary btn-sm edit-discount-btn"
                       data-id="${productId}"
                       data-name="${productName}"
