@@ -83,6 +83,11 @@
   <div class="row">
      <div class="col-md-12">
         <label class="form-label">Order items: <span class="text-danger">*</span></label>
+        @error('products')
+        <div class="alert alert-danger">
+            <span class="text-danger">{{ $message }}</span>
+        </div>
+        @enderror
         <table class="table table-striped table-bordered dataTable" style="width: 100%;">
            <thead>
               <tr role="row">

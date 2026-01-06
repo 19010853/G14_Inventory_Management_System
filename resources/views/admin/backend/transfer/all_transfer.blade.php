@@ -47,8 +47,8 @@
                       <td>
                         {{ \Carbon\Carbon::parse($item->date)->format('Y-m-d') }}
                       </td>
-                      <td>{{ $item['fromWarehouse']['name'] }}</td>
-                      <td>{{ $item['toWarehouse']['name'] }}</td>
+                      <td>{{ $item->fromWarehouse->name ?? 'N/A' }}</td>
+                      <td>{{ $item->toWarehouse->name ?? 'N/A' }}</td>
                       <td>
                         @foreach ($item->transferItems as $transferItem)
                           {{ $transferItem->product->name ?? 'N/A' }}

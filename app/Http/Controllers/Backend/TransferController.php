@@ -20,8 +20,14 @@ class TransferController extends Controller
 {
     // Show All Transfer Method
     public function AllTransfer(){
-        $allData = Transfer::with(['transferItems.product'])->orderBy('id','desc')->get();
-        return view('admin.backend.transfer.all_transfer',compact('allData'));
+        try {
+            $allData = Transfer::with(['fromWarehouse', 'toWarehouse', 'transferItems.product'])->orderBy('id','desc')->get();
+            return view('admin.backend.transfer.all_transfer', compact('allData'));
+        } catch (\Exception $e) {
+            \Log::error('All Transfer error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->back()->withErrors(['error' => 'Failed to load transfers: ' . $e->getMessage()]);
+        }
     }
     // End Method
 
@@ -40,42 +46,40 @@ class TransferController extends Controller
 
     // Store Transfer Method
     public function StoreTransfer(Request $request){
-
-        $request->validate([
-            'date' => 'required|date',
-            'status' => 'required|in:Transfer,Pending,Ordered',
-            'from_warehouse_id' => 'required|exists:warehouses,id|different:to_warehouse_id',
-            'to_warehouse_id' => 'required|exists:warehouses,id',
-            'products' => 'required|array|min:1',
-            'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|numeric|min:1',
-            'products.*.discount' => 'nullable|numeric|min:0',
-            'discount' => 'nullable|numeric|min:0',
-            'shipping' => 'nullable|numeric|min:0',
-            'note' => 'nullable|string|max:1000',
-        ], [
-            'date.required' => 'The date field is required.',
-            'date.date' => 'The date must be a valid date.',
-            'status.required' => 'The status field is required.',
-            'status.in' => 'The status must be one of: Transfer, Pending, or Ordered.',
-            'from_warehouse_id.required' => 'Please select the source warehouse.',
-            'from_warehouse_id.exists' => 'The selected source warehouse is invalid.',
-            'from_warehouse_id.different' => 'From Warehouse and To Warehouse must be different.',
-            'to_warehouse_id.required' => 'Please select the destination warehouse.',
-            'to_warehouse_id.exists' => 'The selected destination warehouse is invalid.',
-            'products.required' => 'Please add at least one product to transfer.',
-            'products.min' => 'Please add at least one product to transfer.',
-            'products.*.id.required' => 'Product ID is required.',
-            'products.*.id.exists' => 'One or more selected products are invalid.',
-            'products.*.quantity.required' => 'Product quantity is required.',
-            'products.*.quantity.numeric' => 'Product quantity must be a number.',
-            'products.*.quantity.min' => 'Product quantity must be at least 1.',
-            'products.*.discount.numeric' => 'Product discount must be a number.',
-            'discount.numeric' => 'Discount must be a number.',
-            'shipping.numeric' => 'Shipping must be a number.',
-        ]);
-
-    try {
+        try {
+            $request->validate([
+                'date' => 'required|date',
+                'status' => 'required|in:Transfer,Pending,Ordered',
+                'from_warehouse_id' => 'required|exists:warehouses,id|different:to_warehouse_id',
+                'to_warehouse_id' => 'required|exists:warehouses,id',
+                'products' => 'required|array|min:1',
+                'products.*.id' => 'required|exists:products,id',
+                'products.*.quantity' => 'required|numeric|min:1',
+                'products.*.discount' => 'nullable|numeric|min:0',
+                'discount' => 'nullable|numeric|min:0',
+                'shipping' => 'nullable|numeric|min:0',
+                'note' => 'nullable|string|max:1000',
+            ], [
+                'date.required' => 'The date field is required.',
+                'date.date' => 'The date must be a valid date.',
+                'status.required' => 'The status field is required.',
+                'status.in' => 'The status must be one of: Transfer, Pending, or Ordered.',
+                'from_warehouse_id.required' => 'Please select the source warehouse.',
+                'from_warehouse_id.exists' => 'The selected source warehouse is invalid.',
+                'from_warehouse_id.different' => 'From Warehouse and To Warehouse must be different.',
+                'to_warehouse_id.required' => 'Please select the destination warehouse.',
+                'to_warehouse_id.exists' => 'The selected destination warehouse is invalid.',
+                'products.required' => 'Please add at least one product to transfer.',
+                'products.min' => 'Please add at least one product to transfer.',
+                'products.*.id.required' => 'Product ID is required.',
+                'products.*.id.exists' => 'One or more selected products are invalid.',
+                'products.*.quantity.required' => 'Product quantity is required.',
+                'products.*.quantity.numeric' => 'Product quantity must be a number.',
+                'products.*.quantity.min' => 'Product quantity must be at least 1.',
+                'products.*.discount.numeric' => 'Product discount must be a number.',
+                'discount.numeric' => 'Discount must be a number.',
+                'shipping.numeric' => 'Shipping must be a number.',
+            ]);
 
         DB::beginTransaction();
 
