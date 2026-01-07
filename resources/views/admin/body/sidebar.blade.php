@@ -100,11 +100,13 @@
             </a>
             <div class="collapse" id="Supplier">
               <ul class="nav-second-level">
-                <li>
-                  <a href="{{ route('all.supplier') }}" class="tp-link">
-                    All Supplier
-                  </a>
-                </li>
+                @if (Auth::guard('web')->user()->can('all.supplier'))
+                  <li>
+                    <a href="{{ route('all.supplier') }}" class="tp-link">
+                      All Supplier
+                    </a>
+                  </li>
+                @endif
               </ul>
             </div>
           </li>
@@ -119,117 +121,147 @@
             </a>
             <div class="collapse" id="Customer">
               <ul class="nav-second-level">
-                <li>
-                  <a href="{{ route('all.customer') }}" class="tp-link">
-                    All Customer
-                  </a>
-                </li>
+                @if (Auth::guard('web')->user()->can('all.customer'))
+                  <li>
+                    <a href="{{ route('all.customer') }}" class="tp-link">
+                      All Customer
+                    </a>
+                  </li>
+                @endif
               </ul>
             </div>
           </li>
         @endif
 
-        <li>
-          <a href="#Product" data-bs-toggle="collapse">
-            <i data-feather="users"></i>
-            <span>Product Manage</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <div class="collapse" id="Product">
-            <ul class="nav-second-level">
-              <li>
-                <a href="{{ route('all.category') }}" class="tp-link">
-                  All Category
-                </a>
-              </li>
+        @if (Auth::guard('web')->user()->can('product.menu'))
+          <li>
+            <a href="#Product" data-bs-toggle="collapse">
+              <i data-feather="users"></i>
+              <span>Product Manage</span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div class="collapse" id="Product">
+              <ul class="nav-second-level">
+                @if (Auth::guard('web')->user()->can('all.category'))
+                  <li>
+                    <a href="{{ route('all.category') }}" class="tp-link">
+                      All Category
+                    </a>
+                  </li>
+                @endif
 
-              <li>
-                <a href="{{ route('all.product') }}" class="tp-link">
-                  All Product
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
+                @if (Auth::guard('web')->user()->can('all.product'))
+                  <li>
+                    <a href="{{ route('all.product') }}" class="tp-link">
+                      All Product
+                    </a>
+                  </li>
+                @endif
+              </ul>
+            </div>
+          </li>
+        @endif
 
-        <li>
-          <a href="#Purchase" data-bs-toggle="collapse">
-            <i data-feather="users"></i>
-            <span>Purchase Manage</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <div class="collapse" id="Purchase">
-            <ul class="nav-second-level">
-              <li>
-                <a href="{{ route('all.purchase') }}" class="tp-link">
-                  All Purchase
-                </a>
-              </li>
-              <li>
-                <a href="{{ route('all.return.purchase') }}" class="tp-link">
-                  Purchase Return
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
+        @if (Auth::guard('web')->user()->can('purchase.menu'))
+          <li>
+            <a href="#Purchase" data-bs-toggle="collapse">
+              <i data-feather="users"></i>
+              <span>Purchase Manage</span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div class="collapse" id="Purchase">
+              <ul class="nav-second-level">
+                @if (Auth::guard('web')->user()->can('all.purchase'))
+                  <li>
+                    <a href="{{ route('all.purchase') }}" class="tp-link">
+                      All Purchase
+                    </a>
+                  </li>
+                @endif
+                @if (Auth::guard('web')->user()->can('return.purchase'))
+                  <li>
+                    <a href="{{ route('all.return.purchase') }}" class="tp-link">
+                      Purchase Return
+                    </a>
+                  </li>
+                @endif
+              </ul>
+            </div>
+          </li>
+        @endif
 
-        <li>
-          <a href="#Sale" data-bs-toggle="collapse">
-            <i data-feather="users"></i>
-            <span>Sale Manage</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <div class="collapse" id="Sale">
-            <ul class="nav-second-level">
-              <li>
-                <a href="{{ route('all.sale') }}" class="tp-link">All Sale</a>
-              </li>
-              <li>
-                <a href="{{ route('all.return.sale') }}" class="tp-link">
-                  Sale Return
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
+        @if (Auth::guard('web')->user()->can('sale.menu'))
+          <li>
+            <a href="#Sale" data-bs-toggle="collapse">
+              <i data-feather="users"></i>
+              <span>Sale Manage</span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div class="collapse" id="Sale">
+              <ul class="nav-second-level">
+                @if (Auth::guard('web')->user()->can('all.sale'))
+                  <li>
+                    <a href="{{ route('all.sale') }}" class="tp-link">All Sale</a>
+                  </li>
+                @endif
+                @if (Auth::guard('web')->user()->can('return.sale'))
+                  <li>
+                    <a href="{{ route('all.return.sale') }}" class="tp-link">
+                      Sale Return
+                    </a>
+                  </li>
+                @endif
+              </ul>
+            </div>
+          </li>
+        @endif
 
-        <li>
-          <a href="#Due" data-bs-toggle="collapse">
-            <i data-feather="alert-octagon"></i>
-            <span>Due Setup</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <div class="collapse" id="Due">
-            <ul class="nav-second-level">
-              <li>
-                <a href="{{ route('due.sale') }}" class="tp-link">Sales Due</a>
-              </li>
-              <li>
-                <a href="{{ route('due.sale.return') }}" class="tp-link">
-                  Sales Return Due
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
+        @if (Auth::guard('web')->user()->can('due.menu'))
+          <li>
+            <a href="#Due" data-bs-toggle="collapse">
+              <i data-feather="alert-octagon"></i>
+              <span>Due Setup</span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div class="collapse" id="Due">
+              <ul class="nav-second-level">
+                @if (Auth::guard('web')->user()->can('due.sales'))
+                  <li>
+                    <a href="{{ route('due.sale') }}" class="tp-link">Sales Due</a>
+                  </li>
+                @endif
+                @if (Auth::guard('web')->user()->can('due.sales.return'))
+                  <li>
+                    <a href="{{ route('due.sale.return') }}" class="tp-link">
+                      Sales Return Due
+                    </a>
+                  </li>
+                @endif
+              </ul>
+            </div>
+          </li>
+        @endif
 
-        <li>
-          <a href="#Transfers" data-bs-toggle="collapse">
-            <i data-feather="alert-octagon"></i>
-            <span>Transfers Setup</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <div class="collapse" id="Transfers">
-            <ul class="nav-second-level">
-              <li>
-                <a href="{{ route('all.transfer') }}" class="tp-link">
-                  Transfers
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
+        @if (Auth::guard('web')->user()->can('transfers.menu'))
+          <li>
+            <a href="#Transfers" data-bs-toggle="collapse">
+              <i data-feather="alert-octagon"></i>
+              <span>Transfers Setup</span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div class="collapse" id="Transfers">
+              <ul class="nav-second-level">
+                @if (Auth::guard('web')->user()->can('all.transfers'))
+                  <li>
+                    <a href="{{ route('all.transfer') }}" class="tp-link">
+                      Transfers
+                    </a>
+                  </li>
+                @endif
+              </ul>
+            </div>
+          </li>
+        @endif
 
         <li>
           <a href="#Report" data-bs-toggle="collapse">
@@ -250,55 +282,57 @@
 
         <li class="menu-title mt-2">General</li>
 
-        <li>
-          <a href="#sidebarBaseui" data-bs-toggle="collapse">
-            <i data-feather="package"></i>
-            <span>Role & Permission</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <div class="collapse" id="sidebarBaseui">
-            <ul class="nav-second-level">
-              <li>
-                <a href="{{ route('all.permission') }}" class="tp-link">
-                  All Permission
-                </a>
-              </li>
-              <li>
-                <a href="{{ route('all.roles') }}" class="tp-link">
-                  All Roles
-                </a>
-              </li>
+        @if (Auth::guard('web')->user()->can('role_and_permission.all'))
+          <li>
+            <a href="#sidebarBaseui" data-bs-toggle="collapse">
+              <i data-feather="package"></i>
+              <span>Role & Permission</span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div class="collapse" id="sidebarBaseui">
+              <ul class="nav-second-level">
+                <li>
+                  <a href="{{ route('all.permission') }}" class="tp-link">
+                    All Permission
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ route('all.roles') }}" class="tp-link">
+                    All Roles
+                  </a>
+                </li>
 
-              <li>
-                <a href="{{ route('add.roles.permission') }}" class="tp-link">
-                  Role In Permission
-                </a>
-              </li>
-              <li>
-                <a href="{{ route('all.roles.permission') }}" class="tp-link">
-                  All Role Permission
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
+                <li>
+                  <a href="{{ route('add.roles.permission') }}" class="tp-link">
+                    Role In Permission
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ route('all.roles.permission') }}" class="tp-link">
+                    All Role Permission
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
 
-        <li>
-          <a href="#sidebarBaseui" data-bs-toggle="collapse">
-            <i data-feather="package"></i>
-            <span>Manage Admin</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <div class="collapse" id="sidebarBaseui">
-            <ul class="nav-second-level">
-              <li>
-                <a href="{{ route('all.admin') }}" class="tp-link">
-                  All Admin
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
+          <li>
+            <a href="#sidebarAdmin" data-bs-toggle="collapse">
+              <i data-feather="package"></i>
+              <span>Manage Admin</span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div class="collapse" id="sidebarAdmin">
+              <ul class="nav-second-level">
+                <li>
+                  <a href="{{ route('all.admin') }}" class="tp-link">
+                    All Admin
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+        @endif
 
 
       </ul>

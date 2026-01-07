@@ -64,6 +64,9 @@ class ProductController extends Controller
 
     // All Product
     public function AllProduct(){
+        if (!auth()->user()->hasPermissionTo('all.product')) {
+            abort(403, 'Unauthorized Action');
+        }
         $allData = Product::orderBy('id','DESC')->get();
         // Pass image disk to view for proper URL generation
         $imageDisk = $this->imageDisk();

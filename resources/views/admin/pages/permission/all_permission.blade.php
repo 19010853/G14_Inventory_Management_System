@@ -9,14 +9,6 @@
             <span class="badge bg-primary ms-2">Total: {{ $totalPermissions ?? $permissions->count() }}</span>
           </h4>
         </div>
-
-        <div class="text-end">
-          <ol class="breadcrumb m-0 py-0">
-            <a href="{{ route('add.permission') }}" class="btn btn-secondary">
-              Add Permission
-            </a>
-          </ol>
-        </div>
       </div>
 
       <!-- Datatables  -->
@@ -46,20 +38,7 @@
                       <td>{{ $item->name }}</td>
                       <td>{{ $item->group_name }}</td>
                       <td>
-                        <a
-                          href="{{ route('edit.permission', $item->id) }}"
-                          class="btn btn-success btn-sm"
-                        >
-                          Edit
-                        </a>
-                        <a
-                          href="{{ route('delete.permission', $item->id) }}"
-                          class="btn btn-danger btn-sm"
-                          id="delete"
-                          data-delete-text="this permission"
-                        >
-                          Delete
-                        </a>
+                        <span class="badge bg-info">View Only</span>
                       </td>
                     </tr>
                   @endforeach

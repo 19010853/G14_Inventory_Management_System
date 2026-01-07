@@ -19,6 +19,9 @@ class SaleController extends Controller
 {
     //Show All Sales
     public function AllSales(){
+        if (!auth()->user()->hasPermissionTo('all.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         $allData = Sale::orderBy('id','desc')->get();
         return view('admin.backend.sales.all_sales',compact('allData'));
     }

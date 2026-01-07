@@ -14,74 +14,20 @@ class RoleController extends Controller
 {
     // Show All Permission
     public function AllPermission(){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $permissions = Permission::all();
         $totalPermissions = $permissions->count();
         return view('admin.pages.permission.all_permission',compact('permissions', 'totalPermissions'));
     }
     // End Method
 
-    // Add New Permission
-    public function AddPermission(){
-        return view('admin.pages.permission.add_permission');
-    }
-    // End Method
-
-    // Store New Permission
-    public function StorePermission(Request $request){
-
-        Permission::create([
-            'name' => $request->name,
-            'group_name' => $request->group_name,
-        ]);
-
-        $notification = array(
-            'message' => 'Permission Inserted Successfully',
-            'alert-type' => 'success'
-         );
-         return redirect()->route('all.permission')->with($notification);
-    }
-    // End Method
-
-    // Edit Permission
-    public function EditPermission($id){
-        $permissions = Permission::find($id);
-        return view('admin.pages.permission.edit_permission',compact('permissions'));
-
-     }
-     // End Method
-
-    // Update Permission after press edit button
-     public function UpdatePermission(Request $request){
-        $per_id = $request->id;
-
-        Permission::find($per_id)->update([
-            'name' => $request->name,
-            'group_name' => $request->group_name,
-        ]);
-
-        $notification = array(
-            'message' => 'Permission Updated Successfully',
-            'alert-type' => 'success'
-         );
-         return redirect()->route('all.permission')->with($notification);
-    }
-     // End Method
-
-    // Delete Permission
-    public function DeletePermission($id){
-        Permission::find($id)->delete();
-
-        $notification = array(
-            'message' => 'Permission Deleted Successfully',
-            'alert-type' => 'success'
-         );
-         return redirect()->back()->with($notification);
-
-     }
-    // End Method
-
     // Show All Roles
     public function AllRoles(){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $roles = Role::all();
         return view('admin.pages.role.all_role',compact('roles'));
     }
@@ -89,12 +35,18 @@ class RoleController extends Controller
 
     // Add New Roles
     public function AddRoles(){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         return view('admin.pages.role.add_role');
     }
     // End Method
 
     // Store New Roles
     public function StoreRoles(Request $request){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         Role::create([
             'name' => $request->name,
@@ -109,6 +61,9 @@ class RoleController extends Controller
      // End Method
 
      public function EditRoles($id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $roles = Role::find($id);
         return view('admin.pages.role.edit_role',compact('roles'));
 
@@ -117,6 +72,9 @@ class RoleController extends Controller
 
      // Update Roles after press edit button
      public function UpdateRoles(Request $request){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $role_id = $request->id;
 
         Role::find($role_id)->update([
@@ -133,6 +91,9 @@ class RoleController extends Controller
 
         // Delete Roles
        public function DeleteRoles($id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         Role::find($id)->delete();
 
         $notification = array(
@@ -146,6 +107,9 @@ class RoleController extends Controller
 
     // Add Roles in Permission
     public function AddRolesPermission(){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $roles = Role::all();
         $permissions = Permission::all();
         $permission_groups = User::getpermissionGroups();
@@ -156,6 +120,9 @@ class RoleController extends Controller
 
     // Store Role in Permission
      public function StoreRolePermission(Request $request){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         
         // Validate request
         $request->validate([
@@ -194,6 +161,9 @@ class RoleController extends Controller
 
     //Show All Roles with their Permissions
     public function AllRolesPermission(){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $roles = Role::all();
         return view('admin.pages.rolesetup.all_roles_permission',compact('roles'));
       }
@@ -201,6 +171,9 @@ class RoleController extends Controller
 
     // Edit Admin Roles with their Permissions
     public function AdminEditRoles($id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $role = Role::find($id);
         $permissions = Permission::all();
         $permission_groups = User::getpermissionGroups();
@@ -211,6 +184,9 @@ class RoleController extends Controller
 
     // Update Admin Roles with their Permissions after press edit button
     public function AdminRolesUpdate(Request $request, $id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $role = Role::find($id);
         $permissions = $request->permission;
 
@@ -232,6 +208,9 @@ class RoleController extends Controller
 
     // Delete Admin Roles with their Permissions
     public function AdminDeleteRoles($id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $role = Role::find($id);
         if (!is_null($role)) {
@@ -248,6 +227,9 @@ class RoleController extends Controller
 
     //Show All Admin Roles with their Permissions
     public function AllAdmin(){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $alladmin = User::where('role','admin')->latest()->get();
         return view('admin.pages.admin.all_admin',compact('alladmin'));
     }
@@ -255,6 +237,9 @@ class RoleController extends Controller
 
     // Add Admin Roles with their Permissions
     public function AddAdmin(){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $roles = Role::all();
         return view('admin.pages.admin.add_admin',compact('roles'));
     }
@@ -262,6 +247,9 @@ class RoleController extends Controller
 
     // Store Admin Roles with their Permissions
     public function StoreAdmin(Request $request){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $user = new User();
         $user->name = $request->name;
@@ -288,6 +276,9 @@ class RoleController extends Controller
 
     // Edit Admin Roles with their Permissions
     public function EditAdmin($id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $admin = User::find($id);
         $roles = Role::all();
         return view('admin.pages.admin.edit_admin',compact('admin','roles'));
@@ -296,6 +287,9 @@ class RoleController extends Controller
 
     // Update Admin Roles with their Permissions after press edit button
     public function UpdateAdmin(Request $request,$id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $user = User::find($id);
         $user->name = $request->name;
@@ -323,6 +317,9 @@ class RoleController extends Controller
 
     // Delete Admin Roles with their Permissions
     public function DeleteAdmin($id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $admin = User::find($id);
         if (!is_null($admin)) {

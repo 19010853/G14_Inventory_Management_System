@@ -21,6 +21,9 @@ class TransferController extends Controller
 {
     // Show All Transfer Method
     public function AllTransfer(){
+        if (!auth()->user()->hasPermissionTo('all.transfers')) {
+            abort(403, 'Unauthorized Action');
+        }
         try {
             $allData = Transfer::with(['fromWarehouse', 'toWarehouse', 'transferItems.product'])->orderBy('id','desc')->get();
             return view('admin.backend.transfer.all_transfer', compact('allData'));

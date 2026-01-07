@@ -210,6 +210,9 @@ class BrandController extends Controller
 
     //Delete Brand
     public function DeleteBrand($id){
+        if (!auth()->user()->hasPermissionTo('delete.brand')) {
+            abort(403, 'Unauthorized Action');
+        }
         $item = Brand::find($id);
         $this->deleteImageIfExists($item?->image);
 
