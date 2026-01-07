@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Transfer;
 use App\Models\TransferItem;
+use App\Models\User;
+use App\Notifications\NewTransferNotification;
+use Illuminate\Support\Facades\Notification;
 
 class TransferController extends Controller
 {
@@ -176,6 +179,10 @@ class TransferController extends Controller
     }
 
     DB::commit();
+
+    // Notify admins about new transfer
+    $admin = User::role('Super Admin')->get();
+    Notification::send($admin, new NewTransferNotification($transfer));
 
     $notification = array(
         'message' => 'Transfer Complete Successfully',

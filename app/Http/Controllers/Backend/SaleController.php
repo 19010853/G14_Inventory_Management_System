@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Notifications\NewSaleNotification;
+use App\Notifications\NewSaleDueNotification;
 use Illuminate\Support\Facades\Notification;
 
 class SaleController extends Controller
@@ -135,6 +136,11 @@ class SaleController extends Controller
 
             $admin = User::role('Super Admin')->get();
             Notification::send($admin, new NewSaleNotification($sales));
+
+            // Additional notification when sale has due amount
+            if ($sales->due_amount > 0) {
+                Notification::send($admin, new NewSaleDueNotification($sales));
+            }
 
             $notification = array(
                 'message' => 'Sale Stored Successfully',

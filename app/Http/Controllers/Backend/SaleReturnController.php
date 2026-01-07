@@ -9,8 +9,12 @@ use App\Models\Sale;
 use App\Models\SaleReturn;
 use App\Models\SaleReturnItem;
 use App\Models\Warehouse;
+use App\Models\User;
+use App\Notifications\NewSaleReturnNotification;
+use App\Notifications\NewSaleReturnDueNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class SaleReturnController extends Controller
 {
@@ -119,6 +123,15 @@ class SaleReturnController extends Controller
             $sales->update(['grand_total' => $grandTotal + ($request->shipping ?? 0) - ($request->discount ?? 0)]);
 
             DB::commit();
+
+            // Notify admins about new sale return
+            $admin = User::role('Super Admin')->get();
+            Notification::send($admin, new NewSaleReturnNotification($sales));
+
+            // Additional notification when there is due amount
+            if ($sales->due_amount > 0) {
+                Notification::send($admin, new NewSaleReturnDueNotification($sales));
+            }
 
             $notification = array(
                 'message' => 'Sales Return Stored Successfully',

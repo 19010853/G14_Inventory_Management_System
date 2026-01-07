@@ -8,9 +8,12 @@ use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use App\Models\Warehouse;
+use App\Models\User;
+use App\Notifications\NewPurchaseNotification;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class PurchaseController extends Controller
 {
@@ -125,6 +128,10 @@ class PurchaseController extends Controller
             $purchase->update(['grand_total' => $grandTotal + $request->shipping - $request->discount]);
 
             DB::commit();
+
+            // Notify admins about new purchase
+            $admin = User::role('Super Admin')->get();
+            Notification::send($admin, new NewPurchaseNotification($purchase));
 
             $notification = array(
                 'message' => 'Purchase created successfully',

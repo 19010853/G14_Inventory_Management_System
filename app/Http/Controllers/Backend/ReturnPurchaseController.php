@@ -9,8 +9,11 @@ use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Models\Product;
 use App\Models\ReturnPurchaseItem;
+use App\Models\User;
+use App\Notifications\NewReturnPurchaseNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 
 class ReturnPurchaseController extends Controller
@@ -87,6 +90,10 @@ class ReturnPurchaseController extends Controller
             $purchase->update(['grand_total' => $grandTotal + $request->shipping - $request->discount]);
 
             DB::commit();
+
+            // Notify admins about new purchase return
+            $admin = User::role('Super Admin')->get();
+            Notification::send($admin, new NewReturnPurchaseNotification($purchase));
 
             $notification = array(
                 'message' => 'Return Purchase created successfully',
