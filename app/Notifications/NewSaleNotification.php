@@ -55,7 +55,8 @@ class NewSaleNotification extends Notification
             'title' => 'New Sale',
             'message' => 'You have a new sale from ' . $this->sale->customer->name,
             'user_name' => auth()->user()->name,
-            'link' => route('sale.details', $this->sale->id),
+            // Use existing sale details route name
+            'link' => route('details.sale', $this->sale->id),
         ];
     }
 
@@ -67,7 +68,8 @@ class NewSaleNotification extends Notification
         return new BroadcastMessage([
             'title' => 'New Sale!',
             'message' => 'You have received a new order from a customer.',
-            'link' => route('sale.details', $this->sale->id),
+            // Use existing sale details route name
+            'link' => route('details.sale', $this->sale->id),
         ]);
     }
 }

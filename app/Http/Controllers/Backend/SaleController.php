@@ -150,7 +150,12 @@ class SaleController extends Controller
             DB::rollBack();
             \Log::error('Store Sale error: ' . $e->getMessage());
             \Log::error('Stack trace: ' . $e->getTraceAsString());
-            return redirect()->back()->withInput()->withErrors(['error' => 'Failed to store sale: ' . $e->getMessage()]);
+
+            // Do not show internal error details to the user; just a generic message
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to store sale. Please try again or contact the administrator.']);
         }
     }
     //End Method
