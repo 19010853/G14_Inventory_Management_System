@@ -15,7 +15,8 @@ class RoleController extends Controller
     // Show All Permission
     public function AllPermission(){
         $permissions = Permission::all();
-        return view('admin.pages.permission.all_permission',compact('permissions'));
+        $totalPermissions = $permissions->count();
+        return view('admin.pages.permission.all_permission',compact('permissions', 'totalPermissions'));
     }
     // End Method
 
@@ -155,18 +156,32 @@ class RoleController extends Controller
 
     // Store Role in Permission
      public function StoreRolePermission(Request $request){
+        
+        // Validate request
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+            'permission' => 'required|array',
+            'permission.*' => 'exists:permissions,id',
+        ], [
+            'role_id.required' => 'Please select a role.',
+            'role_id.exists' => 'Selected role does not exist.',
+            'permission.required' => 'Please select at least one permission.',
+            'permission.array' => 'Permissions must be an array.',
+            'permission.*.exists' => 'One or more selected permissions do not exist.',
+        ]);
+        
+        $role = Role::findOrFail($request->role_id);
+        $permissions = $request->permission ?? [];
 
-        $data = array();
-        $permissions = $request->permission;
-
-        foreach ($permissions as $key => $item){
-            $data['role_id'] = $request->role_id;
-            $data['permission_id'] = $item;
-
-            DB::table('role_has_permissions')->insert($data);
-        } // End Foreach
-
-
+        if (!empty($permissions)) {
+            // Get permission names from IDs
+            $permissionNames = Permission::whereIn('id', $permissions)->pluck('name')->toArray();
+            // Use syncPermissions to avoid duplicate entries
+            $role->syncPermissions($permissionNames);
+        } else {
+            // If no permissions selected, remove all permissions
+            $role->syncPermissions([]);
+        }
 
         $notification = array(
             'message' => 'Role Permission Added Successfully',

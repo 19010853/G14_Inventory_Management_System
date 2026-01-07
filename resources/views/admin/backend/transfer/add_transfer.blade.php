@@ -414,7 +414,6 @@ setTimeout(function() {
 
       // Check if product already exists in table
       if (orderItemsTableBody.querySelector(`tr[data-id="${productId}"]`)) {
-        alert('Product already added.');
         return;
       }
 

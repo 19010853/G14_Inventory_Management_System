@@ -84,7 +84,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Check if product already exists in table
     if (document.querySelector(`tr[data-id="${productId}"]`)) {
-      alert('Product already added.');
       return;
     }
 

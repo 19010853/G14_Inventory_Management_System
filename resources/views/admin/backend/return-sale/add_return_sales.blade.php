@@ -259,7 +259,6 @@
         // Check if product already exists in table
         let orderItemsTableBody = document.querySelector('tbody');
         if (orderItemsTableBody.querySelector(`tr[data-id="${productId}"]`)) {
-            alert('Product already added.');
             return;
         }
         
