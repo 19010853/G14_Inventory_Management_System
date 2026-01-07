@@ -16,6 +16,7 @@ use App\Http\Controllers\Backend\SupplierController;
 use App\Http\Controllers\Backend\TransferController;
 use App\Http\Controllers\Backend\WarehouseController;
 use App\Http\Controllers\Backend\RoleController;
+use App\Http\Controllers\Backend\NotificationController;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -166,6 +167,11 @@ Route::controller(ReportController::class)->group(function(){
     Route::get('/filter-sales', 'FilterSales')->name('filter-sales');
     Route::get('/sale/return/report', 'SaleReturnReport')->name('sale.return.report');
     Route::get('/product/stock/report', 'ProductStockReport')->name('product.stock.report');
+});
+
+// Notifications
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 });
 
 Route::controller(RoleController::class)->group(function(){
