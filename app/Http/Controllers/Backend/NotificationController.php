@@ -16,18 +16,20 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark all unread notifications as read for the current user.
+     * Mark a single notification as read and redirect to its target link.
      */
-    public function markAllAsRead(Request $request)
+    public function redirectToTarget(Request $request, string $id)
     {
         $user = $request->user();
-        $user->unreadNotifications->markAsRead();
+        $notification = $user->notifications()->findOrFail($id);
 
-        if ($request->wantsJson()) {
-            return response()->json(['status' => 'ok']);
+        if (is_null($notification->read_at)) {
+            $notification->markAsRead();
         }
 
-        return back();
+        $link = $notification->data['link'] ?? url('/');
+
+        return redirect($link);
     }
 }
 

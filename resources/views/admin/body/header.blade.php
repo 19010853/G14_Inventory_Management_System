@@ -39,15 +39,17 @@
             role="button"
             aria-haspopup="false"
             aria-expanded="false"
-            id="notificationDropdown"
           >
-            <i data-feather="bell" class="noti-icon"></i>
+          <i data-feather="bell" class="noti-icon"></i>
             @php
+                $unreadCount = auth()->user()->unreadNotifications()->count();
                 $notifications = auth()->user()->unreadNotifications;
             @endphp
-            <span class="badge bg-danger rounded-circle noti-icon-badge" id="notification-count">
-              {{ $notifications->count() }}
-            </span>
+            @if($unreadCount > 0)
+              <span class="badge bg-danger rounded-circle noti-icon-badge">
+                {{ $unreadCount }}
+              </span>
+            @endif
           </a>
           <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0">
             <div class="p-3">
@@ -59,7 +61,7 @@
             </div>
             <div data-simplebar style="max-height: 230px;" id="notification-list">
                 @foreach($notifications as $notification)
-                <a href="{{ $notification->data['link'] }}" class="text-reset notification-item">
+                <a href="{{ route('notifications.redirect', $notification->id) }}" class="text-reset notification-item">
                     <div class="d-flex">
                         <div class="avatar-xs me-3">
                             <span class="avatar-title bg-primary rounded-circle font-size-16">
@@ -146,38 +148,3 @@
     </div>
   </div>
 </div>
-
-@push('scripts')
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const dropdown = document.getElementById('notificationDropdown');
-    const badge = document.getElementById('notification-count');
-
-    if (!dropdown || !badge) return;
-
-    let notificationsMarked = false;
-
-    dropdown.addEventListener('click', function () {
-      // Chỉ gọi API 1 lần cho mỗi lần load trang
-      if (notificationsMarked) return;
-
-      fetch('{{ route('notifications.readAll') }}', {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-          'Accept': 'application/json',
-        },
-      }).then(function (response) {
-        if (response.ok) {
-          // Ẩn / reset badge số đỏ
-          badge.textContent = '0';
-          badge.classList.add('d-none');
-          notificationsMarked = true;
-        }
-      }).catch(function (error) {
-        console.error('Failed to mark notifications as read', error);
-      });
-    });
-  });
-</script>
-@endpush
