@@ -14,6 +14,20 @@ class NotificationController extends Controller
 
         return view('admin.backend.notifications.index', compact('notifications'));
     }
-}
 
+    /**
+     * Mark all unread notifications as read for the current user.
+     */
+    public function markAllAsRead(Request $request)
+    {
+        $user = $request->user();
+        $user->unreadNotifications->markAsRead();
+
+        if ($request->wantsJson()) {
+            return response()->json(['status' => 'ok']);
+        }
+
+        return back();
+    }
+}
 

@@ -32,13 +32,14 @@
         </li>
 
         <li class="dropdown notification-list topbar-dropdown">
-          <a
+        <a
             class="nav-link dropdown-toggle"
             data-bs-toggle="dropdown"
             href="#"
             role="button"
             aria-haspopup="false"
             aria-expanded="false"
+            id="notificationDropdown"
           >
             <i data-feather="bell" class="noti-icon"></i>
             @php
@@ -145,3 +146,38 @@
     </div>
   </div>
 </div>
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const dropdown = document.getElementById('notificationDropdown');
+    const badge = document.getElementById('notification-count');
+
+    if (!dropdown || !badge) return;
+
+    let notificationsMarked = false;
+
+    dropdown.addEventListener('click', function () {
+      // Chỉ gọi API 1 lần cho mỗi lần load trang
+      if (notificationsMarked) return;
+
+      fetch('{{ route('notifications.readAll') }}', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+          'Accept': 'application/json',
+        },
+      }).then(function (response) {
+        if (response.ok) {
+          // Ẩn / reset badge số đỏ
+          badge.textContent = '0';
+          badge.classList.add('d-none');
+          notificationsMarked = true;
+        }
+      }).catch(function (error) {
+        console.error('Failed to mark notifications as read', error);
+      });
+    });
+  });
+</script>
+@endpush
