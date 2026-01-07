@@ -263,26 +263,27 @@
           </li>
         @endif
 
-        <li>
-          <a href="#Report" data-bs-toggle="collapse">
-            <i data-feather="alert-octagon"></i>
-            <span>Report Setup</span>
-            <span class="menu-arrow"></span>
-          </a>
-          <div class="collapse" id="Report">
-            <ul class="nav-second-level">
-              <li>
-                <a href="{{ route('all.report') }}" class="tp-link">
-                  All Reports
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
-
-        <li class="menu-title mt-2">General</li>
+        @if (Auth::guard('web')->user()->can('reports.all'))
+          <li>
+            <a href="#Report" data-bs-toggle="collapse">
+              <i data-feather="alert-octagon"></i>
+              <span>Report Setup</span>
+              <span class="menu-arrow"></span>
+            </a>
+            <div class="collapse" id="Report">
+              <ul class="nav-second-level">
+                <li>
+                  <a href="{{ route('all.report') }}" class="tp-link">
+                    All Reports
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+        @endif
 
         @if (Auth::guard('web')->user()->can('role_and_permission.all'))
+        <li class="menu-title mt-2">General</li>
           <li>
             <a href="#sidebarBaseui" data-bs-toggle="collapse">
               <i data-feather="package"></i>
@@ -333,8 +334,6 @@
             </div>
           </li>
         @endif
-
-
       </ul>
     </div>
     <!-- End Sidebar -->

@@ -18,6 +18,9 @@ class ReportController extends Controller
 {
     // Show All Report
     public function AllReport(){
+        if (!auth()->user()->hasPermissionTo('reports.all')) {
+            abort(403, 'Unauthorized Action');
+        }
         $purchases = Purchase::with(['purchaseItems.product','supplier','warehouse'])->get();
         return view('admin.backend.report.all_report',compact('purchases'));
     }

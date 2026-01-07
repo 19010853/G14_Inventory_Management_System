@@ -57,6 +57,9 @@ class PermissionSeeder extends Seeder
             ['name' => 'all.sale', 'group_name' => 'Sale'],
             ['name' => 'return.sale', 'group_name' => 'Sale'],
             
+            // Reports Group
+            ['name' => 'reports.all', 'group_name' => 'Report'],
+            
             // Role & Permission Group
             ['name' => 'role_and_permission.all', 'group_name' => 'Role & Permission'],
         ];
