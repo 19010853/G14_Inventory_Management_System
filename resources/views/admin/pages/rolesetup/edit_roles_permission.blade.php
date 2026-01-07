@@ -69,13 +69,12 @@
 
                       <div class="form-check mb-2">
                         <input
-                          class="form-check-input"
+                          class="form-check-input permission-group"
                           type="checkbox"
                           value=""
-                          id="flexCheckDefault"
                           {{ App\Models\User::roleHasPermissions($role, $permissions) ? 'checked' : '' }}
                         />
-                        <label class="form-check-label" for="flexCheckDefault">
+                        <label class="form-check-label">
                           {{ $group->group_name }}
                         </label>
                       </div>
@@ -125,12 +124,18 @@
   </div>
 
   <script>
-    $('#formCheck1').click(function () {
-      if ($(this).is(':checked')) {
-        $('input[type=checkbox]').prop('checked', true);
-      } else {
-        $('input[type=checkbox]').prop('checked', false);
-      }
+    // Permission All - chọn / bỏ chọn tất cả checkbox
+    $('#formCheck1').on('click', function () {
+      const checked = $(this).is(':checked');
+      $('input[type=checkbox]').prop('checked', checked);
+    });
+
+    // Chọn / bỏ chọn theo từng group (Brand, Warehouse, ...)
+    $(document).on('change', '.permission-group', function () {
+      const checked = $(this).is(':checked');
+      const row = $(this).closest('.row');
+      // Tìm tất cả checkbox permission thuộc group này trong cột bên phải
+      row.find('.col-9 input[type=checkbox]').prop('checked', checked);
     });
   </script>
 @endsection

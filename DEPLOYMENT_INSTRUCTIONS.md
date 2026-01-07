@@ -131,11 +131,22 @@
 
 ### Bước 1: Backup Database (QUAN TRỌNG)
 ```bash
-# Trên server production
-mysqldump -u [username] -p [database_name] > backup_before_permission_update_$(date +%Y%m%d_%H%M%S).sql
+# Kiểm tra thông tin database trong .env trước
+cat .env | grep -E '^DB_HOST=|^DB_DATABASE=|^DB_USERNAME=|^DB_PASSWORD='
 
-# Hoặc nếu dùng Laravel Sail
-./vendor/bin/sail exec laravel.test mysqldump -u sail -ppassword inventory > backup_before_permission_update_$(date +%Y%m%d_%H%M%S).sql
+# Cách 1: Sử dụng giá trị trực tiếp (khuyến nghị)
+./vendor/bin/sail exec laravel.test mysqldump -h mysql -u g14 -pg14_password_change_me g14_inventory_management_system > backup_before_permission_update_$(date +%Y%m%d_%H%M%S).sql
+
+# Cách 2: Sử dụng container mysql trực tiếp
+./vendor/bin/sail exec mysql mysqldump -u g14 -pg14_password_change_me g14_inventory_management_system > backup_before_permission_update_$(date +%Y%m%d_%H%M%S).sql
+
+# Cách 3: Sử dụng Laravel Artisan (nếu có package backup)
+# php artisan backup:run
+
+# Lưu ý: Thay thế các giá trị sau bằng thông tin thực tế từ .env:
+# - g14 -> DB_USERNAME
+# - g14_password_change_me -> DB_PASSWORD  
+# - g14_inventory_management_system -> DB_DATABASE
 ```
 
 ### Bước 2: Deploy Code

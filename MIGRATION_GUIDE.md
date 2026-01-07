@@ -8,11 +8,23 @@ File này hướng dẫn cách cập nhật hệ thống permissions mà không 
 
 ### Bước 1: Backup Database (QUAN TRỌNG)
 ```bash
-# Backup database trước khi thực hiện
-mysqldump -u [username] -p [database_name] > backup_before_permission_update.sql
+# Kiểm tra thông tin database trong .env trước
+cat .env | grep -E '^DB_HOST=|^DB_DATABASE=|^DB_USERNAME=|^DB_PASSWORD='
 
-# Hoặc nếu dùng Laravel Sail
-./vendor/bin/sail exec laravel.test mysqldump -u sail -ppassword inventory > backup_before_permission_update.sql
+# Cách 1: Sử dụng giá trị trực tiếp từ .env (khuyến nghị)
+# Thay thế các giá trị sau bằng thông tin thực tế:
+./vendor/bin/sail exec laravel.test mysqldump -h mysql -u [DB_USERNAME] -p[DB_PASSWORD] [DB_DATABASE] > backup_before_permission_update_$(date +%Y%m%d_%H%M%S).sql
+
+# Ví dụ với thông tin thực tế:
+./vendor/bin/sail exec laravel.test mysqldump -h mysql -u g14 -pg14_password_change_me g14_inventory_management_system > backup_before_permission_update_$(date +%Y%m%d_%H%M%S).sql
+
+# Cách 2: Sử dụng container mysql trực tiếp
+./vendor/bin/sail exec mysql mysqldump -u [DB_USERNAME] -p[DB_PASSWORD] [DB_DATABASE] > backup_before_permission_update_$(date +%Y%m%d_%H%M%S).sql
+
+# Lưu ý: 
+# - Không có khoảng trắng giữa -p và password
+# - Tên database không có dấu ngoặc kép
+# - Sử dụng -h mysql để chỉ định host đúng
 ```
 
 ### Bước 2: Chạy Migration và Seeder
