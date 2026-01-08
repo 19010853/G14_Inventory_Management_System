@@ -62,11 +62,13 @@
 <style>
   /* Chatbot Container */
   #gemini-chatbot-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 1050;
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    display: block !important;
+    visibility: visible !important;
   }
 
   /* Toggle Button */
@@ -343,10 +345,22 @@
 </style>
 
 <script>
+  // Check if chatbot container exists
+  if (!document.getElementById('gemini-chatbot-container')) {
+    console.error('Chatbot container not found in DOM!');
+  } else {
+    console.log('Chatbot container found in DOM');
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
+    console.log('Chatbot script loaded - DOMContentLoaded fired');
+    
     // Initialize Feather Icons
     if (typeof feather !== 'undefined') {
       feather.replace();
+      console.log('Feather icons initialized');
+    } else {
+      console.warn('Feather icons not found');
     }
 
     const chatbotToggleBtn = document.getElementById('chatbot-toggle-btn');
@@ -358,6 +372,39 @@
     const chatbotMessages = document.getElementById('chatbot-messages');
     const questionCountEl = document.getElementById('chatbot-question-count');
 
+    // Check if all elements exist
+    if (!chatbotToggleBtn) {
+      console.error('chatbot-toggle-btn not found');
+    } else {
+      console.log('chatbot-toggle-btn found');
+    }
+    if (!chatbotWindow) {
+      console.error('chatbot-window not found');
+    } else {
+      console.log('chatbot-window found');
+    }
+    if (!chatbotForm) {
+      console.error('chatbot-form not found');
+    } else {
+      console.log('chatbot-form found');
+    }
+    
+    console.log('Chatbot elements initialized:', {
+      toggleBtn: !!chatbotToggleBtn,
+      window: !!chatbotWindow,
+      form: !!chatbotForm,
+      input: !!chatbotInput,
+      sendBtn: !!chatbotSendBtn,
+      messages: !!chatbotMessages
+    });
+
+    // Test click event
+    if (chatbotToggleBtn) {
+      console.log('Adding click event listener to toggle button');
+    } else {
+      console.error('Cannot add click listener - toggle button not found');
+    }
+
     let questionCount = 0;
     let chatHistory = [];
     let isProcessing = false;
@@ -366,6 +413,8 @@
     function toggleChatbot() {
       const isVisible = chatbotWindow.style.display !== 'none';
       chatbotWindow.style.display = isVisible ? 'none' : 'flex';
+      
+      console.log('Chatbot toggled. Visible:', !isVisible);
       
       if (!isVisible) {
         chatbotInput.focus();
@@ -474,10 +523,18 @@
     chatbotForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       
-      if (isProcessing) return;
+      if (isProcessing) {
+        console.log('Already processing, ignoring request');
+        return;
+      }
       
       const message = chatbotInput.value.trim();
-      if (!message) return;
+      if (!message) {
+        console.log('Empty message, ignoring');
+        return;
+      }
+
+      console.log('Sending message:', message);
 
       // Add user message
       addMessage(message, true);
@@ -506,11 +563,17 @@
       chatbotSendBtn.disabled = true;
 
       try {
-        const response = await fetch('/chat/gemini', {
+        const url = '/chat/gemini';
+        const csrfToken = '{{ csrf_token() }}';
+        
+        console.log('Fetching URL:', url);
+        console.log('CSRF Token:', csrfToken ? 'Present' : 'Missing');
+        
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-CSRF-TOKEN': csrfToken,
             'X-Requested-With': 'XMLHttpRequest'
           },
           body: JSON.stringify({
@@ -519,7 +582,12 @@
           })
         });
 
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
         const data = await response.json();
+        console.log('Response data:', data);
+        
         removeLoading();
 
         if (data.success) {
@@ -531,12 +599,18 @@
             content: data.answer
           });
         } else {
+          console.error('API returned error:', data.message);
           addMessage(data.message || 'Sorry, an error occurred. Please try again later.', false);
         }
       } catch (error) {
         removeLoading();
+        console.error('Chatbot fetch error:', error);
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
         addMessage('Sorry, a connection error occurred. Please check your network connection and try again.', false);
-        console.error('Chatbot error:', error);
       } finally {
         isProcessing = false;
         chatbotSendBtn.disabled = false;
