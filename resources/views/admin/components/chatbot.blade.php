@@ -359,102 +359,123 @@
   document.addEventListener('DOMContentLoaded', function() {
     console.log('Chatbot script loaded - DOMContentLoaded fired');
     
-    // Initialize Feather Icons
-    if (typeof feather !== 'undefined') {
-      feather.replace();
-      console.log('Feather icons initialized');
-    } else {
-      console.warn('Feather icons not found');
-    }
-
-    const chatbotToggleBtn = document.getElementById('chatbot-toggle-btn');
-    const chatbotWindow = document.getElementById('chatbot-window');
-    const chatbotCloseBtn = document.getElementById('chatbot-close-btn');
-    const chatbotForm = document.getElementById('chatbot-form');
-    const chatbotInput = document.getElementById('chatbot-input');
-    const chatbotSendBtn = document.getElementById('chatbot-send-btn');
-    const chatbotMessages = document.getElementById('chatbot-messages');
-    const questionCountEl = document.getElementById('chatbot-question-count');
-
-    // Check if all elements exist
-    if (!chatbotToggleBtn) {
-      console.error('chatbot-toggle-btn not found');
-    } else {
-      console.log('chatbot-toggle-btn found');
-    }
-    if (!chatbotWindow) {
-      console.error('chatbot-window not found');
-    } else {
-      console.log('chatbot-window found');
-    }
-    if (!chatbotForm) {
-      console.error('chatbot-form not found');
-    } else {
-      console.log('chatbot-form found');
-    }
-    
-    console.log('Chatbot elements initialized:', {
-      toggleBtn: !!chatbotToggleBtn,
-      window: !!chatbotWindow,
-      form: !!chatbotForm,
-      input: !!chatbotInput,
-      sendBtn: !!chatbotSendBtn,
-      messages: !!chatbotMessages
-    });
-
-    let questionCount = 0;
-    let chatHistory = [];
-    let isProcessing = false;
-
-    // Toggle chatbot window
-    function toggleChatbot() {
-      console.log('toggleChatbot function called');
-      const isVisible = chatbotWindow.style.display !== 'none';
-      chatbotWindow.style.display = isVisible ? 'none' : 'flex';
+    try {
+      console.log('Step 1: Starting chatbot initialization...');
       
-      console.log('Chatbot toggled. Visible:', !isVisible);
-      console.log('chatbotWindow.style.display:', chatbotWindow.style.display);
+      // Initialize Feather Icons
+      console.log('Step 2: Checking Feather icons...');
+      if (typeof feather !== 'undefined') {
+        feather.replace();
+        console.log('Feather icons initialized');
+      } else {
+        console.warn('Feather icons not found');
+      }
+
+      console.log('Step 3: Looking for chatbot elements...');
+      const chatbotToggleBtn = document.getElementById('chatbot-toggle-btn');
+      const chatbotWindow = document.getElementById('chatbot-window');
+      const chatbotCloseBtn = document.getElementById('chatbot-close-btn');
+      const chatbotForm = document.getElementById('chatbot-form');
+      const chatbotInput = document.getElementById('chatbot-input');
+      const chatbotSendBtn = document.getElementById('chatbot-send-btn');
+      const chatbotMessages = document.getElementById('chatbot-messages');
+      const questionCountEl = document.getElementById('chatbot-question-count');
+
+      console.log('Step 4: Elements found:', {
+        toggleBtn: !!chatbotToggleBtn,
+        window: !!chatbotWindow,
+        closeBtn: !!chatbotCloseBtn,
+        form: !!chatbotForm,
+        input: !!chatbotInput,
+        sendBtn: !!chatbotSendBtn,
+        messages: !!chatbotMessages,
+        questionCount: !!questionCountEl
+      });
+
+      // Check if all elements exist
+      if (!chatbotToggleBtn) {
+        console.error('ERROR: chatbot-toggle-btn not found');
+      } else {
+        console.log('✓ chatbot-toggle-btn found');
+      }
+      if (!chatbotWindow) {
+        console.error('ERROR: chatbot-window not found');
+      } else {
+        console.log('✓ chatbot-window found');
+      }
+      if (!chatbotForm) {
+        console.error('ERROR: chatbot-form not found');
+      } else {
+        console.log('✓ chatbot-form found');
+      }
       
-      if (!isVisible) {
-        chatbotInput.focus();
-        // Re-initialize Feather icons when window opens
-        if (typeof feather !== 'undefined') {
-          feather.replace();
+      console.log('Step 5: All elements checked');
+
+      console.log('Step 6: Initializing variables...');
+      let questionCount = 0;
+      let chatHistory = [];
+      let isProcessing = false;
+
+      // Toggle chatbot window
+      function toggleChatbot() {
+        console.log('toggleChatbot function called');
+        const isVisible = chatbotWindow.style.display !== 'none';
+        chatbotWindow.style.display = isVisible ? 'none' : 'flex';
+        
+        console.log('Chatbot toggled. Visible:', !isVisible);
+        console.log('chatbotWindow.style.display:', chatbotWindow.style.display);
+        
+        if (!isVisible) {
+          if (chatbotInput) chatbotInput.focus();
+          // Re-initialize Feather icons when window opens
+          if (typeof feather !== 'undefined') {
+            feather.replace();
+          }
         }
       }
-    }
 
-    // Attach event listeners
-    if (chatbotToggleBtn) {
-      console.log('Adding click event listener to toggle button');
-      chatbotToggleBtn.addEventListener('click', function(e) {
-        console.log('Toggle button clicked!', e);
-        e.preventDefault();
-        e.stopPropagation();
-        toggleChatbot();
-      });
-      console.log('Event listener added successfully');
-    } else {
-      console.error('Cannot add click listener - toggle button not found');
-    }
+      // Attach event listeners
+      console.log('Step 7: Attaching event listeners...');
+      if (chatbotToggleBtn) {
+        console.log('Adding click event listener to toggle button');
+        chatbotToggleBtn.addEventListener('click', function(e) {
+          console.log('Toggle button clicked!', e);
+          e.preventDefault();
+          e.stopPropagation();
+          toggleChatbot();
+        });
+        console.log('✓ Event listener added successfully to toggle button');
+      } else {
+        console.error('ERROR: Cannot add click listener - toggle button not found');
+      }
 
-    if (chatbotCloseBtn) {
-      console.log('Adding click event listener to close button');
-      chatbotCloseBtn.addEventListener('click', function(e) {
-        console.log('Close button clicked!', e);
-        e.preventDefault();
-        e.stopPropagation();
-        toggleChatbot();
-      });
-    } else {
-      console.error('chatbot-close-btn not found');
-    }
+      if (chatbotCloseBtn) {
+        console.log('Adding click event listener to close button');
+        chatbotCloseBtn.addEventListener('click', function(e) {
+          console.log('Close button clicked!', e);
+          e.preventDefault();
+          e.stopPropagation();
+          toggleChatbot();
+        });
+        console.log('✓ Event listener added successfully to close button');
+      } else {
+        console.error('ERROR: chatbot-close-btn not found');
+      }
+      
+      console.log('Step 8: Event listeners attached');
 
-    // Reset chat history after 5 questions
-    function resetChatHistory() {
-      questionCount = 0;
-      chatHistory = [];
-      questionCountEl.textContent = 'Questions: 0/5';
+    } catch (error) {
+      console.error('ERROR in chatbot initialization:', error);
+      console.error('Error stack:', error.stack);
+    }
+    
+      console.log('Step 9: Setting up form handler and other functions...');
+      
+      // Reset chat history after 5 questions
+      function resetChatHistory() {
+        questionCount = 0;
+        chatHistory = [];
+        questionCountEl.textContent = 'Questions: 0/5';
       
       // Clear all messages except the welcome message
       const welcomeMessage = chatbotMessages.querySelector('.chatbot-message-bot');
@@ -541,8 +562,13 @@
       }
     }
 
-    // Handle form submission
-    chatbotForm.addEventListener('submit', async function(e) {
+      // Handle form submission
+      if (!chatbotForm) {
+        console.error('ERROR: chatbotForm not found, cannot attach submit handler');
+        return;
+      }
+      
+      chatbotForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       
       if (isProcessing) {
