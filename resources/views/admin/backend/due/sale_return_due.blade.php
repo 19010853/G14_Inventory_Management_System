@@ -50,7 +50,7 @@
                       <td>
                         <a
                           title="Pay Now"
-                          href="{{ route('edit.sale.return', $item->id) }}"
+                          href="{{ route('edit.return.sale', $item->id) }}"
                           class="btn btn-info btn-sm"
                         >
                           Pay Now
