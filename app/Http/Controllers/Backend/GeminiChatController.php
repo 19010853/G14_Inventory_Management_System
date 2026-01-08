@@ -25,26 +25,19 @@ class GeminiChatController extends Controller
         $userPrompt = $request->message;
         $chatHistory = $request->chat_history ?? [];
 
-        // Validate input
         if (empty($userPrompt)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Please enter your question.'
-            ], 400);
+            return response()->json(['success' => false, 'message' => 'Please enter your question.'], 400);
         }
 
-        // 1. Lấy toàn bộ danh sách quyền của người dùng hiện tại
+        // 1. Kiểm tra danh sách quyền (Spatie)
         $permissions = $user->getAllPermissions()->pluck('name')->toArray();
         
-        // 2. Xây dựng System Context với quyền và dữ liệu
+        // 2. Xây dựng ngữ cảnh hệ thống (System Prompt)
         $systemContext = $this->buildSystemContext($user, $permissions);
         
-        // 3. Xây dựng prompt đầy đủ với lịch sử chat
-        $fullPrompt = $this->buildFullPrompt($systemContext, $userPrompt, $chatHistory);
-        
-        // 4. Gửi tới Gemini API
+        // 3. Gửi tới Gemini API
         try {
-            $response = $this->callGeminiAPI($fullPrompt);
+            $response = $this->callGeminiAPI($systemContext, $userPrompt, $chatHistory);
             
             return response()->json([
                 'success' => true,
@@ -52,301 +45,90 @@ class GeminiChatController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Gemini API Error: ' . $e->getMessage());
-            Log::error('Gemini API Error Stack: ' . $e->getTraceAsString());
-            
-            // Return more detailed error message in development
-            $errorMessage = 'Sorry, an error occurred while processing your question. Please try again later.';
-            if (config('app.debug')) {
-                $errorMessage .= ' Error: ' . $e->getMessage();
-            }
-            
             return response()->json([
                 'success' => false,
-                'message' => $errorMessage
+                'message' => 'Hệ thống AI đang bận. Vui lòng thử lại sau.'
             ], 500);
         }
     }
 
     private function buildSystemContext($user, $permissions)
     {
-        $context = "You are an intelligent AI assistant for the G14 Inventory Management System.\n\n";
-        
-        // SECURITY RULES
-        $context .= "=== SECURITY RULES ===\n";
-        $context .= "You MUST ONLY answer questions related to permissions that the user has.\n";
-        $context .= "Current user's permission list: " . implode(', ', $permissions) . "\n\n";
-        $context .= "If the user asks about areas they do NOT have permission for, respond with: ";
-        $context .= "'I'm sorry, you do not have permission to access information related to this item. ";
-        $context .= "Please contact the administrator to be granted appropriate permissions.'\n\n";
-        
-        // Mapping permissions to features
-        $permissionMap = [
-            'brand.all' => 'Brand',
-            'all.brand' => 'Brand',
-            'warehouse.menu' => 'Warehouse',
-            'all.warehouse' => 'Warehouse',
-            'supplier.menu' => 'Supplier',
-            'all.supplier' => 'Supplier',
-            'customer.menu' => 'Customer',
-            'all.customer' => 'Customer',
-            'product.menu' => 'Product',
-            'all.product' => 'Product',
-            'all.category' => 'Category',
-            'purchase.menu' => 'Purchase',
-            'all.purchase' => 'Purchase',
-            'return.purchase' => 'Return Purchase',
-            'sale.menu' => 'Sale',
-            'all.sale' => 'Sale',
-            'return.sale' => 'Return Sale',
-            'transfers.menu' => 'Transfer',
-            'all.transfers' => 'Transfer',
-            'reports.all' => 'Report',
-            'role_and_permission.all' => 'Role & Permission',
-        ];
-        
-        $allowedFeatures = [];
-        foreach ($permissions as $permission) {
-            if (isset($permissionMap[$permission])) {
-                $allowedFeatures[] = $permissionMap[$permission];
-            }
+        $context = "Bạn là trợ lý ảo hỗ trợ hệ thống quản lý kho G14 Inventory. \n";
+        $context .= "QUY TẮC BẢO MẬT: Bạn chỉ được trả lời các thông tin liên quan đến quyền mà người dùng có.\n";
+        $context .= "Danh sách quyền của người dùng: " . implode(', ', $permissions) . "\n";
+        $context .= "Nếu người dùng hỏi về lĩnh vực họ KHÔNG có quyền (ví dụ hỏi về Brand nhưng không có quyền 'brand.all'), hãy trả lời: 'Tôi xin lỗi, bạn không có quyền truy cập thông tin liên quan đến mục này'.\n\n";
+
+        // HƯỚNG DẪN NGHIỆP VỤ (Bổ sung theo yêu cầu của bạn)
+        $context .= "=== HƯỚNG DẪN THAO TÁC ===\n";
+        $context .= "- Cách tạo Product: Menu Product > Add Product. Cần điền Tên, Category, Brand, Warehouse, Giá nhập/bán.\n";
+        $context .= "- Cách tạo Sale: Menu Sale > Add Sale. Các trường bắt buộc: Customer, Warehouse, Sale Date, danh sách sản phẩm (Số lượng, Đơn giá).\n";
+        $context .= "- Mandatory fields khi tạo Purchase: Supplier (Nhà cung cấp), Warehouse (Kho nhận), Purchase Date (Ngày nhập), và danh sách sản phẩm.\n\n";
+
+        // NẠP DỮ LIỆU THỰC TẾ (Chỉ khi có quyền)
+        $context .= "=== DỮ LIỆU HỆ THỐNG HIỆN TẠI ===\n";
+        if ($user->can('brand.all')) {
+            $context .= "- Tổng số Brand: " . Brand::count() . "\n";
         }
-        $allowedFeatures = array_unique($allowedFeatures);
-        
-        $context .= "Features the user has permission to access: " . implode(', ', $allowedFeatures) . "\n\n";
-        
-        // SYSTEM GUIDE
-        $context .= "=== SYSTEM USAGE GUIDE ===\n\n";
-        
-        if (in_array('Product', $allowedFeatures)) {
-            $context .= "1. CREATE PRODUCT:\n";
-            $context .= "   - Go to menu Product > Add Product\n";
-            $context .= "   - Fill in required fields: Product Name, Category, Supplier, Brand, Warehouse, Purchase Price, Sale Price\n";
-            $context .= "   - Upload product images (maximum 5 images)\n";
-            $context .= "   - Click Save to save\n\n";
+        if ($user->can('all.product')) {
+            $context .= "- Tổng số Sản phẩm: " . Product::count() . "\n";
         }
-        
-        if (in_array('Purchase', $allowedFeatures)) {
-            $context .= "2. CREATE PURCHASE (Purchase Order):\n";
-            $context .= "   - Go to menu Purchase > Add Purchase\n";
-            $context .= "   - REQUIRED fields to fill:\n";
-            $context .= "     + Supplier - REQUIRED\n";
-            $context .= "     + Warehouse (Receiving Warehouse) - REQUIRED\n";
-            $context .= "     + Purchase Date - REQUIRED\n";
-            $context .= "     + Product list: Must select at least 1 product with Quantity and Unit Price\n";
-            $context .= "   - Optional fields: Purchase Number, Status, Notes\n";
-            $context .= "   - Click Save to save\n\n";
-        }
-        
-        if (in_array('Sale', $allowedFeatures)) {
-            $context .= "3. CREATE SALE (Sales Order):\n";
-            $context .= "   - Go to menu Sale > Add Sale\n";
-            $context .= "   - REQUIRED fields:\n";
-            $context .= "     + Customer - REQUIRED\n";
-            $context .= "     + Warehouse (Shipping Warehouse) - REQUIRED\n";
-            $context .= "     + Sale Date - REQUIRED\n";
-            $context .= "     + Product list: Must select at least 1 product with Quantity and Unit Price\n";
-            $context .= "   - Click Save to save\n\n";
-        }
-        
-        if (in_array('Transfer', $allowedFeatures)) {
-            $context .= "4. CREATE TRANSFER (Warehouse Transfer):\n";
-            $context .= "   - Go to menu Transfer > Add Transfer\n";
-            $context .= "   - Select From Warehouse (Source) and To Warehouse (Destination)\n";
-            $context .= "   - Select products and quantities to transfer\n";
-            $context .= "   - Click Save to save\n\n";
-        }
-        
-        // REAL DATA (Only when has permission)
-        $context .= "=== SYSTEM REAL DATA ===\n";
-        
-        if ($user->can('brand.all') || $user->can('all.brand')) {
-            $brandCount = Brand::count();
-            $context .= "- Total number of Brands: {$brandCount}\n";
-        }
-        
-        if ($user->can('all.product') || $user->can('product.menu')) {
-            $productCount = Product::count();
-            $context .= "- Total number of Products: {$productCount}\n";
-        }
-        
-        if ($user->can('all.transfers') || $user->can('transfers.menu')) {
+        if ($user->can('all.transfers')) {
             $todayTransfers = Transfer::whereDate('created_at', now())->count();
-            $context .= "- Number of Transfer orders today: {$todayTransfers}\n";
+            $context .= "- Số lượng Transfer (chuyển kho) hôm nay: {$todayTransfers}\n";
         }
-        
-        if ($user->can('all.purchase') || $user->can('purchase.menu')) {
-            $purchaseCount = Purchase::count();
-            $todayPurchases = Purchase::whereDate('created_at', now())->count();
-            $context .= "- Total number of Purchases: {$purchaseCount}\n";
-            $context .= "- Number of Purchases today: {$todayPurchases}\n";
+        if ($user->can('all.purchase')) {
+            $context .= "- Tổng số đơn nhập hàng (Purchase): " . Purchase::count() . "\n";
         }
-        
-        if ($user->can('all.sale') || $user->can('sale.menu')) {
-            $saleCount = Sale::count();
-            $todaySales = Sale::whereDate('created_at', now())->count();
-            $context .= "- Total number of Sales: {$saleCount}\n";
-            $context .= "- Number of Sales today: {$todaySales}\n";
-        }
-        
-        if ($user->can('all.warehouse') || $user->can('warehouse.menu')) {
-            $warehouseCount = Warehouse::count();
-            $context .= "- Total number of Warehouses: {$warehouseCount}\n";
-        }
-        
-        if ($user->can('all.supplier') || $user->can('supplier.menu')) {
-            $supplierCount = Supplier::count();
-            $context .= "- Total number of Suppliers: {$supplierCount}\n";
-        }
-        
-        if ($user->can('all.customer') || $user->can('customer.menu')) {
-            $customerCount = Customer::count();
-            $context .= "- Total number of Customers: {$customerCount}\n";
-        }
-        
-        if ($user->can('all.category')) {
-            $categoryCount = ProductCategory::count();
-            $context .= "- Total number of Categories: {$categoryCount}\n";
-        }
-        
-        $context .= "\n";
-        
-        // RESPONSE GUIDELINES
-        $context .= "=== RESPONSE GUIDELINES ===\n";
-        $context .= "- Respond in English, friendly and easy to understand\n";
-        $context .= "- Use real data from the system when possible\n";
-        $context .= "- If no permission, decline politely\n";
-        $context .= "- Provide detailed step-by-step instructions when users ask how to do something\n\n";
-        
+
         return $context;
     }
 
-    private function buildFullPrompt($systemContext, $userPrompt, $chatHistory)
+    private function callGeminiAPI($systemContext, $userPrompt, $chatHistory)
     {
-        $prompt = $systemContext;
+        $apiKey = env('GEMINI_API_KEY');
         
-        // Add chat history if available
-        if (!empty($chatHistory) && is_array($chatHistory)) {
-            $prompt .= "=== CHAT HISTORY ===\n";
-            foreach ($chatHistory as $index => $message) {
-                if (isset($message['role']) && isset($message['content'])) {
-                    $role = $message['role'] === 'user' ? 'User' : 'AI Assistant';
-                    $prompt .= "{$role}: {$message['content']}\n";
-                }
-            }
-            $prompt .= "\n";
-        }
-        
-        $prompt .= "=== CURRENT QUESTION ===\n";
-        $prompt .= "User asks: {$userPrompt}\n";
-        $prompt .= "\nPlease answer the question in detail and helpfully:";
-        
-        return $prompt;
-    }
+        // CHUYỂN SANG ENDPOINT v1 (Để tránh lỗi 404 trên v1beta)
+        $url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={$apiKey}";
 
-    private function callGeminiAPI($prompt)
-    {
-        $apiKey = config('services.gemini.api_key') ?? env('GEMINI_API_KEY');
-        
-        if (empty($apiKey)) {
-            Log::error('GEMINI_API_KEY is not configured');
-            throw new \Exception('GEMINI_API_KEY is not configured in .env file. Please add GEMINI_API_KEY=your_api_key to your .env file.');
+        // Xây dựng nội dung chat bao gồm System Instruction và User Prompt
+        $contents = [
+            [
+                'role' => 'user',
+                'parts' => [['text' => "SYSTEM INSTRUCTIONS: " . $systemContext]]
+            ],
+            [
+                'role' => 'model',
+                'parts' => [['text' => "Đã hiểu. Tôi sẽ tuân thủ các quy tắc bảo mật và hướng dẫn trên."]]
+            ]
+        ];
+
+        // Thêm lịch sử chat
+        foreach ($chatHistory as $msg) {
+            $contents[] = [
+                'role' => $msg['role'] === 'user' ? 'user' : 'model',
+                'parts' => [['text' => $msg['content']]]
+            ];
         }
-        
-        // Try different models in order of preference
-        $models = ['gemini-pro', 'gemini-1.5-pro', 'gemini-1.5-flash'];
-        $apiVersion = 'v1beta';
-        $lastError = null;
-        
-        foreach ($models as $model) {
-            $url = "https://generativelanguage.googleapis.com/{$apiVersion}/models/{$model}:generateContent?key={$apiKey}";
-            
-            Log::info('Calling Gemini API', [
-                'model' => $model,
-                'url' => str_replace($apiKey, '***', $url),
-                'prompt_length' => strlen($prompt)
-            ]);
-            
-            try {
-                $response = Http::timeout(30)->post($url, [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                [
-                                    'text' => $prompt
-                                ]
-                            ]
-                        ]
-                    ],
-                    'generationConfig' => [
-                        'temperature' => 0.7,
-                        'topK' => 40,
-                        'topP' => 0.95,
-                        'maxOutputTokens' => 2048,
-                    ]
-                ]);
-                
-                if ($response->failed()) {
-                    $error = $response->json();
-                    $statusCode = $response->status();
-                    $lastError = $error;
-                    
-                    Log::warning('Gemini API model failed, trying next', [
-                        'model' => $model,
-                        'status' => $statusCode,
-                        'error' => $error
-                    ]);
-                    
-                    // If it's a 404 (model not found), try next model
-                    if ($statusCode === 404) {
-                        continue;
-                    }
-                    
-                    // For other errors, throw immediately
-                    $errorMessage = 'Error calling Gemini API';
-                    if (isset($error['error']['message'])) {
-                        $errorMessage .= ': ' . $error['error']['message'];
-                    } else {
-                        $errorMessage .= ' (Status: ' . $statusCode . ')';
-                    }
-                    
-                    throw new \Exception($errorMessage);
-                }
-                
-                $data = $response->json();
-                
-                if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-                    Log::warning('Gemini API returned unexpected format, trying next model', [
-                        'model' => $model,
-                        'data' => $data
-                    ]);
-                    continue;
-                }
-                
-                Log::info('Gemini API success', ['model' => $model]);
-                return $data['candidates'][0]['content']['parts'][0]['text'];
-                
-            } catch (\Illuminate\Http\Client\ConnectionException $e) {
-                Log::error('Gemini API Connection Error', [
-                    'model' => $model,
-                    'error' => $e->getMessage()
-                ]);
-                // Connection errors should be thrown immediately
-                throw new \Exception('Failed to connect to Gemini API. Please check your internet connection.');
-            }
+
+        // Thêm câu hỏi hiện tại
+        $contents[] = [
+            'role' => 'user',
+            'parts' => [['text' => $userPrompt]]
+        ];
+
+        $response = Http::timeout(30)->post($url, [
+            'contents' => $contents,
+            'generationConfig' => [
+                'temperature' => 0.7,
+                'maxOutputTokens' => 1000,
+            ]
+        ]);
+
+        if ($response->failed()) {
+            throw new \Exception("Gemini API Error: " . ($response->json()['error']['message'] ?? 'Unknown Error'));
         }
-        
-        // If all models failed, throw the last error
-        if ($lastError) {
-            $errorMessage = 'All Gemini models failed. Last error: ';
-            if (isset($lastError['error']['message'])) {
-                $errorMessage .= $lastError['error']['message'];
-            } else {
-                $errorMessage .= 'Model not found or unavailable';
-            }
-            throw new \Exception($errorMessage);
-        }
-        
-            throw new \Exception('No available Gemini models found');
+
+        return $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? 'Không nhận được phản hồi từ AI.';
     }
 }
-
