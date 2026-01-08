@@ -3,22 +3,9 @@
     <div class="d-flex justify-content-between align-items-center py-2">
       <ul class="list-unstyled topnav-menu mb-0 d-flex align-items-center">
         <li>
-          <button class="button-toggle-menu nav-link ps-0" style="border-radius: 8px; padding: 8px 12px; transition: all 0.3s ease;">
-            <i data-feather="menu" class="noti-icon"></i>
+          <button class="button-toggle-menu nav-link p-2" style="border-radius: 8px; transition: all 0.3s ease; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: none; background: transparent;">
+            <i data-feather="menu" class="noti-icon" style="width: 18px; height: 18px; color: #495057;"></i>
           </button>
-        </li>
-        <li class="d-none d-lg-block ms-3">
-          <div class="position-relative topbar-search">
-            <input
-              type="text"
-              class="form-control bg-white border border-light ps-4"
-              placeholder="Search..."
-              style="border-radius: 25px; padding: 10px 20px 10px 45px; width: 300px;"
-            />
-            <i
-              class="mdi mdi-magnify fs-16 position-absolute text-muted top-50 translate-middle-y ms-3"
-            ></i>
-          </div>
         </li>
       </ul>
 
