@@ -506,11 +506,12 @@
       chatbotSendBtn.disabled = true;
 
       try {
-        const response = await fetch('{{ route("chat.gemini") }}', {
+        const response = await fetch('/chat/gemini', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-Requested-With': 'XMLHttpRequest'
           },
           body: JSON.stringify({
             message: message,
