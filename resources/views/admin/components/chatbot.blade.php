@@ -413,7 +413,141 @@
       let chatHistory = [];
       let isProcessing = false;
 
-      // Define handleFormSubmit function FIRST (before event delegation)
+      // Define helper functions FIRST (before handleFormSubmit)
+      // Reset chat history after 5 questions
+      function resetChatHistory() {
+        questionCount = 0;
+        chatHistory = [];
+        if (questionCountEl) questionCountEl.textContent = 'Questions: 0/5';
+        
+        // Clear all messages except the welcome message
+        if (chatbotMessages) {
+          const welcomeMessage = chatbotMessages.querySelector('.chatbot-message-bot');
+          chatbotMessages.innerHTML = '';
+          if (welcomeMessage) {
+            chatbotMessages.appendChild(welcomeMessage);
+          } else {
+            // Re-add welcome message if it was removed
+            const welcomeHtml = `
+              <div class="chatbot-message chatbot-message-bot">
+                <div class="message-avatar">
+                  <i data-feather="bot" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div class="message-content">
+                  <p class="mb-0">Hello! I'm the AI assistant for the G14 Inventory system. I can help you with:</p>
+                  <ul class="mb-0 mt-2 ps-3">
+                    <li>Guide you on how to use the system</li>
+                    <li>Answer questions about data (based on your permissions)</li>
+                    <li>Answer questions about features</li>
+                  </ul>
+                  <p class="mb-0 mt-2">Please ask a question to get started!</p>
+                </div>
+              </div>
+            `;
+            chatbotMessages.innerHTML = welcomeHtml;
+            try {
+              if (typeof feather !== 'undefined') {
+                setTimeout(function() {
+                  try {
+                    feather.replace();
+                  } catch (e) {
+                    console.warn('Feather icons replace failed in resetChatHistory:', e);
+                  }
+                }, 50);
+              }
+            } catch (e) {
+              console.warn('Feather icons initialization failed in resetChatHistory:', e);
+            }
+          }
+        }
+      }
+
+      // Add message to chat
+      function addMessage(content, isUser = false) {
+        if (!chatbotMessages) {
+          console.error('chatbotMessages not found');
+          return;
+        }
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chatbot-message ${isUser ? 'chatbot-message-user' : 'chatbot-message-bot'}`;
+        
+        const avatarHtml = isUser 
+          ? '<div class="message-avatar"><i data-feather="user" style="width: 16px; height: 16px;"></i></div>'
+          : '<div class="message-avatar"><i data-feather="bot" style="width: 16px; height: 16px;"></i></div>';
+        
+        const contentHtml = `<div class="message-content"><p>${content.replace(/\n/g, '<br>')}</p></div>`;
+        
+        messageDiv.innerHTML = avatarHtml + contentHtml;
+        chatbotMessages.appendChild(messageDiv);
+        
+        // Try to re-initialize Feather icons (with error handling)
+        try {
+          if (typeof feather !== 'undefined') {
+            setTimeout(function() {
+              try {
+                feather.replace();
+              } catch (e) {
+                console.warn('Feather icons replace failed in addMessage:', e);
+              }
+            }, 50);
+          }
+        } catch (e) {
+          console.warn('Feather icons initialization failed in addMessage:', e);
+        }
+        
+        // Scroll to bottom
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+      }
+
+      // Show loading indicator
+      function showLoading() {
+        if (!chatbotMessages) {
+          console.error('chatbotMessages not found');
+          return;
+        }
+        
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'chatbot-message chatbot-message-bot';
+        loadingDiv.id = 'chatbot-loading';
+        loadingDiv.innerHTML = `
+          <div class="message-avatar">
+            <i data-feather="bot" style="width: 16px; height: 16px;"></i>
+          </div>
+          <div class="message-content chatbot-loading">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        `;
+        chatbotMessages.appendChild(loadingDiv);
+        
+        try {
+          if (typeof feather !== 'undefined') {
+            setTimeout(function() {
+              try {
+                feather.replace();
+              } catch (e) {
+                console.warn('Feather icons replace failed in showLoading:', e);
+              }
+            }, 50);
+          }
+        } catch (e) {
+          console.warn('Feather icons initialization failed in showLoading:', e);
+        }
+        
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+      }
+
+      // Remove loading indicator
+      function removeLoading() {
+        const loading = document.getElementById('chatbot-loading');
+        if (loading) {
+          loading.remove();
+        }
+      }
+
+      // Define handleFormSubmit function (after helper functions)
       async function handleFormSubmit() {
         if (isProcessing) {
           console.log('Already processing, ignoring request');
@@ -638,118 +772,7 @@
     
       console.log('Step 9: Setting up form handler and other functions...');
       
-      // Reset chat history after 5 questions
-      function resetChatHistory() {
-        questionCount = 0;
-        chatHistory = [];
-        questionCountEl.textContent = 'Questions: 0/5';
-      
-      // Clear all messages except the welcome message
-      const welcomeMessage = chatbotMessages.querySelector('.chatbot-message-bot');
-      chatbotMessages.innerHTML = '';
-      if (welcomeMessage) {
-        chatbotMessages.appendChild(welcomeMessage);
-      } else {
-        // Re-add welcome message if it was removed
-        const welcomeHtml = `
-          <div class="chatbot-message chatbot-message-bot">
-            <div class="message-avatar">
-              <i data-feather="bot" style="width: 16px; height: 16px;"></i>
-            </div>
-            <div class="message-content">
-              <p class="mb-0">Hello! I'm the AI assistant for the G14 Inventory system. I can help you with:</p>
-              <ul class="mb-0 mt-2 ps-3">
-                <li>Guide you on how to use the system</li>
-                <li>Answer questions about data (based on your permissions)</li>
-                <li>Answer questions about features</li>
-              </ul>
-              <p class="mb-0 mt-2">Please ask a question to get started!</p>
-            </div>
-          </div>
-        `;
-        chatbotMessages.innerHTML = welcomeHtml;
-        try {
-          if (typeof feather !== 'undefined') {
-            setTimeout(function() {
-              try {
-                feather.replace();
-              } catch (e) {
-                console.warn('Feather icons replace failed in resetChatHistory:', e);
-              }
-            }, 50);
-          }
-        } catch (e) {
-          console.warn('Feather icons initialization failed in resetChatHistory:', e);
-        }
-      }
-    }
-
-    // Add message to chat
-    function addMessage(content, isUser = false) {
-      const messageDiv = document.createElement('div');
-      messageDiv.className = `chatbot-message ${isUser ? 'chatbot-message-user' : 'chatbot-message-bot'}`;
-      
-      const avatarHtml = isUser 
-        ? '<div class="message-avatar"><i data-feather="user" style="width: 16px; height: 16px;"></i></div>'
-        : '<div class="message-avatar"><i data-feather="bot" style="width: 16px; height: 16px;"></i></div>';
-      
-      const contentHtml = `<div class="message-content"><p>${content.replace(/\n/g, '<br>')}</p></div>`;
-      
-      messageDiv.innerHTML = avatarHtml + contentHtml;
-      chatbotMessages.appendChild(messageDiv);
-      
-      // Re-initialize Feather icons
-      if (typeof feather !== 'undefined') {
-        feather.replace();
-      }
-      
-      // Scroll to bottom
-      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-
-    // Show loading indicator
-    function showLoading() {
-      const loadingDiv = document.createElement('div');
-      loadingDiv.className = 'chatbot-message chatbot-message-bot';
-      loadingDiv.id = 'chatbot-loading';
-      loadingDiv.innerHTML = `
-        <div class="message-avatar">
-          <i data-feather="bot" style="width: 16px; height: 16px;"></i>
-        </div>
-        <div class="message-content chatbot-loading">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      `;
-      chatbotMessages.appendChild(loadingDiv);
-      
-      try {
-        if (typeof feather !== 'undefined') {
-          setTimeout(function() {
-            try {
-              feather.replace();
-            } catch (e) {
-              console.warn('Feather icons replace failed in showLoading:', e);
-            }
-          }, 50);
-        }
-      } catch (e) {
-        console.warn('Feather icons initialization failed in showLoading:', e);
-      }
-      
-      chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    }
-
-    // Remove loading indicator
-    function removeLoading() {
-      const loading = document.getElementById('chatbot-loading');
-      if (loading) {
-        loading.remove();
-      }
-    }
-
-    // handleFormSubmit is already defined above (before event delegation)
+      // Helper functions are already defined above (before handleFormSubmit)
       
       // Attach event handlers
       if (!chatbotForm) {
