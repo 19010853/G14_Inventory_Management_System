@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AdminAccountCreatedMail;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -251,10 +254,19 @@ class RoleController extends Controller
             abort(403, 'Unauthorized Action');
         }
 
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'roles' => ['nullable', 'exists:roles,id'],
+        ]);
+
+        // Generate a random password
+        $randomPassword = Str::random(32);
+
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->password = Hash::make($request->password);
+        $user->password = Hash::make($randomPassword);
         $user->role = 'admin';
         $user->save();
 
@@ -265,8 +277,16 @@ class RoleController extends Controller
             }
         }
 
+        // Send email with password
+        try {
+            Mail::to($user->email)->send(new AdminAccountCreatedMail($user->name, $randomPassword));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send admin account creation email: ' . $e->getMessage());
+            // Continue even if email fails
+        }
+
         $notification = array(
-            'message' => 'New Admin Inserted Successfully',
+            'message' => 'New Admin Inserted Successfully. Password has been sent to their email.',
             'alert-type' => 'success'
          );
          return redirect()->route('all.admin')->with($notification);

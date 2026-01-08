@@ -36,9 +36,12 @@ class PasswordResetLinkController extends Controller
             $request->only('email')
         );
 
-        return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
-                    : back()->withInput($request->only('email'))
+        // Always redirect to login page after submitting forgot password form
+        if ($status == Password::RESET_LINK_SENT) {
+            return redirect()->route('login')->with('status', __('We have emailed your password reset link.'));
+        }
+
+        return redirect()->route('login')->withInput($request->only('email'))
                         ->withErrors(['email' => __($status)]);
     }
 }

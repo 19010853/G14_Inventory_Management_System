@@ -49,6 +49,13 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Update email_verified_at on first successful login if not already set
+        $user = Auth::user();
+        if (is_null($user->email_verified_at)) {
+            $user->email_verified_at = now();
+            $user->save();
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

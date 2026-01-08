@@ -83,9 +83,6 @@
                     @else
                         <a href="{{ route('login') }}" class="inline-flex items-center px-4 py-2 btn-primary rounded-md font-semibold text-xs uppercase tracking-widest transition ease-in-out duration-150">Log in</a>
 
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}" class="inline-flex items-center px-4 py-2 btn-secondary rounded-md font-semibold text-xs uppercase tracking-widest transition ease-in-out duration-150">Register</a>
-                        @endif
                     @endauth
                 </div>
             @endif

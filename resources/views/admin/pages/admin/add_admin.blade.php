@@ -46,14 +46,10 @@
                   <label for="validationDefault01" class="form-label">
                     Admin Email
                   </label>
-                  <input type="emal" class="form-control" name="email" />
-                </div>
-
-                <div class="col-md-6">
-                  <label for="validationDefault01" class="form-label">
-                    Admin Password
-                  </label>
-                  <input type="password" class="form-control" name="password" />
+                  <input type="email" class="form-control" name="email" required />
+                  @error('email')
+                    <small class="text-danger">{{ $message }}</small>
+                  @enderror
                 </div>
 
                 <div class="col-md-6">
@@ -68,6 +64,13 @@
                       </option>
                     @endforeach
                   </select>
+                </div>
+
+                <div class="col-12">
+                  <div class="alert alert-info">
+                    <i class="mdi mdi-information-outline me-2"></i>
+                    A randomly generated password will be sent to the admin's email address.
+                  </div>
                 </div>
 
                 <div class="col-12">
