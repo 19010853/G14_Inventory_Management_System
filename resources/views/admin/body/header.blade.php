@@ -118,12 +118,6 @@
               <span>My Account</span>
             </a>
 
-            <!-- item-->
-            <a href="auth-lock-screen.html" class="dropdown-item notify-item">
-              <i class="mdi mdi-lock-outline fs-16 align-middle me-2"></i>
-              <span>Lock Screen</span>
-            </a>
-
             <div class="dropdown-divider"></div>
 
             <!-- item-->
