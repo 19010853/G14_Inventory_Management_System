@@ -5,15 +5,16 @@
   <div class="content">
     <!-- Start Content-->
     <div class="container-xxl">
-      <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
+      <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column justify-content-between mb-4">
         <div class="flex-grow-1">
-          <h4 class="fs-18 fw-semibold m-0">Add Customer</h4>
-        </div>
-
-        <div class="text-end">
-          <ol class="breadcrumb m-0 py-0">
-            <li class="breadcrumb-item active">Add Customer</li>
-          </ol>
+          <h4 class="fs-20 fw-semibold m-0 mb-2" style="color: #212529;">Add Customer</h4>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb m-0">
+              <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="{{ route('all.customer') }}">All Customer</a></li>
+              <li class="breadcrumb-item active">Add Customer</li>
+            </ol>
+          </nav>
         </div>
       </div>
 
@@ -22,7 +23,10 @@
         <div class="col-xl-12">
           <div class="card">
             <div class="card-header">
-              <h5 class="card-title mb-0">Add Customer</h5>
+              <h5 class="card-title mb-0 fw-semibold">
+                <i data-feather="user-plus" style="width: 18px; height: 18px; margin-right: 8px;"></i>
+                Add New Customer
+              </h5>
             </div>
             <!-- end card header -->
 
@@ -64,10 +68,15 @@
                   <textarea name="address" class="form-control"></textarea>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12 mt-4">
                   <button class="btn btn-primary" type="submit">
-                    Save Change
+                    <i data-feather="save" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+                    Save Customer
                   </button>
+                  <a href="{{ route('all.customer') }}" class="btn btn-secondary ms-2">
+                    <i data-feather="x" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+                    Cancel
+                  </a>
                 </div>
               </form>
             </div>

@@ -3,17 +3,22 @@
   <div class="content">
     <!-- Start Content-->
     <div class="container-xxl">
-      <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
+      <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column justify-content-between mb-4">
         <div class="flex-grow-1">
-          <h4 class="fs-18 fw-semibold m-0">All Customer</h4>
+          <h4 class="fs-20 fw-semibold m-0 mb-2" style="color: #212529;">All Customer</h4>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb m-0">
+              <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+              <li class="breadcrumb-item active">All Customer</li>
+            </ol>
+          </nav>
         </div>
 
-        <div class="text-end">
-          <ol class="breadcrumb m-0 py-0">
-            <a href="{{ route('add.customer') }}" class="btn btn-secondary">
-              Add Customer
-            </a>
-          </ol>
+        <div class="text-end mt-3 mt-sm-0">
+          <a href="{{ route('add.customer') }}" class="btn btn-primary">
+            <i data-feather="plus" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+            Add Customer
+          </a>
         </div>
       </div>
 
@@ -21,7 +26,12 @@
       <div class="row">
         <div class="col-12">
           <div class="card">
-            <div class="card-header"></div>
+            <div class="card-header">
+              <h5 class="card-title mb-0 fw-semibold">
+                <i data-feather="users" style="width: 18px; height: 18px; margin-right: 8px;"></i>
+                Customer List
+              </h5>
+            </div>
             <!-- end card header -->
 
             <div class="card-body">

@@ -45,6 +45,91 @@
       type="text/css"
       href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
     />
+    
+    <!-- GHTK Style Custom CSS -->
+    <style>
+      :root {
+        --ghtk-primary: #0d6efd;
+        --ghtk-secondary: #17a2b8;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      }
+      
+      .account-page-bg {
+        background: linear-gradient(135deg, var(--ghtk-primary) 0%, var(--ghtk-secondary) 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .form-control {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+      }
+      
+      .form-control:focus {
+        border-color: var(--ghtk-primary);
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        outline: none;
+      }
+      
+      .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 8px;
+      }
+      
+      .btn-primary {
+        background: linear-gradient(135deg, var(--ghtk-primary) 0%, var(--ghtk-secondary) 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      
+      .btn-primary:hover {
+        background: linear-gradient(135deg, var(--ghtk-secondary) 0%, var(--ghtk-primary) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+      }
+      
+      .alert {
+        border-radius: 8px;
+        border: none;
+        border-left: 4px solid #dc3545;
+      }
+      
+      .auth-logo img {
+        transition: all 0.3s ease;
+      }
+      
+      .auth-logo:hover img {
+        transform: scale(1.05);
+      }
+      
+      .text-muted {
+        color: var(--ghtk-primary) !important;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+      
+      .text-muted:hover {
+        color: var(--ghtk-secondary) !important;
+        text-decoration: underline;
+      }
+      
+      .pera-title {
+        color: white !important;
+        font-weight: 600;
+      }
+    </style>
   </head>
 
   <body class="bg-white">

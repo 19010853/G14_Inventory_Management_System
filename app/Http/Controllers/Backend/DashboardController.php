@@ -16,8 +16,8 @@ class DashboardController extends Controller
     public function index()
     {
         $totalProducts = Product::count();
-        $totalSales = Sale::whereDate('created_at', Carbon::today())->sum('grand_total');
-        $totalPurchases = Purchase::whereDate('created_at', Carbon::today())->sum('grand_total');
+        $totalSales = Sale::sum('grand_total');
+        $totalPurchases = Purchase::sum('grand_total');
         $totalUsers = User::count();
 
         // Daily Sales data for main chart
