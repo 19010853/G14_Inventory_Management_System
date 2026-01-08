@@ -24,12 +24,17 @@ Thêm vào file `.env`:
 GEMINI_API_KEY=AIzaSy... (paste API key của bạn vào đây)
 ```
 
-## Bước 3: Clear cache (nếu cần)
+## Bước 3: Clear cache và route cache
+
+**QUAN TRỌNG:** Bạn PHẢI chạy các lệnh sau để xóa cache routes và config:
 
 ```bash
+./vendor/bin/sail artisan route:clear
 ./vendor/bin/sail artisan config:clear
 ./vendor/bin/sail artisan cache:clear
 ```
+
+**Lưu ý:** Không cần cài đặt package `google-gemini-php/laravel` vì chúng ta sử dụng HTTP client trực tiếp của Laravel.
 
 ## Bước 4: Kiểm tra hoạt động
 

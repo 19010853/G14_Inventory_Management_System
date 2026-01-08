@@ -206,10 +206,8 @@ Route::controller(RoleController::class)->group(function(){
     Route::get('/delete/admin/{id}', 'DeleteAdmin')->name('delete.admin');
 });
 
-// Gemini Chatbot
-Route::middleware('auth')->group(function () {
+    // Gemini Chatbot
     Route::post('/chat/gemini', [GeminiChatController::class, 'chat'])->name('chat.gemini');
-});
 
 });
 
