@@ -247,8 +247,8 @@
       }
       
       .table thead {
-        background: linear-gradient(135deg, var(--ghtk-primary) 0%, var(--ghtk-secondary) 100%);
-        color: white;
+        background: #ffffff;
+        color: #212529;
       }
       
       .table thead th {
@@ -258,7 +258,7 @@
         text-transform: uppercase;
         font-size: 12px;
         letter-spacing: 0.5px;
-        color: white;
+        color: #212529;
       }
       
       .table tbody {

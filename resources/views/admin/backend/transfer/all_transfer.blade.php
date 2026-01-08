@@ -10,7 +10,7 @@
 
         <div class="text-end">
           <ol class="breadcrumb m-0 py-0">
-            <a href="{{ route('add.transfer') }}" class="btn btn-secondary">
+            <a href="{{ route('add.transfer') }}" class="btn btn-primary">
               Add Transfer
             </a>
           </ol>

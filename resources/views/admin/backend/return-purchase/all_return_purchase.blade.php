@@ -12,7 +12,7 @@
           <ol class="breadcrumb m-0 py-0">
             <a
               href="{{ route('add.return.purchase') }}"
-              class="btn btn-secondary"
+              class="btn btn-primary"
             >
               Add Return Purchase
             </a>

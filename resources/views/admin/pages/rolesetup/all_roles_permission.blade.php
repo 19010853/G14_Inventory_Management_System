@@ -12,7 +12,7 @@
           <ol class="breadcrumb m-0 py-0">
             <a
               href="{{ route('add.roles.permission') }}"
-              class="btn btn-secondary"
+              class="btn btn-primary"
             >
               Add Role in Permission
             </a>

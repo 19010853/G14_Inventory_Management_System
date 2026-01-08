@@ -12,7 +12,7 @@
           <ol class="breadcrumb m-0 py-0">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-primary"
               data-bs-toggle="modal"
               data-bs-target="#standard-modal"
             >

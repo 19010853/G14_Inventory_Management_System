@@ -10,7 +10,7 @@
 
         <div class="text-end">
           <ol class="breadcrumb m-0 py-0">
-            <a href="{{ route('add.warehouse') }}" class="btn btn-secondary">
+            <a href="{{ route('add.warehouse') }}" class="btn btn-primary">
               Add WareHouse
             </a>
           </ol>
