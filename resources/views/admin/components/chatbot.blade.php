@@ -89,12 +89,16 @@
   }
 
   .chatbot-toggle-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.5);
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.5) !important;
   }
 
   .chatbot-toggle-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.95) !important;
+  }
+
+  .chatbot-toggle-btn * {
+    pointer-events: none !important;
   }
 
   /* Chatbot Window */
@@ -398,23 +402,18 @@
       messages: !!chatbotMessages
     });
 
-    // Test click event
-    if (chatbotToggleBtn) {
-      console.log('Adding click event listener to toggle button');
-    } else {
-      console.error('Cannot add click listener - toggle button not found');
-    }
-
     let questionCount = 0;
     let chatHistory = [];
     let isProcessing = false;
 
     // Toggle chatbot window
     function toggleChatbot() {
+      console.log('toggleChatbot function called');
       const isVisible = chatbotWindow.style.display !== 'none';
       chatbotWindow.style.display = isVisible ? 'none' : 'flex';
       
       console.log('Chatbot toggled. Visible:', !isVisible);
+      console.log('chatbotWindow.style.display:', chatbotWindow.style.display);
       
       if (!isVisible) {
         chatbotInput.focus();
@@ -425,8 +424,31 @@
       }
     }
 
-    chatbotToggleBtn.addEventListener('click', toggleChatbot);
-    chatbotCloseBtn.addEventListener('click', toggleChatbot);
+    // Attach event listeners
+    if (chatbotToggleBtn) {
+      console.log('Adding click event listener to toggle button');
+      chatbotToggleBtn.addEventListener('click', function(e) {
+        console.log('Toggle button clicked!', e);
+        e.preventDefault();
+        e.stopPropagation();
+        toggleChatbot();
+      });
+      console.log('Event listener added successfully');
+    } else {
+      console.error('Cannot add click listener - toggle button not found');
+    }
+
+    if (chatbotCloseBtn) {
+      console.log('Adding click event listener to close button');
+      chatbotCloseBtn.addEventListener('click', function(e) {
+        console.log('Close button clicked!', e);
+        e.preventDefault();
+        e.stopPropagation();
+        toggleChatbot();
+      });
+    } else {
+      console.error('chatbot-close-btn not found');
+    }
 
     // Reset chat history after 5 questions
     function resetChatHistory() {
