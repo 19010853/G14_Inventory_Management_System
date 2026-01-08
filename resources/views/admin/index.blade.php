@@ -149,20 +149,170 @@
   </div>
 
 <script>
-    var dailySalesData = {!! json_encode($salesData) !!};
-    var options = {
-        chart: {
-            type: 'line'
-        },
-        series: [{
-            name: 'sales',
-            data: dailySalesData.map(item => item.total_sales)
-        }],
-        xaxis: {
-            categories: dailySalesData.map(item => item.date)
+    // Wait for DOM and existing charts to load, then override with real data
+    document.addEventListener('DOMContentLoaded', function() {
+        // Destroy existing charts if they exist (from analytics-dashboard.init.js)
+        if (window.ApexCharts) {
+            // Destroy existing mini charts
+            var existingCharts = ['website-visitors', 'conversion-visitors', 'session-visitors', 'active-users'];
+            existingCharts.forEach(function(chartId) {
+                var chartElement = document.querySelector('#' + chartId);
+                if (chartElement && chartElement._apexChart) {
+                    chartElement._apexChart.destroy();
+                }
+            });
         }
-    }
-    var chart = new ApexCharts(document.querySelector("#daily-sales"), options);
-    chart.render();
+
+        // Daily Sales Chart (Main Chart)
+        var dailySalesData = {!! json_encode($salesData) !!};
+        var options = {
+            chart: {
+                type: 'line'
+            },
+            series: [{
+                name: 'sales',
+                data: dailySalesData.map(item => item.total_sales)
+            }],
+            xaxis: {
+                categories: dailySalesData.map(item => item.date)
+            }
+        }
+        var chart = new ApexCharts(document.querySelector("#daily-sales"), options);
+        chart.render();
+
+        // Mini Charts Data from Database
+        var chartDates = {!! json_encode($dates) !!};
+        var productsData = {!! json_encode($productsChartData) !!};
+        var salesData = {!! json_encode($salesChartData) !!};
+        var purchasesData = {!! json_encode($purchasesChartData) !!};
+        var usersData = {!! json_encode($usersChartData) !!};
+
+        // Total Products Mini Chart
+        var productsChartOptions = {
+        chart: {
+            type: 'area',
+            fontFamily: 'inherit',
+            height: 45,
+            sparkline: { enabled: true },
+            animations: { enabled: false },
+        },
+        dataLabels: { enabled: false },
+        fill: { opacity: 0.16, type: 'solid' },
+        stroke: { width: 2, lineCap: 'round', curve: 'smooth' },
+        series: [{
+            name: 'Products',
+            data: productsData
+        }],
+        tooltip: { theme: 'light' },
+        grid: { strokeDashArray: 4 },
+        xaxis: {
+            labels: { padding: 0 },
+            tooltip: { enabled: false },
+            axisBorder: { show: false },
+            type: 'datetime',
+        },
+        yaxis: { labels: { padding: 4 } },
+        labels: chartDates,
+        colors: ['#537AEF'],
+        legend: { show: false },
+    };
+    var productsChart = new ApexCharts(document.querySelector('#website-visitors'), productsChartOptions);
+    productsChart.render();
+
+    // Today's Sales Mini Chart
+    var salesChartOptions = {
+        chart: {
+            type: 'area',
+            fontFamily: 'inherit',
+            height: 45,
+            sparkline: { enabled: true },
+            animations: { enabled: false },
+        },
+        dataLabels: { enabled: false },
+        fill: { opacity: 0.16, type: 'solid' },
+        stroke: { width: 2, lineCap: 'round', curve: 'smooth' },
+        series: [{
+            name: 'Sales',
+            data: salesData
+        }],
+        tooltip: { 
+            theme: 'light',
+            y: {
+                formatter: function(val) {
+                    return '$' + val.toFixed(2);
+                }
+            }
+        },
+        grid: { strokeDashArray: 4 },
+        xaxis: {
+            labels: { padding: 0 },
+            tooltip: { enabled: false },
+            axisBorder: { show: false },
+            type: 'datetime',
+        },
+        yaxis: { labels: { padding: 4 } },
+        labels: chartDates,
+        colors: ['#ec8290'],
+        legend: { show: false },
+    };
+    var salesChart = new ApexCharts(document.querySelector('#conversion-visitors'), salesChartOptions);
+    salesChart.render();
+
+    // Today's Purchases Mini Chart
+    var purchasesChartOptions = {
+        chart: {
+            type: 'line',
+            height: 45,
+            sparkline: { enabled: true },
+            animations: { enabled: false },
+        },
+        fill: { opacity: 1 },
+        stroke: { width: [2], dashArray: [0, 3], lineCap: 'round', curve: 'smooth' },
+        series: [{
+            name: 'Purchases',
+            data: purchasesData
+        }],
+        tooltip: { 
+            theme: 'light',
+            y: {
+                formatter: function(val) {
+                    return '$' + val.toFixed(2);
+                }
+            }
+        },
+        grid: { strokeDashArray: 4 },
+        xaxis: { labels: { padding: 0 }, tooltip: { enabled: false }, type: 'datetime' },
+        yaxis: { labels: { padding: 4 } },
+        labels: chartDates,
+        colors: ['#537AEF', '#343a40'],
+        legend: { show: false },
+    };
+    var purchasesChart = new ApexCharts(document.querySelector('#session-visitors'), purchasesChartOptions);
+    purchasesChart.render();
+
+    // Total Users Mini Chart
+    var usersChartOptions = {
+        series: [{
+            data: usersData
+        }],
+        chart: {
+            height: 45,
+            type: 'bar',
+            sparkline: { enabled: true },
+            animations: { enabled: false },
+        },
+        colors: ['#537AEF'],
+        plotOptions: { bar: { columnWidth: '35%', borderRadius: 3 } },
+        dataLabels: { enabled: false },
+        fill: { opacity: 1 },
+        grid: { strokeDashArray: 4 },
+        labels: chartDates,
+        xaxis: { crosshairs: { width: 1 } },
+        yaxis: { labels: { padding: 4 } },
+        tooltip: { theme: 'light' },
+    };
+        var usersChart = new ApexCharts(document.querySelector('#active-users'), usersChartOptions);
+        usersChart.render();
+    });
 </script>
 @endsection

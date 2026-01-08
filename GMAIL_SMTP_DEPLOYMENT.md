@@ -22,11 +22,30 @@ MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=your-gmail@gmail.com
-MAIL_PASSWORD=your-app-password
+MAIL_PASSWORD="your-app-password"
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=your-gmail@gmail.com
-MAIL_FROM_NAME="${APP_NAME}"
+MAIL_FROM_NAME="Group 14 Inventory System"
 ```
+
+**⚠️ IMPORTANT: .env File Syntax Rules**
+
+1. **No spaces around the `=` sign**: 
+   - ✅ Correct: `MAIL_HOST=smtp.gmail.com`
+   - ❌ Wrong: `MAIL_HOST = smtp.gmail.com`
+
+2. **No trailing spaces**: Make sure there are no spaces at the end of lines
+
+3. **Quotes for values with spaces**: If a value contains spaces, wrap it in quotes:
+   - ✅ Correct: `MAIL_FROM_NAME="Group 14 Inventory System"`
+   - ❌ Wrong: `MAIL_FROM_NAME=Group 14 Inventory System` (without quotes)
+
+4. **No empty lines with spaces**: Empty lines should be completely empty
+
+5. **App Password format**: Gmail App Password is 16 characters, may include spaces - **MUST be quoted if it contains spaces**:
+   - ✅ `MAIL_PASSWORD="abcd efgh ijkl mnop"` (with quotes - RECOMMENDED)
+   - ✅ `MAIL_PASSWORD=abcdefghijklmnop` (without spaces, no quotes needed)
+   - ❌ `MAIL_PASSWORD=abcd efgh ijkl mnop` (WITHOUT quotes - WILL CAUSE ERROR!)
 
 ### Important Notes:
 
@@ -80,6 +99,39 @@ nano .env
 ```
 
 Add or update the mail configuration as described in Section 1 above.
+
+**⚠️ Common .env File Mistakes to Avoid:**
+
+1. **Check for spaces around `=`**: 
+   ```bash
+   # Use this command to check for spaces around equals signs
+   grep " = " .env
+   # If any results appear, remove the spaces
+   ```
+
+2. **Check for trailing spaces**:
+   ```bash
+   # Remove trailing spaces from all lines
+   sed -i 's/[[:space:]]*$//' .env
+   ```
+
+3. **Verify syntax**:
+   ```bash
+   # Test if .env can be parsed
+   php -r "require 'vendor/autoload.php'; Dotenv\Dotenv::createImmutable(__DIR__)->load();"
+   ```
+
+4. **Example of correct format** (copy exactly, no extra spaces):
+   ```
+   MAIL_MAILER=smtp
+   MAIL_HOST=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USERNAME=your-email@gmail.com
+   MAIL_PASSWORD=your-16-char-app-password
+   MAIL_ENCRYPTION=tls
+   MAIL_FROM_ADDRESS=your-email@gmail.com
+   MAIL_FROM_NAME="Group 14 Inventory System"
+   ```
 
 Save and exit (Ctrl+X, then Y, then Enter).
 
@@ -196,6 +248,12 @@ After deployment, verify the following:
 - **"Authentication failed"**: Check your App Password
 - **"Connection timeout"**: Check firewall settings, ensure port 587 is open
 - **"Could not authenticate"**: Verify 2-Step Verification is enabled on your Google account
+- **"Failed to parse dotenv file. Encountered unexpected whitespace"**: 
+  - Check for spaces around `=` signs (should be `KEY=value`, not `KEY = value`)
+  - Remove trailing spaces from lines
+  - Ensure quotes are properly closed
+  - Run: `sed -i 's/[[:space:]]*$//' .env` to remove trailing spaces
+  - Run: `sed -i 's/ = /=/g' .env` to remove spaces around equals signs
 
 ---
 
