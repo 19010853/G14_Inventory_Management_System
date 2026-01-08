@@ -40,7 +40,7 @@
     </div>
 
     <div class="chatbot-footer">
-      <form id="chatbot-form" class="d-flex gap-2">
+      <form id="chatbot-form" class="d-flex gap-2" onsubmit="return false;">
         <input
           type="text"
           id="chatbot-input"
@@ -48,7 +48,7 @@
           placeholder="Enter your question..."
           autocomplete="off"
         />
-        <button type="submit" class="btn btn-primary btn-sm" id="chatbot-send-btn">
+        <button type="button" class="btn btn-primary btn-sm" id="chatbot-send-btn">
           <i data-feather="send" style="width: 16px; height: 16px;"></i>
         </button>
       </form>
@@ -620,116 +620,143 @@
     }
 
       // Handle form submission
+      async function handleFormSubmit() {
+        if (isProcessing) {
+          console.log('Already processing, ignoring request');
+          return;
+        }
+        
+        const message = chatbotInput.value.trim();
+        if (!message) {
+          console.log('Empty message, ignoring');
+          return;
+        }
+
+        console.log('Sending message:', message);
+
+        // Add user message
+        addMessage(message, true);
+        chatbotInput.value = '';
+        
+        // Update question count
+        questionCount++;
+        questionCountEl.textContent = `Questions: ${questionCount}/5`;
+        
+        // Add to chat history
+        chatHistory.push({
+          role: 'user',
+          content: message
+        });
+
+        // Check if we need to reset (after 5 questions, reset on 6th)
+        if (questionCount > 5) {
+          resetChatHistory();
+          addMessage('Chat history has been reset. You can continue asking new questions!', false);
+          return;
+        }
+
+        // Show loading
+        showLoading();
+        isProcessing = true;
+        if (chatbotSendBtn) chatbotSendBtn.disabled = true;
+
+        try {
+          const url = '/chat/gemini';
+          const csrfToken = '{{ csrf_token() }}';
+          
+          console.log('Fetching URL:', url);
+          console.log('CSRF Token:', csrfToken ? 'Present' : 'Missing');
+          
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': csrfToken,
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+              message: message,
+              chat_history: chatHistory.slice(-10) // Only send last 10 messages for context
+            })
+          });
+
+          console.log('Response status:', response.status);
+          console.log('Response ok:', response.ok);
+
+          const data = await response.json();
+          console.log('Response data:', data);
+          
+          removeLoading();
+
+          if (data.success) {
+            addMessage(data.answer, false);
+            
+            // Add bot response to chat history
+            chatHistory.push({
+              role: 'assistant',
+              content: data.answer
+            });
+          } else {
+            console.error('API returned error:', data.message);
+            addMessage(data.message || 'Sorry, an error occurred. Please try again later.', false);
+          }
+        } catch (error) {
+          removeLoading();
+          console.error('Chatbot fetch error:', error);
+          console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          });
+          addMessage('Sorry, a connection error occurred. Please check your network connection and try again.', false);
+        } finally {
+          isProcessing = false;
+          if (chatbotSendBtn) chatbotSendBtn.disabled = false;
+          if (chatbotInput) chatbotInput.focus();
+        }
+      }
+      
+      // Attach event handlers
       if (!chatbotForm) {
         console.error('ERROR: chatbotForm not found, cannot attach submit handler');
-        return;
-      }
-      
-      chatbotForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      if (isProcessing) {
-        console.log('Already processing, ignoring request');
-        return;
-      }
-      
-      const message = chatbotInput.value.trim();
-      if (!message) {
-        console.log('Empty message, ignoring');
-        return;
-      }
-
-      console.log('Sending message:', message);
-
-      // Add user message
-      addMessage(message, true);
-      chatbotInput.value = '';
-      
-      // Update question count
-      questionCount++;
-      questionCountEl.textContent = `Questions: ${questionCount}/5`;
-      
-      // Add to chat history
-      chatHistory.push({
-        role: 'user',
-        content: message
-      });
-
-      // Check if we need to reset (after 5 questions, reset on 6th)
-      if (questionCount > 5) {
-        resetChatHistory();
-        addMessage('Chat history has been reset. You can continue asking new questions!', false);
-        return;
-      }
-
-      // Show loading
-      showLoading();
-      isProcessing = true;
-      chatbotSendBtn.disabled = true;
-
-      try {
-        const url = '/chat/gemini';
-        const csrfToken = '{{ csrf_token() }}';
+      } else {
+        console.log('Attaching form and button handlers...');
         
-        console.log('Fetching URL:', url);
-        console.log('CSRF Token:', csrfToken ? 'Present' : 'Missing');
+        // Handle form submit
+        chatbotForm.addEventListener('submit', async function(e) {
+          console.log('Form submit event triggered');
+          e.preventDefault();
+          e.stopPropagation();
+          await handleFormSubmit();
+          return false;
+        }, true);
         
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-            'X-Requested-With': 'XMLHttpRequest'
-          },
-          body: JSON.stringify({
-            message: message,
-            chat_history: chatHistory.slice(-10) // Only send last 10 messages for context
-          })
-        });
-
-        console.log('Response status:', response.status);
-        console.log('Response ok:', response.ok);
-
-        const data = await response.json();
-        console.log('Response data:', data);
-        
-        removeLoading();
-
-        if (data.success) {
-          addMessage(data.answer, false);
-          
-          // Add bot response to chat history
-          chatHistory.push({
-            role: 'assistant',
-            content: data.answer
+        // Handle send button click
+        if (chatbotSendBtn) {
+          chatbotSendBtn.addEventListener('click', async function(e) {
+            console.log('Send button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            await handleFormSubmit();
+            return false;
           });
-        } else {
-          console.error('API returned error:', data.message);
-          addMessage(data.message || 'Sorry, an error occurred. Please try again later.', false);
         }
-      } catch (error) {
-        removeLoading();
-        console.error('Chatbot fetch error:', error);
-        console.error('Error details:', {
-          name: error.name,
-          message: error.message,
-          stack: error.stack
-        });
-        addMessage('Sorry, a connection error occurred. Please check your network connection and try again.', false);
-      } finally {
-        isProcessing = false;
-        chatbotSendBtn.disabled = false;
-        chatbotInput.focus();
+        
+        // Allow Enter key to submit (but Shift+Enter for new line)
+        if (chatbotInput) {
+          chatbotInput.addEventListener('keydown', async function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              console.log('Enter key pressed');
+              e.preventDefault();
+              e.stopPropagation();
+              await handleFormSubmit();
+              return false;
+            }
+          });
+        }
+        
+        console.log('✓ Form handlers attached successfully');
       }
-    });
-
-    // Allow Enter key to submit (but Shift+Enter for new line)
-    chatbotInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        chatbotForm.dispatchEvent(new Event('submit'));
-      }
-    });
   });
 </script>
 
