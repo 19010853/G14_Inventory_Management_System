@@ -364,12 +364,9 @@
       
       // Initialize Feather Icons
       console.log('Step 2: Checking Feather icons...');
-      if (typeof feather !== 'undefined') {
-        feather.replace();
-        console.log('Feather icons initialized');
-      } else {
-        console.warn('Feather icons not found');
-      }
+      // Skip Feather icons initialization if it causes errors
+      // Feather icons will be initialized later when needed
+      console.log('Feather icons check skipped (will initialize later)');
 
       console.log('Step 3: Looking for chatbot elements...');
       const chatbotToggleBtn = document.getElementById('chatbot-toggle-btn');
@@ -427,26 +424,66 @@
         
         if (!isVisible) {
           if (chatbotInput) chatbotInput.focus();
-          // Re-initialize Feather icons when window opens
-          if (typeof feather !== 'undefined') {
-            feather.replace();
+          // Try to initialize Feather icons when window opens (with error handling)
+          try {
+            if (typeof feather !== 'undefined') {
+              setTimeout(function() {
+                try {
+                  feather.replace();
+                } catch (e) {
+                  console.warn('Feather icons replace failed:', e);
+                }
+              }, 100);
+            }
+          } catch (e) {
+            console.warn('Feather icons initialization failed:', e);
           }
         }
       }
 
-      // Attach event listeners
+      // Attach event listeners using event delegation
       console.log('Step 7: Attaching event listeners...');
+      
+      // Use event delegation on the container
+      const chatbotContainer = document.getElementById('gemini-chatbot-container');
+      if (chatbotContainer) {
+        console.log('Using event delegation on container');
+        
+        chatbotContainer.addEventListener('click', function(e) {
+          console.log('Container clicked, target:', e.target, e.target.closest('#chatbot-toggle-btn'));
+          
+          // Check if toggle button was clicked
+          if (e.target.closest('#chatbot-toggle-btn') || e.target.id === 'chatbot-toggle-btn') {
+            console.log('Toggle button clicked via delegation!', e);
+            e.preventDefault();
+            e.stopPropagation();
+            toggleChatbot();
+            return false;
+          }
+          
+          // Check if close button was clicked
+          if (e.target.closest('#chatbot-close-btn') || e.target.id === 'chatbot-close-btn') {
+            console.log('Close button clicked via delegation!', e);
+            e.preventDefault();
+            e.stopPropagation();
+            toggleChatbot();
+            return false;
+          }
+        }, true); // Use capture phase
+        
+        console.log('✓ Event delegation added successfully');
+      }
+      
+      // Also try direct attachment as fallback
       if (chatbotToggleBtn) {
-        console.log('Adding click event listener to toggle button');
-        chatbotToggleBtn.addEventListener('click', function(e) {
-          console.log('Toggle button clicked!', e);
+        console.log('Also adding direct event listener to toggle button');
+        chatbotToggleBtn.onclick = function(e) {
+          console.log('Toggle button onclick (direct) triggered!', e);
           e.preventDefault();
           e.stopPropagation();
           toggleChatbot();
-        });
-        console.log('✓ Event listener added successfully to toggle button');
-      } else {
-        console.error('ERROR: Cannot add click listener - toggle button not found');
+          return false;
+        };
       }
 
       if (chatbotCloseBtn) {
@@ -501,8 +538,18 @@
           </div>
         `;
         chatbotMessages.innerHTML = welcomeHtml;
-        if (typeof feather !== 'undefined') {
-          feather.replace();
+        try {
+          if (typeof feather !== 'undefined') {
+            setTimeout(function() {
+              try {
+                feather.replace();
+              } catch (e) {
+                console.warn('Feather icons replace failed in resetChatHistory:', e);
+              }
+            }, 50);
+          }
+        } catch (e) {
+          console.warn('Feather icons initialization failed in resetChatHistory:', e);
         }
       }
     }
@@ -547,8 +594,18 @@
       `;
       chatbotMessages.appendChild(loadingDiv);
       
-      if (typeof feather !== 'undefined') {
-        feather.replace();
+      try {
+        if (typeof feather !== 'undefined') {
+          setTimeout(function() {
+            try {
+              feather.replace();
+            } catch (e) {
+              console.warn('Feather icons replace failed in showLoading:', e);
+            }
+          }, 50);
+        }
+      } catch (e) {
+        console.warn('Feather icons initialization failed in showLoading:', e);
       }
       
       chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
