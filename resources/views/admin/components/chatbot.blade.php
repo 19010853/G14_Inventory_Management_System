@@ -413,6 +413,103 @@
       let chatHistory = [];
       let isProcessing = false;
 
+      // Define handleFormSubmit function FIRST (before event delegation)
+      async function handleFormSubmit() {
+        if (isProcessing) {
+          console.log('Already processing, ignoring request');
+          return;
+        }
+        
+        const message = chatbotInput ? chatbotInput.value.trim() : '';
+        if (!message) {
+          console.log('Empty message, ignoring');
+          return;
+        }
+
+        console.log('Sending message:', message);
+
+        // Add user message
+        addMessage(message, true);
+        if (chatbotInput) chatbotInput.value = '';
+        
+        // Update question count
+        questionCount++;
+        if (questionCountEl) questionCountEl.textContent = `Questions: ${questionCount}/5`;
+        
+        // Add to chat history
+        chatHistory.push({
+          role: 'user',
+          content: message
+        });
+
+        // Check if we need to reset (after 5 questions, reset on 6th)
+        if (questionCount > 5) {
+          resetChatHistory();
+          addMessage('Chat history has been reset. You can continue asking new questions!', false);
+          return;
+        }
+
+        // Show loading
+        showLoading();
+        isProcessing = true;
+        if (chatbotSendBtn) chatbotSendBtn.disabled = true;
+
+        try {
+          const url = '/chat/gemini';
+          const csrfToken = '{{ csrf_token() }}';
+          
+          console.log('Fetching URL:', url);
+          console.log('CSRF Token:', csrfToken ? 'Present' : 'Missing');
+          
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': csrfToken,
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+              message: message,
+              chat_history: chatHistory.slice(-10) // Only send last 10 messages for context
+            })
+          });
+
+          console.log('Response status:', response.status);
+          console.log('Response ok:', response.ok);
+
+          const data = await response.json();
+          console.log('Response data:', data);
+          
+          removeLoading();
+
+          if (data.success) {
+            addMessage(data.answer, false);
+            
+            // Add bot response to chat history
+            chatHistory.push({
+              role: 'assistant',
+              content: data.answer
+            });
+          } else {
+            console.error('API returned error:', data.message);
+            addMessage(data.message || 'Sorry, an error occurred. Please try again later.', false);
+          }
+        } catch (error) {
+          removeLoading();
+          console.error('Chatbot fetch error:', error);
+          console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          });
+          addMessage('Sorry, a connection error occurred. Please check your network connection and try again.', false);
+        } finally {
+          isProcessing = false;
+          if (chatbotSendBtn) chatbotSendBtn.disabled = false;
+          if (chatbotInput) chatbotInput.focus();
+        }
+      }
+
       // Toggle chatbot window
       function toggleChatbot() {
         console.log('toggleChatbot function called');
@@ -450,10 +547,26 @@
         console.log('Using event delegation on container');
         
         chatbotContainer.addEventListener('click', function(e) {
-          console.log('Container clicked, target:', e.target, e.target.closest('#chatbot-toggle-btn'));
+          const target = e.target;
+          const targetId = target.id;
+          const targetTagName = target.tagName;
+          const targetClass = target.className || '';
+          const targetParent = target.parentElement;
+          const targetParentId = targetParent ? targetParent.id : '';
+          
+          // Check if clicked element is inside a button or is a button
+          const closestToggle = target.closest('#chatbot-toggle-btn');
+          const closestClose = target.closest('#chatbot-close-btn');
+          const closestSend = target.closest('#chatbot-send-btn');
+          
+          const isInToggleBtn = closestToggle || targetId === 'chatbot-toggle-btn';
+          const isInCloseBtn = closestClose || targetId === 'chatbot-close-btn';
+          const isInSendBtn = closestSend || targetId === 'chatbot-send-btn' || targetParentId === 'chatbot-send-btn';
+          
+          console.log('Container clicked, target:', target, 'targetId:', targetId, 'targetParentId:', targetParentId, 'isInSendBtn:', isInSendBtn);
           
           // Check if toggle button was clicked
-          if (e.target.closest('#chatbot-toggle-btn') || e.target.id === 'chatbot-toggle-btn') {
+          if (isInToggleBtn) {
             console.log('Toggle button clicked via delegation!', e);
             e.preventDefault();
             e.stopPropagation();
@@ -462,11 +575,28 @@
           }
           
           // Check if close button was clicked
-          if (e.target.closest('#chatbot-close-btn') || e.target.id === 'chatbot-close-btn') {
+          if (isInCloseBtn) {
             console.log('Close button clicked via delegation!', e);
             e.preventDefault();
             e.stopPropagation();
             toggleChatbot();
+            return false;
+          }
+          
+          // Check if send button was clicked (including icon inside button)
+          if (isInSendBtn) {
+            console.log('Send button clicked via delegation!', e);
+            e.preventDefault();
+            e.stopPropagation();
+            // Call handleFormSubmit directly (it's defined before this)
+            if (typeof handleFormSubmit === 'function') {
+              console.log('Calling handleFormSubmit from delegation');
+              handleFormSubmit().catch(function(err) {
+                console.error('Error in handleFormSubmit:', err);
+              });
+            } else {
+              console.error('handleFormSubmit function not found!');
+            }
             return false;
           }
         }, true); // Use capture phase
@@ -619,102 +749,7 @@
       }
     }
 
-      // Handle form submission
-      async function handleFormSubmit() {
-        if (isProcessing) {
-          console.log('Already processing, ignoring request');
-          return;
-        }
-        
-        const message = chatbotInput.value.trim();
-        if (!message) {
-          console.log('Empty message, ignoring');
-          return;
-        }
-
-        console.log('Sending message:', message);
-
-        // Add user message
-        addMessage(message, true);
-        chatbotInput.value = '';
-        
-        // Update question count
-        questionCount++;
-        questionCountEl.textContent = `Questions: ${questionCount}/5`;
-        
-        // Add to chat history
-        chatHistory.push({
-          role: 'user',
-          content: message
-        });
-
-        // Check if we need to reset (after 5 questions, reset on 6th)
-        if (questionCount > 5) {
-          resetChatHistory();
-          addMessage('Chat history has been reset. You can continue asking new questions!', false);
-          return;
-        }
-
-        // Show loading
-        showLoading();
-        isProcessing = true;
-        if (chatbotSendBtn) chatbotSendBtn.disabled = true;
-
-        try {
-          const url = '/chat/gemini';
-          const csrfToken = '{{ csrf_token() }}';
-          
-          console.log('Fetching URL:', url);
-          console.log('CSRF Token:', csrfToken ? 'Present' : 'Missing');
-          
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': csrfToken,
-              'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-              message: message,
-              chat_history: chatHistory.slice(-10) // Only send last 10 messages for context
-            })
-          });
-
-          console.log('Response status:', response.status);
-          console.log('Response ok:', response.ok);
-
-          const data = await response.json();
-          console.log('Response data:', data);
-          
-          removeLoading();
-
-          if (data.success) {
-            addMessage(data.answer, false);
-            
-            // Add bot response to chat history
-            chatHistory.push({
-              role: 'assistant',
-              content: data.answer
-            });
-          } else {
-            console.error('API returned error:', data.message);
-            addMessage(data.message || 'Sorry, an error occurred. Please try again later.', false);
-          }
-        } catch (error) {
-          removeLoading();
-          console.error('Chatbot fetch error:', error);
-          console.error('Error details:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-          });
-          addMessage('Sorry, a connection error occurred. Please check your network connection and try again.', false);
-        } finally {
-          isProcessing = false;
-          if (chatbotSendBtn) chatbotSendBtn.disabled = false;
-          if (chatbotInput) chatbotInput.focus();
-        }
-      }
+    // handleFormSubmit is already defined above (before event delegation)
       
       // Attach event handlers
       if (!chatbotForm) {
