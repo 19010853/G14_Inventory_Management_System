@@ -294,46 +294,15 @@ class RoleController extends Controller
     }
     // End Method
 
-    // Edit Admin Roles with their Permissions
-    public function EditAdmin($id){
+    // Details Admin - View Admin Information
+    public function DetailsAdmin($id){
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
-        $admin = User::find($id);
-        $roles = Role::all();
-        return view('admin.pages.admin.edit_admin',compact('admin','roles'));
+        $admin = User::findOrFail($id);
+        return view('admin.pages.admin.details_admin',compact('admin'));
     }
     // End Method
-
-    // Update Admin Roles with their Permissions after press edit button
-    public function UpdateAdmin(Request $request,$id){
-        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
-            abort(403, 'Unauthorized Action');
-        }
-
-        $user = User::find($id);
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->role = 'admin';
-        $user->save();
-
-        $user->roles()->detach();
-
-        if ($request->roles) {
-            $role = Role::where('id',$request->roles)->where('guard_name','web')->first();
-            if ($role) {
-                $user->assignRole($role->name);
-            }
-        }
-
-        $notification = array(
-            'message' => 'New Admin Updated Successfully',
-            'alert-type' => 'success'
-         );
-         return redirect()->route('all.admin')->with($notification);
-
-    }
-     // End Method
 
     // Delete Admin Roles with their Permissions
     public function DeleteAdmin($id){

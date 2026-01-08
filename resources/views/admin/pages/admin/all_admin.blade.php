@@ -52,20 +52,25 @@
                         @endforeach
                       </td>
                       <td>
-                        <a
-                          href="{{ route('edit.admin', $item->id) }}"
-                          class="btn btn-success btn-sm"
-                        >
-                          Edit
-                        </a>
-                        <a
-                          href="{{ route('delete.admin', $item->id) }}"
-                          class="btn btn-danger btn-sm"
-                          id="delete"
-                          data-delete-text="this admin"
-                        >
-                          Delete
-                        </a>
+                        @if (Auth::guard('web')->user()->can('role_and_permission.all'))
+                          <a
+                            href="{{ route('details.admin', $item->id) }}"
+                            class="btn btn-info btn-sm"
+                            title="View Details"
+                          >
+                            <i class="mdi mdi-eye me-1"></i>Details
+                          </a>
+                        @endif
+                        @if (Auth::guard('web')->user()->can('role_and_permission.all'))
+                          <a
+                            href="{{ route('delete.admin', $item->id) }}"
+                            class="btn btn-danger btn-sm"
+                            id="delete"
+                            data-delete-text="this admin"
+                          >
+                            <i class="mdi mdi-delete me-1"></i>Delete
+                          </a>
+                        @endif
                       </td>
                     </tr>
                   @endforeach
