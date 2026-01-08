@@ -843,5 +843,8 @@
         });
 </script>
 
+    <!-- Gemini Chatbot Component -->
+    @include('admin.components.chatbot')
+
   </body>
 </html>

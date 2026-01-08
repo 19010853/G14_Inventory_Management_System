@@ -53,7 +53,7 @@
           <li>
             <a href="#sidebarAuth" data-bs-toggle="collapse">
               <i data-feather="users"></i>
-              <span>Brand Manage</span>
+              <span>Brand</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="sidebarAuth">
@@ -74,7 +74,7 @@
           <li>
             <a href="#WareHouse" data-bs-toggle="collapse">
               <i data-feather="users"></i>
-              <span>WareHouse Manage</span>
+              <span>WareHouse</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="WareHouse">
@@ -95,7 +95,7 @@
           <li>
             <a href="#Supplier" data-bs-toggle="collapse">
               <i data-feather="users"></i>
-              <span>Supplier Manage</span>
+              <span>Supplier</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="Supplier">
@@ -116,7 +116,7 @@
           <li>
             <a href="#Customer" data-bs-toggle="collapse">
               <i data-feather="users"></i>
-              <span>Customer Manage</span>
+              <span>Customer</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="Customer">
@@ -137,7 +137,7 @@
           <li>
             <a href="#Product" data-bs-toggle="collapse">
               <i data-feather="users"></i>
-              <span>Product Manage</span>
+              <span>Product</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="Product">
@@ -166,7 +166,7 @@
           <li>
             <a href="#Purchase" data-bs-toggle="collapse">
               <i data-feather="users"></i>
-              <span>Purchase Manage</span>
+              <span>Purchase</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="Purchase">
@@ -181,7 +181,7 @@
                 @if (Auth::guard('web')->user()->can('return.purchase'))
                   <li>
                     <a href="{{ route('all.return.purchase') }}" class="tp-link">
-                      Purchase Return
+                      All Purchase Return
                     </a>
                   </li>
                 @endif
@@ -194,7 +194,7 @@
           <li>
             <a href="#Sale" data-bs-toggle="collapse">
               <i data-feather="users"></i>
-              <span>Sale Manage</span>
+              <span>Sale</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="Sale">
@@ -207,7 +207,7 @@
                 @if (Auth::guard('web')->user()->can('return.sale'))
                   <li>
                     <a href="{{ route('all.return.sale') }}" class="tp-link">
-                      Sale Return
+                      All Sale Return
                     </a>
                   </li>
                 @endif
@@ -220,20 +220,20 @@
           <li>
             <a href="#Due" data-bs-toggle="collapse">
               <i data-feather="alert-octagon"></i>
-              <span>Due Setup</span>
+              <span>Due</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="Due">
               <ul class="nav-second-level">
                 @if (Auth::guard('web')->user()->can('due.sales'))
                   <li>
-                    <a href="{{ route('due.sale') }}" class="tp-link">Sales Due</a>
+                    <a href="{{ route('due.sale') }}" class="tp-link">All Sales Due</a>
                   </li>
                 @endif
                 @if (Auth::guard('web')->user()->can('due.sales.return'))
                   <li>
                     <a href="{{ route('due.sale.return') }}" class="tp-link">
-                      Sales Return Due
+                      All Sales Return Due
                     </a>
                   </li>
                 @endif
@@ -246,7 +246,7 @@
           <li>
             <a href="#Transfers" data-bs-toggle="collapse">
               <i data-feather="alert-octagon"></i>
-              <span>Transfers Setup</span>
+              <span>Transfer</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="Transfers">
@@ -254,7 +254,7 @@
                 @if (Auth::guard('web')->user()->can('all.transfers'))
                   <li>
                     <a href="{{ route('all.transfer') }}" class="tp-link">
-                      Transfers
+                      All Transfers
                     </a>
                   </li>
                 @endif
@@ -267,7 +267,7 @@
           <li>
             <a href="#Report" data-bs-toggle="collapse">
               <i data-feather="alert-octagon"></i>
-              <span>Report Setup</span>
+              <span>Report</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="Report">
@@ -283,7 +283,7 @@
         @endif
 
         @if (Auth::guard('web')->user()->can('role_and_permission.all'))
-        <li class="menu-title mt-2">General</li>
+        <li class="menu-title mt-2">Human Resource</li>
           <li>
             <a href="#sidebarBaseui" data-bs-toggle="collapse">
               <i data-feather="package"></i>
@@ -320,14 +320,14 @@
           <li>
             <a href="#sidebarAdmin" data-bs-toggle="collapse">
               <i data-feather="package"></i>
-              <span>Manage Admin</span>
+              <span>Manage Employee</span>
               <span class="menu-arrow"></span>
             </a>
             <div class="collapse" id="sidebarAdmin">
               <ul class="nav-second-level">
                 <li>
                   <a href="{{ route('all.admin') }}" class="tp-link">
-                    All Admin
+                    All Employee
                   </a>
                 </li>
               </ul>
