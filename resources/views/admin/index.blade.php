@@ -108,7 +108,7 @@
             </div>
 
             <div class="card-body pt-3">
-              <div id="daily-sales" class="apex-charts"></div>
+              <div id="daily-sales" class="apex-charts" style="min-height: 350px;"></div>
             </div>
           </div>
         </div>
@@ -127,10 +127,10 @@
             <div class="card-body p-0">
               <div class="table-responsive">
                 <table class="table table-hover mb-0">
-                  <thead class="table-light">
-                    <tr>
-                      <th class="ps-4">Product</th>
-                      <th class="text-end pe-4">Quantity Sold</th>
+                  <thead>
+                    <tr style="background: linear-gradient(135deg, #0d6efd 0%, #17a2b8 100%);">
+                      <th class="ps-4" style="color: white; font-weight: 600;">Product</th>
+                      <th class="text-end pe-4" style="color: white; font-weight: 600;">Quantity Sold</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -155,80 +155,35 @@
   </div>
 
 <script>
-    // Wait for DOM and existing charts to load, then override with real data
+    // Store chart instances to prevent duplicates
+    window.dashboardCharts = {};
+    
+    // Mini Charts Data from Database - defined globally
+    var chartDates = {!! json_encode($dates) !!};
+    var productsData = {!! json_encode($productsChartData) !!};
+    var salesData = {!! json_encode($salesChartData) !!};
+    var purchasesData = {!! json_encode($purchasesChartData) !!};
+    var usersData = {!! json_encode($usersChartData) !!};
+    
+    // Initialize charts with real database data
     document.addEventListener('DOMContentLoaded', function() {
-        // Destroy existing charts if they exist (from analytics-dashboard.init.js)
-        if (window.ApexCharts) {
-            // Destroy existing mini charts
-            var existingCharts = ['website-visitors', 'conversion-visitors', 'session-visitors', 'active-users'];
-            existingCharts.forEach(function(chartId) {
-                var chartElement = document.querySelector('#' + chartId);
-                if (chartElement && chartElement._apexChart) {
-                    chartElement._apexChart.destroy();
-                }
-            });
-        }
-
-        // Daily Sales Chart (Main Chart)
-        var dailySalesData = {!! json_encode($salesData) !!};
-        var options = {
-            chart: {
-                type: 'line',
-                height: 350,
-                toolbar: { show: true },
-                zoom: { enabled: true }
-            },
-            series: [{
-                name: 'Sales',
-                data: dailySalesData.map(item => item.total_sales)
-            }],
-            xaxis: {
-                categories: dailySalesData.map(item => item.date),
-                labels: { style: { fontSize: '12px' } }
-            },
-            yaxis: {
-                labels: {
-                    formatter: function(val) {
-                        return '$' + val.toFixed(2);
+        // Small delay to ensure DOM is fully ready and ApexCharts is loaded
+        setTimeout(function() {
+            if (typeof ApexCharts !== 'undefined') {
+                initializeCharts();
+            } else {
+                // Wait for ApexCharts to load
+                var checkApexCharts = setInterval(function() {
+                    if (typeof ApexCharts !== 'undefined') {
+                        clearInterval(checkApexCharts);
+                        initializeCharts();
                     }
-                }
-            },
-            colors: ['#0d6efd'],
-            stroke: { width: 3, curve: 'smooth' },
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shade: 'light',
-                    type: 'vertical',
-                    shadeIntensity: 0.3,
-                    gradientToColors: ['#17a2b8'],
-                    inverseColors: false,
-                    opacityFrom: 0.7,
-                    opacityTo: 0.1,
-                    stops: [0, 100]
-                }
-            },
-            tooltip: {
-                y: {
-                    formatter: function(val) {
-                        return '$' + val.toFixed(2);
-                    }
-                }
-            },
-            grid: {
-                borderColor: '#e9ecef',
-                strokeDashArray: 4
+                }, 100);
             }
-        }
-        var chart = new ApexCharts(document.querySelector("#daily-sales"), options);
-        chart.render();
-
-        // Mini Charts Data from Database
-        var chartDates = {!! json_encode($dates) !!};
-        var productsData = {!! json_encode($productsChartData) !!};
-        var salesData = {!! json_encode($salesChartData) !!};
-        var purchasesData = {!! json_encode($purchasesChartData) !!};
-        var usersData = {!! json_encode($usersChartData) !!};
+        }, 200);
+    });
+    
+    function initializeCharts() {
 
         // Total Products Mini Chart
         var productsChartOptions = {
@@ -259,8 +214,11 @@
         colors: ['#ffffff'],
         legend: { show: false },
     };
-    var productsChart = new ApexCharts(document.querySelector('#website-visitors'), productsChartOptions);
-    productsChart.render();
+    var productsChartElement = document.querySelector('#website-visitors');
+    if (productsChartElement && !window.dashboardCharts['website-visitors']) {
+        window.dashboardCharts['website-visitors'] = new ApexCharts(productsChartElement, productsChartOptions);
+        window.dashboardCharts['website-visitors'].render();
+    }
 
     // Total Sales Mini Chart
     var salesChartOptions = {
@@ -298,8 +256,11 @@
         colors: ['#ffffff'],
         legend: { show: false },
     };
-    var salesChart = new ApexCharts(document.querySelector('#conversion-visitors'), salesChartOptions);
-    salesChart.render();
+    var salesChartElement = document.querySelector('#conversion-visitors');
+    if (salesChartElement && !window.dashboardCharts['conversion-visitors']) {
+        window.dashboardCharts['conversion-visitors'] = new ApexCharts(salesChartElement, salesChartOptions);
+        window.dashboardCharts['conversion-visitors'].render();
+    }
 
     // Total Purchases Mini Chart
     var purchasesChartOptions = {
@@ -330,8 +291,11 @@
         colors: ['#ffffff'],
         legend: { show: false },
     };
-    var purchasesChart = new ApexCharts(document.querySelector('#session-visitors'), purchasesChartOptions);
-    purchasesChart.render();
+    var purchasesChartElement = document.querySelector('#session-visitors');
+    if (purchasesChartElement && !window.dashboardCharts['session-visitors']) {
+        window.dashboardCharts['session-visitors'] = new ApexCharts(purchasesChartElement, purchasesChartOptions);
+        window.dashboardCharts['session-visitors'].render();
+    }
 
     // Total Users Mini Chart
     var usersChartOptions = {
@@ -354,8 +318,68 @@
         yaxis: { labels: { padding: 4 } },
         tooltip: { theme: 'dark' },
     };
-        var usersChart = new ApexCharts(document.querySelector('#active-users'), usersChartOptions);
-        usersChart.render();
-    });
+        var usersChartElement = document.querySelector('#active-users');
+        if (usersChartElement && !window.dashboardCharts['active-users']) {
+            window.dashboardCharts['active-users'] = new ApexCharts(usersChartElement, usersChartOptions);
+            window.dashboardCharts['active-users'].render();
+        }
+        
+        // Daily Sales Chart
+        var dailySalesElement = document.querySelector('#daily-sales');
+        if (dailySalesElement && !window.dashboardCharts['daily-sales']) {
+            var dailySalesData = {!! json_encode($salesData) !!};
+            var dailySalesOptions = {
+                chart: {
+                    type: 'line',
+                    height: 350,
+                    toolbar: { show: true },
+                    zoom: { enabled: true }
+                },
+                series: [{
+                    name: 'Sales',
+                    data: dailySalesData.map(item => parseFloat(item.total_sales) || 0)
+                }],
+                xaxis: {
+                    categories: dailySalesData.map(item => item.date),
+                    labels: { style: { fontSize: '12px' } }
+                },
+                yaxis: {
+                    labels: {
+                        formatter: function(val) {
+                            return '$' + val.toFixed(2);
+                        }
+                    }
+                },
+                colors: ['#0d6efd'],
+                stroke: { width: 3, curve: 'smooth' },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'light',
+                        type: 'vertical',
+                        shadeIntensity: 0.3,
+                        gradientToColors: ['#17a2b8'],
+                        inverseColors: false,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.1,
+                        stops: [0, 100]
+                    }
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return '$' + val.toFixed(2);
+                        }
+                    }
+                },
+                grid: {
+                    borderColor: '#e9ecef',
+                    strokeDashArray: 4
+                }
+            };
+            window.dashboardCharts['daily-sales'] = new ApexCharts(dailySalesElement, dailySalesOptions);
+            window.dashboardCharts['daily-sales'].render();
+        }
+    }
 </script>
 @endsection

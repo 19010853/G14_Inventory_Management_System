@@ -719,7 +719,8 @@
     <script src="https://apexcharts.com/samples/assets/stock-prices.js"></script>
 
     <!-- Widgets Init Js -->
-    <script src="{{ asset('backend/assets/js/pages/analytics-dashboard.init.js') }}"></script>
+    <!-- Disabled to prevent hardcoded charts from interfering with dynamic charts -->
+    <!-- <script src="{{ asset('backend/assets/js/pages/analytics-dashboard.init.js') }}"></script> -->
 
     <script src="{{ asset('backend/assets/js/validate.min.js') }}"></script>
     <script src="{{ asset('backend/assets/js/custome.js') }}"></script>

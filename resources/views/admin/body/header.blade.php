@@ -22,33 +22,34 @@
         </li>
       </ul>
 
-      <ul class="list-unstyled topnav-menu mb-0 d-flex align-items-center">
-        <li class="d-none d-sm-flex">
-          <button type="button" class="btn nav-link" data-toggle="fullscreen">
+      <ul class="list-unstyled topnav-menu mb-0 d-flex align-items-center gap-2">
+        <li class="d-none d-sm-flex me-2">
+          <button type="button" class="btn nav-link p-2" data-toggle="fullscreen" style="border-radius: 8px; transition: all 0.3s ease; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: none; background: transparent;">
             <i
               data-feather="maximize"
               class="align-middle fullscreen noti-icon"
+              style="width: 18px; height: 18px; color: #495057;"
             ></i>
           </button>
         </li>
 
-        <li class="dropdown notification-list topbar-dropdown">
+        <li class="dropdown notification-list topbar-dropdown me-2">
         <a
-            class="nav-link dropdown-toggle"
+            class="nav-link dropdown-toggle p-2 position-relative"
             data-bs-toggle="dropdown"
             href="#"
             role="button"
             aria-haspopup="false"
             aria-expanded="false"
-            style="border-radius: 8px; padding: 8px 12px; transition: all 0.3s ease;"
+            style="border-radius: 8px; transition: all 0.3s ease; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: none; background: transparent;"
           >
-          <i data-feather="bell" class="noti-icon"></i>
+          <i data-feather="bell" class="noti-icon" style="width: 18px; height: 18px; color: #495057;"></i>
             @php
                 $unreadCount = auth()->user()->unreadNotifications()->count();
                 $notifications = auth()->user()->unreadNotifications;
             @endphp
             @if($unreadCount > 0)
-              <span class="badge bg-danger rounded-circle noti-icon-badge" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;">
+              <span class="badge bg-danger rounded-circle noti-icon-badge position-absolute" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important; top: 4px; right: 4px; font-size: 10px; padding: 2px 5px; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;">
                 {{ $unreadCount }}
               </span>
             @endif
