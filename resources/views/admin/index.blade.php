@@ -128,9 +128,9 @@
               <div class="table-responsive">
                 <table class="table table-hover mb-0">
                   <thead>
-                    <tr style="background: linear-gradient(135deg, #0d6efd 0%, #17a2b8 100%);">
-                      <th class="ps-4" style="color: white; font-weight: 600;">Product</th>
-                      <th class="text-end pe-4" style="color: white; font-weight: 600;">Quantity Sold</th>
+                    <tr style="background: #ffffff;">
+                      <th class="ps-4" style="color: #212529; font-weight: 600;">Product</th>
+                      <th class="text-end pe-4" style="color: #212529; font-weight: 600;">Quantity Sold</th>
                     </tr>
                   </thead>
                   <tbody>
