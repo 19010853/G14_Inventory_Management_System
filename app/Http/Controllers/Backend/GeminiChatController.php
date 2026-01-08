@@ -252,62 +252,101 @@ class GeminiChatController extends Controller
             throw new \Exception('GEMINI_API_KEY is not configured in .env file. Please add GEMINI_API_KEY=your_api_key to your .env file.');
         }
         
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}";
+        // Try different models in order of preference
+        $models = ['gemini-pro', 'gemini-1.5-pro', 'gemini-1.5-flash'];
+        $apiVersion = 'v1beta';
+        $lastError = null;
         
-        Log::info('Calling Gemini API', ['url' => str_replace($apiKey, '***', $url), 'prompt_length' => strlen($prompt)]);
-        
-        try {
-            $response = Http::timeout(30)->post($url, [
-                'contents' => [
-                    [
-                        'parts' => [
-                            [
-                                'text' => $prompt
-                            ]
-                        ]
-                    ]
-                ],
-                'generationConfig' => [
-                    'temperature' => 0.7,
-                    'topK' => 40,
-                    'topP' => 0.95,
-                    'maxOutputTokens' => 2048,
-                ]
+        foreach ($models as $model) {
+            $url = "https://generativelanguage.googleapis.com/{$apiVersion}/models/{$model}:generateContent?key={$apiKey}";
+            
+            Log::info('Calling Gemini API', [
+                'model' => $model,
+                'url' => str_replace($apiKey, '***', $url),
+                'prompt_length' => strlen($prompt)
             ]);
             
-            if ($response->failed()) {
-                $error = $response->json();
-                $statusCode = $response->status();
-                Log::error('Gemini API Error Response', [
-                    'status' => $statusCode,
-                    'error' => $error
+            try {
+                $response = Http::timeout(30)->post($url, [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                    'text' => $prompt
+                                ]
+                            ]
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.7,
+                        'topK' => 40,
+                        'topP' => 0.95,
+                        'maxOutputTokens' => 2048,
+                    ]
                 ]);
                 
-                $errorMessage = 'Error calling Gemini API';
-                if (isset($error['error']['message'])) {
-                    $errorMessage .= ': ' . $error['error']['message'];
-                } else {
-                    $errorMessage .= ' (Status: ' . $statusCode . ')';
+                if ($response->failed()) {
+                    $error = $response->json();
+                    $statusCode = $response->status();
+                    $lastError = $error;
+                    
+                    Log::warning('Gemini API model failed, trying next', [
+                        'model' => $model,
+                        'status' => $statusCode,
+                        'error' => $error
+                    ]);
+                    
+                    // If it's a 404 (model not found), try next model
+                    if ($statusCode === 404) {
+                        continue;
+                    }
+                    
+                    // For other errors, throw immediately
+                    $errorMessage = 'Error calling Gemini API';
+                    if (isset($error['error']['message'])) {
+                        $errorMessage .= ': ' . $error['error']['message'];
+                    } else {
+                        $errorMessage .= ' (Status: ' . $statusCode . ')';
+                    }
+                    
+                    throw new \Exception($errorMessage);
                 }
                 
-                throw new \Exception($errorMessage);
+                $data = $response->json();
+                
+                if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                    Log::warning('Gemini API returned unexpected format, trying next model', [
+                        'model' => $model,
+                        'data' => $data
+                    ]);
+                    continue;
+                }
+                
+                Log::info('Gemini API success', ['model' => $model]);
+                return $data['candidates'][0]['content']['parts'][0]['text'];
+                
+            } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                Log::error('Gemini API Connection Error', [
+                    'model' => $model,
+                    'error' => $e->getMessage()
+                ]);
+                // Connection errors should be thrown immediately
+                throw new \Exception('Failed to connect to Gemini API. Please check your internet connection.');
             }
-            
-            $data = $response->json();
-            
-            if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-                Log::error('Gemini API returned unexpected format', ['data' => $data]);
-                throw new \Exception('No response received from Gemini API. The API returned an unexpected format.');
-            }
-            
-            return $data['candidates'][0]['content']['parts'][0]['text'];
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('Gemini API Connection Error: ' . $e->getMessage());
-            throw new \Exception('Failed to connect to Gemini API. Please check your internet connection.');
-        } catch (\Exception $e) {
-            Log::error('Gemini API Unexpected Error: ' . $e->getMessage());
-            throw $e;
         }
+        
+        // If all models failed, throw the last error
+        if ($lastError) {
+            $errorMessage = 'All Gemini models failed. Last error: ';
+            if (isset($lastError['error']['message'])) {
+                $errorMessage .= $lastError['error']['message'];
+            } else {
+                $errorMessage .= 'Model not found or unavailable';
+            }
+            throw new \Exception($errorMessage);
+        }
+        
+            throw new \Exception('No available Gemini models found');
     }
 }
 
