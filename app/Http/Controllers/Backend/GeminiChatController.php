@@ -52,10 +52,17 @@ class GeminiChatController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Gemini API Error: ' . $e->getMessage());
+            Log::error('Gemini API Error Stack: ' . $e->getTraceAsString());
+            
+            // Return more detailed error message in development
+            $errorMessage = 'Sorry, an error occurred while processing your question. Please try again later.';
+            if (config('app.debug')) {
+                $errorMessage .= ' Error: ' . $e->getMessage();
+            }
             
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, an error occurred while processing your question. Please try again later.'
+                'message' => $errorMessage
             ], 500);
         }
     }
@@ -241,42 +248,66 @@ class GeminiChatController extends Controller
         $apiKey = config('services.gemini.api_key') ?? env('GEMINI_API_KEY');
         
         if (empty($apiKey)) {
-            throw new \Exception('GEMINI_API_KEY is not configured in .env file');
+            Log::error('GEMINI_API_KEY is not configured');
+            throw new \Exception('GEMINI_API_KEY is not configured in .env file. Please add GEMINI_API_KEY=your_api_key to your .env file.');
         }
         
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}";
         
-        $response = Http::timeout(30)->post($url, [
-            'contents' => [
-                [
-                    'parts' => [
-                        [
-                            'text' => $prompt
+        Log::info('Calling Gemini API', ['url' => str_replace($apiKey, '***', $url), 'prompt_length' => strlen($prompt)]);
+        
+        try {
+            $response = Http::timeout(30)->post($url, [
+                'contents' => [
+                    [
+                        'parts' => [
+                            [
+                                'text' => $prompt
+                            ]
                         ]
                     ]
+                ],
+                'generationConfig' => [
+                    'temperature' => 0.7,
+                    'topK' => 40,
+                    'topP' => 0.95,
+                    'maxOutputTokens' => 2048,
                 ]
-            ],
-            'generationConfig' => [
-                'temperature' => 0.7,
-                'topK' => 40,
-                'topP' => 0.95,
-                'maxOutputTokens' => 2048,
-            ]
-        ]);
-        
-        if ($response->failed()) {
-            $error = $response->json();
-            Log::error('Gemini API Error Response: ' . json_encode($error));
-            throw new \Exception('Error calling Gemini API: ' . ($error['error']['message'] ?? 'Unknown error'));
+            ]);
+            
+            if ($response->failed()) {
+                $error = $response->json();
+                $statusCode = $response->status();
+                Log::error('Gemini API Error Response', [
+                    'status' => $statusCode,
+                    'error' => $error
+                ]);
+                
+                $errorMessage = 'Error calling Gemini API';
+                if (isset($error['error']['message'])) {
+                    $errorMessage .= ': ' . $error['error']['message'];
+                } else {
+                    $errorMessage .= ' (Status: ' . $statusCode . ')';
+                }
+                
+                throw new \Exception($errorMessage);
+            }
+            
+            $data = $response->json();
+            
+            if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                Log::error('Gemini API returned unexpected format', ['data' => $data]);
+                throw new \Exception('No response received from Gemini API. The API returned an unexpected format.');
+            }
+            
+            return $data['candidates'][0]['content']['parts'][0]['text'];
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error('Gemini API Connection Error: ' . $e->getMessage());
+            throw new \Exception('Failed to connect to Gemini API. Please check your internet connection.');
+        } catch (\Exception $e) {
+            Log::error('Gemini API Unexpected Error: ' . $e->getMessage());
+            throw $e;
         }
-        
-        $data = $response->json();
-        
-        if (!isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-            throw new \Exception('No response received from Gemini API');
-        }
-        
-        return $data['candidates'][0]['content']['parts'][0]['text'];
     }
 }
 
