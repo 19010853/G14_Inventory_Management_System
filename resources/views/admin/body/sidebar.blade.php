@@ -52,7 +52,7 @@
         @if (Auth::guard('web')->user()->can('brand.menu'))
           <li>
             <a href="#sidebarAuth" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
+              <i data-feather="tag"></i>
               <span>Brand</span>
               <span class="menu-arrow"></span>
             </a>
@@ -73,7 +73,7 @@
         @if (Auth::guard('web')->user()->can('warehouse.menu'))
           <li>
             <a href="#WareHouse" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
+              <i data-feather="archive"></i>
               <span>WareHouse</span>
               <span class="menu-arrow"></span>
             </a>
@@ -94,7 +94,7 @@
         @if (Auth::guard('web')->user()->can('supplier.menu'))
           <li>
             <a href="#Supplier" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
+              <i data-feather="truck"></i>
               <span>Supplier</span>
               <span class="menu-arrow"></span>
             </a>
@@ -136,7 +136,7 @@
         @if (Auth::guard('web')->user()->can('product.menu'))
           <li>
             <a href="#Product" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
+              <i data-feather="box"></i>
               <span>Product</span>
               <span class="menu-arrow"></span>
             </a>
@@ -165,7 +165,7 @@
         @if (Auth::guard('web')->user()->can('purchase.menu'))
           <li>
             <a href="#Purchase" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
+              <i data-feather="shopping-cart"></i>
               <span>Purchase</span>
               <span class="menu-arrow"></span>
             </a>
@@ -193,7 +193,7 @@
         @if (Auth::guard('web')->user()->can('sale.menu'))
           <li>
             <a href="#Sale" data-bs-toggle="collapse">
-              <i data-feather="users"></i>
+              <i data-feather="dollar-sign"></i>
               <span>Sale</span>
               <span class="menu-arrow"></span>
             </a>
@@ -245,7 +245,7 @@
         @if (Auth::guard('web')->user()->can('transfers.menu'))
           <li>
             <a href="#Transfers" data-bs-toggle="collapse">
-              <i data-feather="alert-octagon"></i>
+              <i data-feather="repeat"></i>
               <span>Transfer</span>
               <span class="menu-arrow"></span>
             </a>
@@ -266,7 +266,7 @@
         @if (Auth::guard('web')->user()->can('reports.all'))
           <li>
             <a href="#Report" data-bs-toggle="collapse">
-              <i data-feather="alert-octagon"></i>
+              <i data-feather="file-text"></i>
               <span>Report</span>
               <span class="menu-arrow"></span>
             </a>
@@ -286,7 +286,7 @@
         <li class="menu-title mt-2">Human Resource</li>
           <li>
             <a href="#sidebarBaseui" data-bs-toggle="collapse">
-              <i data-feather="package"></i>
+              <i data-feather="shield"></i>
               <span>Role & Permission</span>
               <span class="menu-arrow"></span>
             </a>
@@ -319,7 +319,7 @@
 
           <li>
             <a href="#sidebarAdmin" data-bs-toggle="collapse">
-              <i data-feather="package"></i>
+              <i data-feather="users"></i>
               <span>Manage Employee</span>
               <span class="menu-arrow"></span>
             </a>
