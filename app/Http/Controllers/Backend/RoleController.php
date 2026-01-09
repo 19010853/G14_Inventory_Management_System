@@ -233,7 +233,9 @@ class RoleController extends Controller
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
-        $alladmin = User::where('role','employee')->latest()->get();
+        // Query both 'employee' and 'admin' roles to show existing users
+        // This handles migration from old 'admin' role to new 'employee' role
+        $alladmin = User::whereIn('role', ['employee', 'admin'])->latest()->get();
         return view('admin.pages.admin.all_admin',compact('alladmin'));
     }
     // End Method
