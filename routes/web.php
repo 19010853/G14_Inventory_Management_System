@@ -141,6 +141,7 @@ Route::controller(SaleReturnController::class)->group(function(){
     Route::get('/edit/sale/return/{id}', 'EditSalesReturn')->name('edit.return.sale');
     Route::post('/update/sale/return/{id}', 'UpdateSalesReturn')->name('update.return.sale');
     Route::get('/details/sale/return/{id}', 'DetailsSalesReturn')->name('details.return.sale');
+    Route::get('/invoice/sale/return/{id}', 'InvoiceSalesReturn')->name('invoice.return.sale');
     Route::get('/delete/sale/return/{id}', 'DeleteSalesReturn')->name('delete.return.sale');
 });
 

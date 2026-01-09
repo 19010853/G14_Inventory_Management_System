@@ -102,7 +102,7 @@ class TransferController extends Controller
 
         ]);
 
-        /// Store Sales Items & Update Stock
+        /// Store Transfer Items & Update Stock (only if status = Transfer)
     foreach($request->products as $productData){
         $product = Product::with('images')->findOrFail($productData['id']);
         $netUnitCost = $product->price;
@@ -120,58 +120,61 @@ class TransferController extends Controller
             'subtotal' => $subtotal,
         ]);
 
-        /// Decrement stock form 'from_warehouse'
-        Product::where('id',$productData['id'])
-            ->where('warehouse_id', $request->from_warehouse_id)
-            ->decrement('product_qty',$quantity);
+        // Only update product quantity if status is Transfer
+        if ($request->status === 'Transfer') {
+            /// Decrement stock form 'from_warehouse'
+            Product::where('id',$productData['id'])
+                ->where('warehouse_id', $request->from_warehouse_id)
+                ->decrement('product_qty',$quantity);
 
-        // Check if the product exists in to_warehouse
-        $existingProduct = Product::with('images')->where('name',$product->name)
-            ->where('brand_id', $product->brand_id)
-            ->where('warehouse_id', $request->to_warehouse_id)
-            ->first();
+            // Check if the product exists in to_warehouse
+            $existingProduct = Product::with('images')->where('name',$product->name)
+                ->where('brand_id', $product->brand_id)
+                ->where('warehouse_id', $request->to_warehouse_id)
+                ->first();
 
-        if ($existingProduct) {
-            $existingProduct->increment('product_qty',$quantity);
-            
-            // Copy images from source product if destination product has no images
-            if ($existingProduct->images->isEmpty() && $product->images->isNotEmpty()) {
-                foreach ($product->images as $sourceImage) {
-                    ProductImage::create([
-                        'product_id' => $existingProduct->id,
-                        'image' => $sourceImage->image,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+            if ($existingProduct) {
+                $existingProduct->increment('product_qty',$quantity);
+                
+                // Copy images from source product if destination product has no images
+                if ($existingProduct->images->isEmpty() && $product->images->isNotEmpty()) {
+                    foreach ($product->images as $sourceImage) {
+                        ProductImage::create([
+                            'product_id' => $existingProduct->id,
+                            'image' => $sourceImage->image,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
                 }
-            }
-        } else {
-            // if not exists then create new product with all details from source product
-            $newProduct = Product::create([
-                'name' => $product->name,
-                'code' => $product->code ?? null,
-                'category_id' => $product->category_id ?? null,
-                'brand_id' => $product->brand_id,
-                'supplier_id' => $product->supplier_id ?? null,
-                'warehouse_id' => $request->to_warehouse_id,
-                'price' => $product->price,
-                'stock_alert' => $product->stock_alert ?? 0,
-                'product_qty' => $quantity,
-                'status' => $product->status ?? 1,
-                'note' => $product->note ?? null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            
-            // Copy all images from source product to new product
-            if ($product->images->isNotEmpty()) {
-                foreach ($product->images as $sourceImage) {
-                    ProductImage::create([
-                        'product_id' => $newProduct->id,
-                        'image' => $sourceImage->image,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+            } else {
+                // if not exists then create new product with all details from source product
+                $newProduct = Product::create([
+                    'name' => $product->name,
+                    'code' => $product->code ?? null,
+                    'category_id' => $product->category_id ?? null,
+                    'brand_id' => $product->brand_id,
+                    'supplier_id' => $product->supplier_id ?? null,
+                    'warehouse_id' => $request->to_warehouse_id,
+                    'price' => $product->price,
+                    'stock_alert' => $product->stock_alert ?? 0,
+                    'product_qty' => $quantity,
+                    'status' => $product->status ?? 1,
+                    'note' => $product->note ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                
+                // Copy all images from source product to new product
+                if ($product->images->isNotEmpty()) {
+                    foreach ($product->images as $sourceImage) {
+                        ProductImage::create([
+                            'product_id' => $newProduct->id,
+                            'image' => $sourceImage->image,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
                 }
             }
         }
@@ -219,39 +222,43 @@ class TransferController extends Controller
          DB::beginTransaction();
 
          $transfer = Transfer::findOrFail($id);
+         $oldStatus = $transfer->status;
 
-         // Restore previous stock
-         $oldTransferItems = TransferItem::where('transfer_id', $transfer->id)->get();
+         // Restore previous stock only if old status was Transfer
+         if ($oldStatus === 'Transfer') {
+             $oldTransferItems = TransferItem::where('transfer_id', $transfer->id)->get();
 
-         foreach($oldTransferItems as $oldItem){
-            Product::where('id',$oldItem->product_id)
-                ->where('warehouse_id',$transfer->from_warehouse_id)
-                ->increment('product_qty',$oldItem->quantity);
+             foreach($oldTransferItems as $oldItem){
+                Product::where('id',$oldItem->product_id)
+                    ->where('warehouse_id',$transfer->from_warehouse_id)
+                    ->increment('product_qty',$oldItem->quantity);
 
-            Product::where('id',$oldItem->product_id)
-            ->where('warehouse_id',$transfer->to_warehouse_id)
-            ->decrement('product_qty',$oldItem->quantity);
+                Product::where('id',$oldItem->product_id)
+                    ->where('warehouse_id',$transfer->to_warehouse_id)
+                    ->decrement('product_qty',$oldItem->quantity);
+             }
+         }
 
-            /// Delete odl transfer items to prevent duplicate entries
+         // Delete old transfer items to prevent duplicate entries
+         TransferItem::where('transfer_id',$transfer->id)->delete();
 
-            TransferItem::where('transfer_id',$transfer->id)->delete();
-
-            // update the transfer record
-            $transfer->update([
+         // update the transfer record
+         $transfer->update([
             'date' => $request->date,
             'discount' => $request->discount ?? 0,
             'shipping' => $request->shipping ?? 0,
             'status' => $request->status,
             'note' => $request->note,
             'grand_total' => $request->grand_total,
-            ]);
+         ]);
 
-            /// add new transfer items
-          foreach($request->products as $productId => $productData){
+         /// add new transfer items
+         foreach($request->products as $productId => $productData){
             $product = Product::find($productId);
             if (!$product) {
                 throw new \Exception("Product id not found");
             }
+            
             // Create new Transfer item in transfer item table
             $transferItem = TransferItem::create([
                 'transfer_id' => $transfer->id,
@@ -263,14 +270,17 @@ class TransferController extends Controller
                 'subtotal' => $productData['subtotal'] ?? 0,
             ]);
 
-            Product::where('id',$productId)
-            ->where('warehouse_id',$transfer->from_warehouse_id)
-            ->decrement('product_qty',$productData['quantity']);
-            /// Sending warehouse  quantity
+            // Only update product quantity if new status is Transfer
+            if ($request->status === 'Transfer') {
+                Product::where('id',$productId)
+                    ->where('warehouse_id',$transfer->from_warehouse_id)
+                    ->decrement('product_qty',$productData['quantity']);
+                /// Sending warehouse quantity
 
-            Product::where('warehouse_id',$transfer->to_warehouse_id)
-            ->increment('product_qty',$productData['quantity']);
-                /// receiving warehouse  quantity
+                Product::where('warehouse_id',$transfer->to_warehouse_id)
+                    ->increment('product_qty',$productData['quantity']);
+                /// receiving warehouse quantity
+            }
           }
 
           DB::commit();
@@ -298,16 +308,18 @@ class TransferController extends Controller
           $transfer = Transfer::findOrFail($id);
           $transferItems = TransferItem::where('transfer_id',$transfer->id)->get();
 
-          foreach($transferItems as $item){
-            Product::where('id',$item->product_id)
-            ->where('warehouse_id',$transfer->from_warehouse_id)
-            ->increment('product_qty',$item->quantity);
-            /// Sending warehouse  quantity
+          // Only revert quantity if status was Transfer
+          if ($transfer->status === 'Transfer') {
+              foreach($transferItems as $item){
+                Product::where('id',$item->product_id)
+                    ->where('warehouse_id',$transfer->from_warehouse_id)
+                    ->increment('product_qty',$item->quantity);
+                /// Sending warehouse quantity
 
-            Product::where('warehouse_id',$transfer->to_warehouse_id)
-            ->decrement('product_qty',$item->quantity);
-                /// receiving warehouse  quantity
-
+                Product::where('warehouse_id',$transfer->to_warehouse_id)
+                    ->decrement('product_qty',$item->quantity);
+                /// receiving warehouse quantity
+              }
           }
           TransferItem::where('transfer_id',$transfer->id)->delete();
           $transfer->delete();

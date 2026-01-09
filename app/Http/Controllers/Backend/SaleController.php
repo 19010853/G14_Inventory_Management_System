@@ -98,7 +98,7 @@ class SaleController extends Controller
                 'due_amount' => $request->due_amount ?? 0,
             ]);
 
-            // Store Sale Items & Update Stock
+            // Store Sale Items & Update Stock (only if status = Sale)
             foreach ($request->products as $productData) {
                 $product = Product::findOrFail($productData['id']);
                 
@@ -114,6 +114,10 @@ class SaleController extends Controller
 
                 // Stock before sale (for record keeping)
                 $stockBeforeSale = $product->product_qty;
+                // Stock after sale: if status is Sale, subtract quantity; otherwise keep current
+                $stockAfterSale = $request->status === 'Sale' 
+                    ? $stockBeforeSale - $productData['quantity'] 
+                    : $stockBeforeSale;
 
                 SaleItem::create([
                     'sale_id' => $sales->id,
@@ -125,8 +129,10 @@ class SaleController extends Controller
                     'subtotal' => $subtotal,
                 ]);
 
-                // Decrease product stock after sale
-                $product->decrement('product_qty', $productData['quantity']);
+                // Only decrease product stock if status is Sale
+                if ($request->status === 'Sale') {
+                    $product->decrement('product_qty', $productData['quantity']);
+                }
             }
 
             // Update grand total after all items processed
@@ -183,6 +189,8 @@ class SaleController extends Controller
         ]);
 
         $sales = Sale::findOrFail($id);
+        $oldStatus = $sales->status;
+
         $sales->update([
             'date' => $request->date,
             'warehouse_id' => $request->warehouse_id,
@@ -197,25 +205,44 @@ class SaleController extends Controller
             'full_paid' => $request->full_paid,
         ]);
 
+        // Get old sale items
+        $oldSaleItems = SaleItem::where('sale_id', $sales->id)->get();
+
+        // If old status was Sale, revert the quantity changes
+        if ($oldStatus === 'Sale') {
+            foreach ($oldSaleItems as $oldItem) {
+                $product = Product::find($oldItem->product_id);
+                if ($product) {
+                    $product->increment('product_qty', $oldItem->quantity);
+                }
+            }
+        }
+
         // Delete old sales items
         SaleItem::where('sale_id', $sales->id)->delete();
 
         foreach ($request->products as $product_id => $product){
+            $productModel = Product::find($product_id);
+            if (!$productModel) {
+                continue;
+            }
+
+            // Stock before update
+            $stockBefore = $productModel->product_qty;
+
             SaleItem::create([
                 'sale_id' => $sales->id,
                 'product_id' => $product_id,
                 'net_unit_cost' => $product['net_unit_cost'],
-                'stock' => $product['stock'],
+                'stock' => $stockBefore,
                 'quantity' => $product['quantity'],
                 'discount' => $product['discount'] ?? 0,
                 'subtotal' => $product['subtotal'],
             ]);
 
-            // Update product stock
-            $productModel = Product::find($product_id);
-            if ($productModel) {
-                $productModel->product_qty += $product['quantity'];
-                $productModel->save();
+            // Only update product stock if new status is Sale
+            if ($request->status === 'Sale') {
+                $productModel->decrement('product_qty', $product['quantity']);
             }
         }
 
@@ -234,10 +261,13 @@ class SaleController extends Controller
             $sales = Sale::findOrFail($id);
             $saleItems = SaleItem::where('sale_id', $id)->get();
 
-            foreach ($saleItems as $item) {
-                $product = Product::find($item->product_id);
-                if ($product) {
-                    $product->increment('product_qty', $item->quantity);
+            // Only revert quantity if status was Sale
+            if ($sales->status === 'Sale') {
+                foreach ($saleItems as $item) {
+                    $product = Product::find($item->product_id);
+                    if ($product) {
+                        $product->increment('product_qty', $item->quantity);
+                    }
                 }
             }
 
@@ -267,6 +297,11 @@ class SaleController extends Controller
      // Invoice Sale
     public function InvoiceSales($id){
         $sales = Sale::with(['customer', 'warehouse', 'saleItems.product'])->find($id);
+
+        // Only allow invoice generation if status is Sale
+        if ($sales->status !== 'Sale') {
+            abort(403, 'Invoice can only be generated for completed sales (Status: Sale)');
+        }
 
         $pdf = Pdf::loadView('admin.backend.sales.invoice_pdf',compact('sales'));
         return $pdf->download('sales_'.$id.'.pdf');

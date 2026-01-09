@@ -62,7 +62,7 @@ class ReturnPurchaseController extends Controller
                 'grand_total' => 0,
             ]);
 
-            // Store Return Purchase Items then update stock
+            // Store Return Purchase Items then update stock (only if status = Return)
             foreach($request->products as $productData){
                 $product = Product::findOrFail($productData['id']);
                 $netUnitCost = $productData['net_unit_cost'] ?? $product->price;
@@ -74,17 +74,25 @@ class ReturnPurchaseController extends Controller
                 $subtotal = ($netUnitCost * $productData['quantity']) - ($productData['discount'] ?? 0);
                 $grandTotal += $subtotal;
 
+                // Calculate stock: if status is Return, subtract quantity; otherwise use current stock
+                $stockAfter = $request->status === 'Return' 
+                    ? $product->product_qty - $productData['quantity'] 
+                    : $product->product_qty;
+
                 ReturnPurchaseItem::create([
                     'return_purchase_id' => $purchase->id,
                     'product_id' => $productData['id'],
                     'net_unit_cost' => $netUnitCost,
-                    'stock' => $product->product_qty + $productData['quantity'],
+                    'stock' => $stockAfter,
                     'quantity' => $productData['quantity'],
                     'discount' => $productData['discount'] ?? 0,
                     'subtotal' => $subtotal,
                 ]);
 
-                $product->decrement('product_qty', $productData['quantity']);
+                // Only update product quantity if status is Return
+                if ($request->status === 'Return') {
+                    $product->decrement('product_qty', $productData['quantity']);
+                }
             }
 
             $purchase->update(['grand_total' => $grandTotal + $request->shipping - $request->discount]);
@@ -179,6 +187,7 @@ class ReturnPurchaseController extends Controller
 
         try {
             $purchase = ReturnPurchase::findOrFail($id);
+            $oldStatus = $purchase->status;
 
             $purchase->update([
                 'date' => $request->date,
@@ -194,32 +203,43 @@ class ReturnPurchaseController extends Controller
             // Get Old Purchase Items
             $oldPurchaseItems = ReturnPurchaseItem::where('return_purchase_id', $purchase->id)->get();
 
-            // Loop through old purchase items and decrement product stock
-            foreach($oldPurchaseItems as $oldItems) {
-                $product = Product::find($oldItems->product_id);
-                if ($product) {
-                    $product->increment('product_qty', $oldItems->quantity);
+            // If old status was Return, revert the quantity changes
+            if ($oldStatus === 'Return') {
+                foreach($oldPurchaseItems as $oldItems) {
+                    $product = Product::find($oldItems->product_id);
+                    if ($product) {
+                        $product->increment('product_qty', $oldItems->quantity);
+                    }
                 }
             }
 
             // Delete old purchase items
             ReturnPurchaseItem::where('return_purchase_id', $purchase->id)->delete();
 
-            // Loop through new purchase items and insert new purchase items
+            // Loop through new purchase items
             foreach($request->products as $product_id => $productData){
+                $product = Product::find($product_id);
+                if (!$product) {
+                    continue;
+                }
+
+                // Calculate stock: if new status is Return, subtract quantity; otherwise use current stock
+                $stockAfter = $request->status === 'Return' 
+                    ? $product->product_qty - $productData['quantity'] 
+                    : $product->product_qty;
+
                 ReturnPurchaseItem::create([
                     'return_purchase_id' => $purchase->id,
                     'product_id' => $product_id,
                     'net_unit_cost' => $productData['net_unit_cost'],
-                    'stock' => $productData['stock'],
+                    'stock' => $stockAfter,
                     'quantity' => $productData['quantity'],
                     'discount' => $productData['discount'] ?? 0,
                     'subtotal' => $productData['subtotal'],
                 ]);
 
-                // Update product stock by incrementing new quantity
-                $product = Product::find($product_id);
-                if ($product) {
+                // Only update product quantity if new status is Return
+                if ($request->status === 'Return') {
                     $product->decrement('product_qty', $productData['quantity']);
                 }
             }
@@ -246,10 +266,13 @@ class ReturnPurchaseController extends Controller
             $purchase = ReturnPurchase::findOrFail($id);
             $purchaseItems = ReturnPurchaseItem::where('return_purchase_id', $purchase->id)->get();
 
-            foreach($purchaseItems as $item) {
-                $product = Product::find($item->product_id);
-                if ($product) {
-                    $product->increment('product_qty', $item->quantity);
+            // Only revert quantity if status was Return
+            if ($purchase->status === 'Return') {
+                foreach($purchaseItems as $item) {
+                    $product = Product::find($item->product_id);
+                    if ($product) {
+                        $product->increment('product_qty', $item->quantity);
+                    }
                 }
             }
             ReturnPurchaseItem::where('return_purchase_id', $id)->delete();

@@ -15,6 +15,7 @@ use App\Notifications\NewSaleReturnDueNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SaleReturnController extends Controller
 {
@@ -95,7 +96,7 @@ class SaleReturnController extends Controller
                 'due_amount' => $request->due_amount ?? 0,
             ]);
 
-            /// Store Sales Items & Update Stock
+            /// Store Sales Items & Update Stock (only if status = Return)
             foreach($request->products as $productData){
                 $product = Product::findOrFail($productData['id']);
                 $netUnitCost = $productData['net_unit_cost'] ?? $product->price;
@@ -107,17 +108,25 @@ class SaleReturnController extends Controller
                 $subtotal = ($netUnitCost * $productData['quantity']) - ($productData['discount'] ?? 0);
                 $grandTotal += $subtotal;
 
+                // Calculate stock: if status is Return, add quantity; otherwise use current stock
+                $stockAfter = $request->status === 'Return' 
+                    ? $product->product_qty + $productData['quantity'] 
+                    : $product->product_qty;
+
                 SaleReturnItem::create([
                     'sale_return_id' => $sales->id,
                     'product_id' => $productData['id'],
                     'net_unit_cost' => $netUnitCost,
-                    'stock' => $product->product_qty + $productData['quantity'],
+                    'stock' => $stockAfter,
                     'quantity' => $productData['quantity'],
                     'discount' => $productData['discount'] ?? 0,
                     'subtotal' => $subtotal,
                 ]);
 
-                $product->increment('product_qty', $productData['quantity']);
+                // Only update product quantity if status is Return
+                if ($request->status === 'Return') {
+                    $product->increment('product_qty', $productData['quantity']);
+                }
             }
 
             $sales->update(['grand_total' => $grandTotal + ($request->shipping ?? 0) - ($request->discount ?? 0)]);
@@ -167,6 +176,8 @@ class SaleReturnController extends Controller
         ]);
 
         $sales = SaleReturn::findOrFail($id);
+        $oldStatus = $sales->status;
+
         $sales->update([
             'date' => $request->date,
             'warehouse_id' => $request->warehouse_id,
@@ -181,28 +192,48 @@ class SaleReturnController extends Controller
             'full_paid' => $request->full_paid,
         ]);
 
-    // Delete old sales item
-    SaleReturnItem::where('sale_return_id',$sales->id)->delete();
+        // Get old sale return items
+        $oldSaleReturnItems = SaleReturnItem::where('sale_return_id', $sales->id)->get();
 
-    foreach($request->products as $product_id => $product){
-        SaleReturnItem::create([
-            'sale_return_id' => $sales->id,
-            'product_id' => $product_id,
-            'net_unit_cost' => $product['net_unit_cost'],
-            'stock' => $product['stock'],
-            'quantity' => $product['quantity'],
-            'discount' => $product['discount'] ?? 0,
-            'subtotal' => $product['subtotal'],
-        ]);
-
-        /// Update Product Stock
-
-        $productModel = Product::find($product_id);
-        if ($productModel) {
-            $productModel->product_qty += $product['quantity'];
-            $productModel->save();
+        // If old status was Return, revert the quantity changes
+        if ($oldStatus === 'Return') {
+            foreach ($oldSaleReturnItems as $oldItem) {
+                $product = Product::find($oldItem->product_id);
+                if ($product) {
+                    $product->decrement('product_qty', $oldItem->quantity);
+                }
+            }
         }
-    }
+
+        // Delete old sales item
+        SaleReturnItem::where('sale_return_id',$sales->id)->delete();
+
+        foreach($request->products as $product_id => $product){
+            $productModel = Product::find($product_id);
+            if (!$productModel) {
+                continue;
+            }
+
+            // Calculate stock: if new status is Return, add quantity; otherwise use current stock
+            $stockAfter = $request->status === 'Return' 
+                ? $productModel->product_qty + $product['quantity'] 
+                : $productModel->product_qty;
+
+            SaleReturnItem::create([
+                'sale_return_id' => $sales->id,
+                'product_id' => $product_id,
+                'net_unit_cost' => $product['net_unit_cost'],
+                'stock' => $stockAfter,
+                'quantity' => $product['quantity'],
+                'discount' => $product['discount'] ?? 0,
+                'subtotal' => $product['subtotal'],
+            ]);
+
+            // Only update product stock if new status is Return
+            if ($request->status === 'Return') {
+                $productModel->increment('product_qty', $product['quantity']);
+            }
+        }
 
     $notification = array(
         'message' => 'Sale Return Updated Successfully',
@@ -219,6 +250,24 @@ class SaleReturnController extends Controller
     }
     // End Method
 
+    // Invoice Sale Return
+    public function InvoiceSalesReturn($id){
+        $sales = SaleReturn::with(['customer', 'warehouse', 'saleReturnItems.product'])->find($id);
+
+        if (!$sales) {
+            abort(404, 'Sale Return not found');
+        }
+
+        // Only allow invoice generation if status is Return
+        if ($sales->status !== 'Return') {
+            abort(403, 'Invoice can only be generated for completed returns (Status: Return)');
+        }
+
+        $pdf = Pdf::loadView('admin.backend.return-sale.invoice_pdf',compact('sales'));
+        return $pdf->download('sale_return_'.$id.'.pdf');
+    }
+    // End Method
+
     // Delete Sale Return
     public function DeleteSalesReturn($id){
         try {
@@ -226,11 +275,14 @@ class SaleReturnController extends Controller
           $sales = SaleReturn::findOrFail($id);
           $SalesItems = SaleReturnItem::where('sale_return_id',$id)->get();
 
-          foreach($SalesItems as $item){
-            $product = Product::find($item->product_id);
-            if ($product) {
-                $product->decrement('product_qty',$item->quantity);
-            }
+          // Only revert quantity if status was Return
+          if ($sales->status === 'Return') {
+              foreach($SalesItems as $item){
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->decrement('product_qty',$item->quantity);
+                }
+              }
           }
           SaleReturnItem::where('sale_return_id',$id)->delete();
           $sales->delete();

@@ -74,13 +74,15 @@
                           <span class="mdi mdi-eye-circle mdi-18px"></span>
                         </a>
 
+                        @if($item->status === 'Return')
                         <a
                           title="PDF Invoice"
-                          href="{{ route('invoice.sale', $item->id) }}"
+                          href="{{ route('invoice.return.sale', $item->id) }}"
                           class="btn btn-primary btn-sm"
                         >
                           <span class="mdi mdi-download-circle mdi-18px"></span>
                         </a>
+                        @endif
 
                         <a
                           title="Edit"
