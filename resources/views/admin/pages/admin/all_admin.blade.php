@@ -71,14 +71,24 @@
                           </a>
                         @endif
                         @if (Auth::guard('web')->user()->can('role_and_permission.all'))
-                          <a
-                            href="{{ route('delete.employee', $item->id) }}"
-                            class="btn btn-danger btn-sm"
-                            id="delete"
-                            data-delete-text="this employee"
-                          >
-                            <i class="mdi mdi-delete me-1"></i>Delete
-                          </a>
+                          @php
+                            $isSuperAdmin = $item->hasRole('Super Admin');
+                            $seederEmail = env('ADMIN_EMAIL', 'admin@example.com');
+                            $isSeederAccount = $item->email === $seederEmail;
+                            $canDelete = !($isSuperAdmin && $isSeederAccount);
+                          @endphp
+                          @if($canDelete)
+                            <a
+                              href="{{ route('delete.employee', $item->id) }}"
+                              class="btn btn-danger btn-sm"
+                              id="delete"
+                              data-delete-text="this employee"
+                            >
+                              <i class="mdi mdi-delete me-1"></i>Delete
+                            </a>
+                          @else
+                            <span class="badge bg-info" title="Super Admin account cannot be deleted">Protected</span>
+                          @endif
                         @endif
                       </td>
                     </tr>

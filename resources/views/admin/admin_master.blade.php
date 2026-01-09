@@ -17,7 +17,13 @@
     <!-- App favicon -->
     <link
       rel="shortcut icon"
-      href="{{ asset('backend/assets/images/favicon.ico') }}"
+      href="{{ asset('backend/assets/images/favicon.svg') }}"
+      type="image/svg+xml"
+    />
+    <link
+      rel="icon"
+      href="{{ asset('backend/assets/images/favicon.svg') }}"
+      type="image/svg+xml"
     />
 
     <!-- Datatables css -->

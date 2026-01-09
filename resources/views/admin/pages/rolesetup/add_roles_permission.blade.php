@@ -6,6 +6,10 @@
     .form-check-label {
       text-transform: capitalize;
     }
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   </style>
 
   <div class="content">
@@ -38,86 +42,59 @@
                 method="post"
                 class="row g-3"
                 enctype="multipart/form-data"
+                id="rolePermissionForm"
               >
                 @csrf
 
                 <div class="col-md-6">
-                  <label for="validationDefault01" class="form-label">
-                    Role Name
+                  <label for="roleSelect" class="form-label">
+                    Role Name <span class="text-danger">*</span>
                   </label>
                   <select
                     name="role_id"
                     class="form-select"
-                    id="example-select"
+                    id="roleSelect"
+                    required
                   >
                     <option value="" selected>Select Role</option>
                     @foreach ($roles as $role)
-                      <option value="{{ $role->id }}">
+                      <option value="{{ $role->id }}" data-role-name="{{ $role->name }}">
                         {{ $role->name }}
                       </option>
                     @endforeach
                   </select>
+                  <small class="text-muted">Select a role to view and modify its permissions</small>
                 </div>
 
-                <div class="form-check mb-2">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="formCheck1"
-                  />
-                  <label class="form-check-label" for="formCheck1">
-                    Permission All
-                  </label>
-                </div>
-
-                <hr />
-                @foreach ($permission_groups as $group)
-                  <div class="row">
-                    <div class="col-3">
-                      <div class="form-check mb-2">
-                        <input
-                          class="form-check-input permission-group"
-                          type="checkbox"
-                          value=""
-                        />
-                        <label class="form-check-label">
-                          {{ $group->group_name }}
-                        </label>
-                      </div>
-                    </div>
-
-                    <div class="col-9">
-                      @php
-                        $permissions = App\Models\User::getpermissionByGroupName($group->group_name);
-                      @endphp
-
-                      @foreach ($permissions as $permission)
-                        <div class="form-check mb-2">
-                          <input
-                            class="form-check-input"
-                            name="permission[]"
-                            value="{{ $permission->id }}"
-                            type="checkbox"
-                            id="flexCheckDefault{{ $permission->id }}"
-                          />
-                          <label
-                            class="form-check-label"
-                            for="flexCheckDefault{{ $permission->id }}"
-                          >
-                            {{ $permission->name }}
-                          </label>
-                        </div>
-                      @endforeach
-
-                      <br />
-                    </div>
+                <div class="col-12" id="permissionsSection" style="display: none;">
+                  <hr>
+                  <div class="alert alert-info">
+                    <i class="mdi mdi-information-outline me-2"></i>
+                    <span id="roleInfo">Permissions for selected role will appear here</span>
                   </div>
-                  {{-- // End Row --}}
-                @endforeach
 
-                <div class="col-12">
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="formCheck1"
+                    />
+                    <label class="form-check-label" for="formCheck1">
+                      Permission All
+                    </label>
+                  </div>
+
+                  <div id="permissionsContainer">
+                    <!-- Permissions will be loaded here via JavaScript -->
+                  </div>
+                </div>
+
+                <div class="col-12" id="submitSection" style="display: none;">
                   <button class="btn btn-primary" type="submit">
-                    Save Change
+                    Save Changes
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                    Reset
                   </button>
                 </div>
               </form>
@@ -133,18 +110,132 @@
   </div>
 
   <script>
-    // Permission All - chọn / bỏ chọn tất cả checkbox
-    $('#formCheck1').on('click', function () {
-      const checked = $(this).is(':checked');
-      $('input[type=checkbox]').prop('checked', checked);
+    // All permissions grouped by group name (for JavaScript)
+    const allPermissions = {
+      @foreach($permission_groups as $group)
+        "{{ $group->group_name }}": [
+          @php
+            $permissions = App\Models\User::getpermissionByGroupName($group->group_name);
+          @endphp
+          @foreach($permissions as $perm)
+            {
+              id: {{ $perm->id }},
+              name: "{{ $perm->name }}"
+            }{{ !$loop->last ? ',' : '' }}
+          @endforeach
+        ]{{ !$loop->last ? ',' : '' }}
+      @endforeach
+    };
+
+    let currentRolePermissions = [];
+
+    // Load permissions when role is selected
+    $('#roleSelect').on('change', function() {
+      const roleId = $(this).val();
+      const roleName = $(this).find('option:selected').data('role-name');
+      
+      if (!roleId) {
+        $('#permissionsSection').hide();
+        $('#submitSection').hide();
+        return;
+      }
+
+      // Check if Super Admin
+      if (roleName === 'Super Admin') {
+        $('#permissionsSection').show();
+        $('#submitSection').hide();
+        $('#roleInfo').html('<strong>Super Admin</strong> role permissions cannot be modified. This is a protected system role.');
+        $('#permissionsContainer').html('<div class="alert alert-warning"><i class="mdi mdi-alert-outline me-2"></i>Super Admin role has all permissions and cannot be edited.</div>');
+        return;
+      }
+
+      // Show loading state
+      $('#permissionsSection').show();
+      $('#submitSection').show();
+      $('#permissionsContainer').addClass('loading').html('<div class="text-center p-4"><i class="mdi mdi-loading mdi-spin mdi-24px"></i> Loading permissions...</div>');
+
+      // Fetch role permissions via AJAX
+      $.ajax({
+        url: '{{ route("api.role.permissions", ":id") }}'.replace(':id', roleId),
+        method: 'GET',
+        success: function(response) {
+          if (response.success) {
+            currentRolePermissions = response.permissions;
+            renderPermissions(currentRolePermissions);
+            $('#roleInfo').html('Current permissions for <strong>' + roleName + '</strong>. You can add or remove permissions.');
+          } else {
+            $('#permissionsContainer').html('<div class="alert alert-danger">' + (response.error || 'Failed to load permissions') + '</div>');
+          }
+          $('#permissionsContainer').removeClass('loading');
+        },
+        error: function(xhr) {
+          let errorMsg = 'Failed to load permissions';
+          if (xhr.responseJSON && xhr.responseJSON.error) {
+            errorMsg = xhr.responseJSON.error;
+          }
+          $('#permissionsContainer').html('<div class="alert alert-danger">' + errorMsg + '</div>');
+          $('#permissionsContainer').removeClass('loading');
+        }
+      });
     });
 
-    // Chọn / bỏ chọn theo từng group (Brand, Warehouse, ...)
+    // Render permissions checkboxes
+    function renderPermissions(selectedPermissionIds) {
+      let html = '';
+      
+      for (const [groupName, groupPerms] of Object.entries(allPermissions)) {
+        const groupHasPermission = groupPerms.some(p => selectedPermissionIds.includes(p.id));
+        
+        html += '<div class="row mb-3">';
+        html += '<div class="col-3">';
+        html += '<div class="form-check mb-2">';
+        html += '<input class="form-check-input permission-group" type="checkbox" ' + (groupHasPermission ? 'checked' : '') + ' />';
+        html += '<label class="form-check-label fw-semibold">' + groupName + '</label>';
+        html += '</div></div>';
+        html += '<div class="col-9">';
+        
+        groupPerms.forEach(perm => {
+          const hasPermission = selectedPermissionIds.includes(perm.id);
+          html += '<div class="form-check mb-2">';
+          html += '<input class="form-check-input" name="permission[]" value="' + perm.id + '" type="checkbox" id="perm_' + perm.id + '" ' + (hasPermission ? 'checked' : '') + ' />';
+          html += '<label class="form-check-label" for="perm_' + perm.id + '">' + perm.name + '</label>';
+          html += '</div>';
+        });
+        
+        html += '<br /></div></div>';
+      }
+
+      $('#permissionsContainer').html(html);
+    }
+
+    // Permission All - select/deselect all checkboxes
+    $(document).on('click', '#formCheck1', function () {
+      const checked = $(this).is(':checked');
+      $('#permissionsContainer input[type=checkbox]').prop('checked', checked);
+    });
+
+    // Select/deselect by group
     $(document).on('change', '.permission-group', function () {
       const checked = $(this).is(':checked');
       const row = $(this).closest('.row');
-      // Tìm tất cả checkbox permission thuộc group này trong cột bên phải
       row.find('.col-9 input[type=checkbox]').prop('checked', checked);
+    });
+
+    // Reset form
+    function resetForm() {
+      $('#roleSelect').val('').trigger('change');
+      $('#permissionsSection').hide();
+      $('#submitSection').hide();
+    }
+
+    // Form validation
+    $('#rolePermissionForm').on('submit', function(e) {
+      const roleId = $('#roleSelect').val();
+      if (!roleId) {
+        e.preventDefault();
+        alert('Please select a role before saving.');
+        return false;
+      }
     });
   </script>
 @endsection

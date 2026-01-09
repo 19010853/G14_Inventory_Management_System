@@ -143,7 +143,7 @@ var VectorMap = (function () {
               { name: 'Canada', coords: [56.1304, -106.3468] },
               { name: 'Greenland', coords: [71.7069, -42.6043] },
             ],
-            markerStyle: { initial: { image: 'assets/images/logo-sm.png' } },
+            markerStyle: { initial: { image: 'assets/images/logo-sm.svg' } },
             labels: {
               markers: {
                 render: function (e) {

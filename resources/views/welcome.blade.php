@@ -18,7 +18,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('backend/assets/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('backend/assets/images/favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('backend/assets/images/favicon.svg') }}" type="image/svg+xml">
 
     <style>
         body {

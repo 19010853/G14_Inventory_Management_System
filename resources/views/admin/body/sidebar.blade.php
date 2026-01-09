@@ -8,14 +8,14 @@
             <img
               src="{{ asset('backend/assets/images/logo-sm.svg') }}"
               alt="G14 Inventory"
-              height="22"
+              height="40"
             />
           </span>
           <span class="logo-lg">
             <img
               src="{{ asset('backend/assets/images/logo-light.svg') }}"
               alt="G14 Inventory"
-              height="24"
+              height="50"
             />
           </span>
         </a>
@@ -24,14 +24,14 @@
             <img
               src="{{ asset('backend/assets/images/logo-sm.svg') }}"
               alt="G14 Inventory"
-              height="22"
+              height="40"
             />
           </span>
           <span class="logo-lg">
             <img
               src="{{ asset('backend/assets/images/logo-dark.svg') }}"
               alt="G14 Inventory"
-              height="24"
+              height="50"
             />
           </span>
         </a>

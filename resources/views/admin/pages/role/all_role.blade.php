@@ -42,20 +42,25 @@
                       <td>{{ $key + 1 }}</td>
                       <td>{{ $item->name }}</td>
                       <td>
-                        <a
-                          href="{{ route('edit.roles', $item->id) }}"
-                          class="btn btn-success btn-sm"
-                        >
-                          Edit
-                        </a>
-                        <a
-                          href="{{ route('delete.roles', $item->id) }}"
-                          class="btn btn-danger btn-sm"
-                          id="delete"
-                          data-delete-text="this role"
-                        >
-                          Delete
-                        </a>
+                        @if($item->name !== 'Super Admin')
+                          <a
+                            href="{{ route('edit.roles', $item->id) }}"
+                            class="btn btn-success btn-sm"
+                          >
+                            Edit
+                          </a>
+                          <a
+                            href="{{ route('delete.roles', $item->id) }}"
+                            class="btn btn-danger btn-sm"
+                            id="delete"
+                            data-delete-text="this role"
+                          >
+                            Delete
+                          </a>
+                        @else
+                          <span class="badge bg-info">Protected System Role</span>
+                          <small class="text-muted d-block mt-1">Cannot be edited or deleted</small>
+                        @endif
                       </td>
                     </tr>
                   @endforeach

@@ -67,8 +67,18 @@ class RoleController extends Controller
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
-        $roles = Role::find($id);
-        return view('admin.pages.role.edit_role',compact('roles'));
+        $role = Role::findOrFail($id);
+        
+        // Protect Super Admin role - cannot be edited
+        if ($role->name === 'Super Admin') {
+            $notification = array(
+                'message' => 'Super Admin role cannot be edited',
+                'alert-type' => 'error'
+            );
+            return redirect()->back()->with($notification);
+        }
+        
+        return view('admin.pages.role.edit_role',compact('role'));
 
      }
      // End Method
@@ -79,8 +89,18 @@ class RoleController extends Controller
             abort(403, 'Unauthorized Action');
         }
         $role_id = $request->id;
+        $role = Role::findOrFail($role_id);
+        
+        // Protect Super Admin role - cannot be modified
+        if ($role->name === 'Super Admin') {
+            $notification = array(
+                'message' => 'Super Admin role cannot be modified',
+                'alert-type' => 'error'
+            );
+            return redirect()->back()->with($notification);
+        }
 
-        Role::find($role_id)->update([
+        $role->update([
             'name' => $request->name,
         ]);
 
@@ -97,7 +117,19 @@ class RoleController extends Controller
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
-        Role::find($id)->delete();
+        
+        $role = Role::findOrFail($id);
+        
+        // Protect Super Admin role - cannot be deleted
+        if ($role->name === 'Super Admin') {
+            $notification = array(
+                'message' => 'Super Admin role cannot be deleted',
+                'alert-type' => 'error'
+            );
+            return redirect()->back()->with($notification);
+        }
+        
+        $role->delete();
 
         $notification = array(
             'message' => 'Role Deleted Successfully',
@@ -121,6 +153,28 @@ class RoleController extends Controller
     }
      // End Method
 
+    // Get Role Permissions (API endpoint for AJAX)
+    public function GetRolePermissions($id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+        
+        $role = Role::findOrFail($id);
+        
+        // Protect Super Admin role
+        if ($role->name === 'Super Admin') {
+            return response()->json(['error' => 'Super Admin role permissions cannot be modified'], 403);
+        }
+        
+        $permissions = $role->permissions->pluck('id')->toArray();
+        
+        return response()->json([
+            'success' => true,
+            'permissions' => $permissions
+        ]);
+    }
+     // End Method
+
     // Store Role in Permission
      public function StoreRolePermission(Request $request){
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
@@ -130,17 +184,26 @@ class RoleController extends Controller
         // Validate request
         $request->validate([
             'role_id' => 'required|exists:roles,id',
-            'permission' => 'required|array',
+            'permission' => 'nullable|array',
             'permission.*' => 'exists:permissions,id',
         ], [
             'role_id.required' => 'Please select a role.',
             'role_id.exists' => 'Selected role does not exist.',
-            'permission.required' => 'Please select at least one permission.',
             'permission.array' => 'Permissions must be an array.',
             'permission.*.exists' => 'One or more selected permissions do not exist.',
         ]);
         
         $role = Role::findOrFail($request->role_id);
+        
+        // Protect Super Admin role - cannot modify its permissions
+        if ($role->name === 'Super Admin') {
+            $notification = array(
+                'message' => 'Super Admin role permissions cannot be modified',
+                'alert-type' => 'error'
+            );
+            return redirect()->back()->with($notification);
+        }
+        
         $permissions = $request->permission ?? [];
 
         if (!empty($permissions)) {
@@ -154,7 +217,7 @@ class RoleController extends Controller
         }
 
         $notification = array(
-            'message' => 'Role Permission Added Successfully',
+            'message' => 'Role Permission Updated Successfully',
             'alert-type' => 'success'
          );
          return redirect()->route('all.roles.permission')->with($notification);
@@ -177,7 +240,17 @@ class RoleController extends Controller
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
-        $role = Role::find($id);
+        $role = Role::findOrFail($id);
+        
+        // Protect Super Admin role - cannot be edited
+        if ($role->name === 'Super Admin') {
+            $notification = array(
+                'message' => 'Super Admin role cannot be edited',
+                'alert-type' => 'error'
+            );
+            return redirect()->back()->with($notification);
+        }
+        
         $permissions = Permission::all();
         $permission_groups = User::getpermissionGroups();
         return view('admin.pages.rolesetup.edit_roles_permission',compact('role','permissions','permission_groups'));
@@ -190,7 +263,17 @@ class RoleController extends Controller
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
-        $role = Role::find($id);
+        $role = Role::findOrFail($id);
+        
+        // Protect Super Admin role - cannot be modified
+        if ($role->name === 'Super Admin') {
+            $notification = array(
+                'message' => 'Super Admin role permissions cannot be modified',
+                'alert-type' => 'error'
+            );
+            return redirect()->back()->with($notification);
+        }
+        
         $permissions = $request->permission;
 
         if (!empty($permissions)) {
@@ -215,10 +298,18 @@ class RoleController extends Controller
             abort(403, 'Unauthorized Action');
         }
 
-        $role = Role::find($id);
-        if (!is_null($role)) {
-           $role->delete();
+        $role = Role::findOrFail($id);
+        
+        // Protect Super Admin role - cannot be deleted
+        if ($role->name === 'Super Admin') {
+            $notification = array(
+                'message' => 'Super Admin role cannot be deleted',
+                'alert-type' => 'error'
+            );
+            return redirect()->back()->with($notification);
         }
+        
+        $role->delete();
 
        $notification = array(
             'message' => 'Role Permission Deleted Successfully',
@@ -371,10 +462,23 @@ class RoleController extends Controller
             abort(403, 'Unauthorized Action');
         }
 
-        $admin = User::find($id);
-        if (!is_null($admin)) {
-            $admin->delete();
+        $employee = User::findOrFail($id);
+        
+        // Protect Super Admin account (created via seeder) - cannot be deleted
+        // Check if user has Super Admin role
+        if ($employee->hasRole('Super Admin')) {
+            // Additional check: if this is the seeder account (check by email pattern or env)
+            $seederEmail = env('ADMIN_EMAIL', 'admin@example.com');
+            if ($employee->email === $seederEmail) {
+                $notification = array(
+                    'message' => 'Super Admin account cannot be deleted',
+                    'alert-type' => 'error'
+                );
+                return redirect()->back()->with($notification);
+            }
         }
+
+        $employee->delete();
 
         $notification = array(
             'message' => 'Employee Deleted Successfully',

@@ -1,323 +1,1099 @@
-# G14_Inventory_Management_System
+# G14 Inventory Management System
 
-Dự án Hệ thống Quản lý Kho hàng được xây dựng trên nền tảng Laravel.
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://www.php.net)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## Mục lục
+## 📋 Giới thiệu về Project
 
-- [Yêu cầu hệ thống](#yêu-cầu-hệ-thống)
-- [Cấu trúc dự án](#cấu-trúc-dự-án)
-- [Khởi tạo nhanh (5 phút)](#khởi-tạo-nhanh-5-phút)
-- [Hướng dẫn cài đặt chi tiết](#hướng-dẫn-cài-đặt-chi-tiết)
-- [Hướng dẫn Deploy lên EC2 Server](#hướng-dẫn-deploy-lên-ec2-server) ⭐
-- [Định dạng Code với Prettier](#định-dạng-code-code-formatting-với-prettier)
-- [Quy trình làm việc nhóm với Git và CSDL](#quy-trình-làm-việc-nhóm-với-git-và-csdl)
-- [Các lệnh Artisan/NPM thường dùng](#các-lệnh-artisannpm-thường-dùng)
-- [Khắc phục sự cố thường gặp](#khắc-phục-sự-cố-thường-gặp)
+**G14 Inventory Management System** là một hệ thống quản lý kho hàng toàn diện được xây dựng trên nền tảng **Laravel 12**, giúp doanh nghiệp quản lý hiệu quả các hoạt động liên quan đến kho hàng, bao gồm:
 
-## Yêu cầu hệ thống
+- 📦 **Quản lý sản phẩm**: Thêm, sửa, xóa, tìm kiếm sản phẩm với đầy đủ thông tin (brand, category, warehouse)
+- 🛒 **Quản lý đơn hàng**: Purchase, Sale, Return Purchase, Sale Return, Transfer giữa các kho
+- 📊 **Báo cáo và thống kê**: Báo cáo tồn kho, báo cáo bán hàng, báo cáo mua hàng, báo cáo chuyển kho
+- 👥 **Quản lý người dùng và phân quyền**: Hệ thống role-based access control (RBAC) với Spatie Permission
+- 🏢 **Quản lý đối tác**: Quản lý nhà cung cấp (Supplier) và khách hàng (Customer)
+- 📈 **Dashboard**: Tổng quan về tình hình kinh doanh với các biểu đồ và thống kê trực quan
 
-Để chạy dự án này, bạn cần cài đặt các phần mềm sau trên máy tính của mình:
+### 🎯 Tính năng nổi bật
 
-- PHP (>= 8.2)
-- Composer
-- Node.js và npm
-- Một server CSDL như MySQL hoặc MariaDB
-- **Prettier** (đã được tích hợp trong `package.json` để định dạng code)
-
-## Cấu trúc dự án
-
-Tổng quan các thư mục chính trong dự án Laravel này:
-
-```bash
-G14_Inventory_Management_System/
-├─ app/                 # Mã nguồn ứng dụng (Models, Http/Controllers, Policies, ...)
-│  ├─ Models/           # Eloquent models (ví dụ: SaleItem.php)
-│  └─ Http/
-│     ├─ Controllers/   # Controllers xử lý request
-│     └─ Middleware/    # Middleware
-├─ bootstrap/           # Bootstrap ứng dụng (autoload, cache)
-├─ config/              # File cấu hình
-├─ database/            # Migrations, seeders, factories
-├─ public/              # Document root (index.php), assets đã build
-├─ resources/           # View Blade, CSS/JS (Vite/Laravel Mix), email templates
-│  └─ views/            # Giao diện Blade (ví dụ: resources/views/admin/...)
-├─ routes/              # Định nghĩa route (web.php, api.php, ...)
-├─ storage/             # Logs, cache, file upload (liên kết với public/storage)
-├─ tests/               # Test (PHPUnit/Pest)
-├─ vendor/              # Thư viện PHP do Composer quản lý
-├─ .env.example         # Mẫu cấu hình môi trường
-├─ artisan              # CLI của Laravel
-├─ composer.json        # Khai báo package PHP
-├─ package.json         # Script và package JS (bao gồm Prettier)
-└─ README.md
-```
-
-Gợi ý: Khi thêm view mới, đặt trong `resources/views/...`; khi thêm route, chỉnh trong `routes/web.php` (cho trang web) hoặc `routes/api.php` (cho API).
-
-## Khởi tạo nhanh (5 phút)
-
-Áp dụng khi bạn đã cài đủ PHP/Composer/Node/MySQL.
-
-```bash
-# 1) Clone & vào thư mục dự án
-git clone git@github.com:19010853/G14_Inventory_Management_System.git
-cd G14_Inventory_Management_System
-
-# 2) Cài dependencies
-composer install
-npm install
-
-# 3) Tạo .env và key
-cp .env.example .env
-php artisan key:generate
-
-# 4) Cấu hình DB trong .env, sau đó:
-php artisan migrate --seed
-
-# 5) Tạo symbolic link cho storage (lưu/hiển thị file upload)
-php artisan storage:link
-
-# 6) Chạy frontend và server Laravel (mở 2 cửa sổ terminal riêng)
-npm run dev      # hoặc: npm run build cho build production
-php artisan serve
-```
-
-Truy cập ứng dụng tại `http://127.0.0.1:8000`.
-
-## Hướng dẫn Cài đặt cho Lập trình viên mới
-
-Đây là các bước để một thành viên mới trong nhóm có thể cài đặt và chạy dự án trên máy của mình.
-
-### 1. Clone Repository
-
-Đầu tiên, clone mã nguồn của dự án từ GitHub về máy tính của bạn.
-
-```bash
-git clone git@github.com:19010853/G14_Inventory_Management_System.git
-cd G14_Inventory_Management_System
-```
-
-### 2. Cài đặt Dependencies
-
-Cài đặt các thư viện PHP và JavaScript cần thiết. Lệnh `npm install` cũng sẽ cài đặt Prettier.
-
-```bash
-# Cài đặt thư viện PHP
-composer install
-
-# Cài đặt thư viện JavaScript (bao gồm Prettier)
-npm install
-```
-
-### 3. Cấu hình Môi trường
-
-Sao chép file `.env.example` thành `.env`. File này chứa các cấu hình riêng cho môi trường của bạn.
-
-```bash
-cp .env.example .env
-```
-
-Sau đó, tạo khóa ứng dụng (application key) cho Laravel.
-
-```bash
-php artisan key:generate
-```
-
-### 4. Cấu hình Cơ sở dữ liệu
-
-1.  **Tạo một CSDL trống:** Mở phpMyAdmin (hoặc công cụ quản lý CSDL khác) và tạo một CSDL mới (ví dụ: `g14_inventory_dev`).
-2.  **Cập nhật file `.env`:** Mở file `.env` và cập nhật các thông tin kết nối CSDL cho phù hợp với môi trường local của bạn.
-
-    ```dotenv
-    DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=g14_inventory_dev  # Tên CSDL bạn vừa tạo
-    DB_USERNAME=root              # Username của MySQL
-    DB_PASSWORD=                  # Password của MySQL (để trống nếu không có)
-    ```
-
-### 5. Chạy Migration và Seeder
-
-Lệnh này sẽ tạo toàn bộ cấu trúc bảng trong CSDL và chèn các dữ liệu khởi tạo.
-
-```bash
-php artisan migrate:fresh --seed
-```
-
-### 6. Liên kết Storage (bắt buộc cho upload/file)
-
-Tạo symbolic link để có thể truy cập file upload qua `public/storage`:
-
-```bash
-php artisan storage:link
-```
-
-### 6. Cài đặt Extension cho Editor (Rất khuyến khích)
-
-Để Prettier tự động định dạng code mỗi khi bạn lưu file, hãy cài đặt extension **Prettier - Code formatter** cho Visual Studio Code.
-
-### 7. Khởi chạy Dự án
-
-Biên dịch tài nguyên frontend và khởi chạy server phát triển.
-
-```bash
-# Chạy trình biên dịch cho CSS/JS
-npm run dev
-
-# Khởi chạy server Laravel (ở một cửa sổ terminal khác)
-php artisan serve
-```
-
-Bây giờ bạn có thể truy cập dự án tại địa chỉ `http://127.0.0.1:8000`.
+- ✅ **Quản lý tồn kho tự động**: Cập nhật số lượng sản phẩm tự động dựa trên trạng thái đơn hàng
+- ✅ **Hệ thống phân quyền mạnh mẽ**: Quản lý quyền truy cập chi tiết theo vai trò
+- ✅ **Lưu trữ đám mây**: Tích hợp AWS S3 để lưu trữ hình ảnh và file
+- ✅ **Giao diện hiện đại**: Responsive design với Tailwind CSS và Vite
+- ✅ **Báo cáo PDF**: Xuất báo cáo và hóa đơn dưới dạng PDF
+- ✅ **Email notifications**: Gửi email thông báo khi tạo tài khoản mới
 
 ---
 
-## Hướng dẫn Deploy lên EC2 Server
+## 🏗️ Tổng quan về Cấu trúc Project
 
-Để cập nhật code từ máy local (Cursor) lên server EC2, vui lòng xem file **[DEPLOYMENT.md](./DEPLOYMENT.md)** để có hướng dẫn chi tiết.
+### Công nghệ sử dụng
 
-### Cấu hình S3 cho Production
+#### Backend
+- **Framework**: Laravel 12.x
+- **PHP**: 8.2+
+- **Database**: MySQL/MariaDB
+- **Authentication**: Laravel Breeze
+- **Authorization**: Spatie Laravel Permission
+- **File Storage**: AWS S3 (Production) / Local Storage (Development)
+- **PDF Generation**: DomPDF
 
-Nếu bạn cần cấu hình S3 để lưu trữ ảnh, vui lòng xem file **[S3_SETUP_GUIDE.md](./S3_SETUP_GUIDE.md)** để có hướng dẫn chi tiết về:
-- Cấu hình AWS credentials
-- Test kết nối S3
-- Troubleshooting các vấn đề thường gặp
+#### Frontend
+- **Build Tool**: Vite 7.x
+- **CSS Framework**: Tailwind CSS 3.x
+- **JavaScript**: Alpine.js, Axios
+- **Icons**: Feather Icons
 
-**Tóm tắt nhanh:**
+#### Infrastructure
+- **Containerization**: Docker (Laravel Sail)
+- **Web Server**: Nginx (Production)
+- **Cloud Storage**: AWS S3
+- **Deployment**: AWS EC2
 
-### Phương pháp 1: Sử dụng Git (Khuyến nghị)
+### Cấu trúc thư mục
+
+```
+G14_Inventory_Management_System/
+├── app/                          # Mã nguồn ứng dụng
+│   ├── Http/
+│   │   ├── Controllers/          # Controllers xử lý request
+│   │   │   └── Backend/         # Controllers cho admin panel
+│   │   └── Middleware/           # Middleware (auth, permission, etc.)
+│   ├── Models/                   # Eloquent Models
+│   └── Mail/                     # Mailable classes
+├── bootstrap/                    # Bootstrap ứng dụng
+├── config/                       # File cấu hình
+│   ├── filesystems.php          # Cấu hình storage (Local/S3)
+│   └── permission.php           # Cấu hình Spatie Permission
+├── database/
+│   ├── migrations/              # Database migrations
+│   └── seeders/                 # Database seeders
+├── public/                      # Document root
+│   ├── backend/                 # Assets (CSS, JS, images)
+│   └── storage/                 # Symbolic link đến storage/app/public
+├── resources/
+│   ├── views/                   # Blade templates
+│   │   ├── admin/              # Admin panel views
+│   │   ├── auth/               # Authentication views
+│   │   └── errors/             # Error pages
+│   ├── css/                    # CSS source files
+│   └── js/                     # JavaScript source files
+├── routes/
+│   ├── web.php                 # Web routes
+│   └── auth.php                # Authentication routes
+├── storage/                     # Logs, cache, file uploads
+│   ├── app/
+│   │   ├── public/             # Public file uploads
+│   │   └── private/            # Private file uploads
+│   └── logs/                   # Application logs
+├── tests/                       # Test files
+├── vendor/                      # Composer dependencies
+├── compose.yaml                 # Docker Compose configuration (Laravel Sail)
+├── .env.example                 # Environment variables template
+├── composer.json                # PHP dependencies
+├── package.json                 # Node.js dependencies
+└── README.md                    # Documentation
+```
+
+### Kiến trúc hệ thống
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Client Browser                        │
+└────────────────────┬────────────────────────────────────┘
+                     │ HTTPS
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│                    Nginx (EC2)                          │
+│              - Reverse Proxy                            │
+│              - SSL Termination                          │
+└────────────────────┬────────────────────────────────────┘
+                     │
+                     ▼
+┌─────────────────────────────────────────────────────────┐
+│              Laravel Application (EC2)                  │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │  Controllers → Models → Database                 │  │
+│  │  Middleware → Policies → Permissions             │  │
+│  └──────────────────────────────────────────────────┘  │
+└──────┬──────────────────────────────┬───────────────────┘
+       │                              │
+       ▼                              ▼
+┌──────────────┐            ┌──────────────────┐
+│   MySQL      │            │    AWS S3       │
+│  Database    │            │  (File Storage)  │
+└──────────────┘            └──────────────────┘
+```
+
+---
+
+## 🚀 Hướng dẫn Cách Chạy
+
+### Yêu cầu hệ thống
+
+#### Development (Local)
+- **PHP**: >= 8.2
+- **Composer**: >= 2.0
+- **Node.js**: >= 20.19.0 hoặc >= 22.12.0
+- **npm**: >= 9.0
+- **MySQL/MariaDB**: >= 8.0
+- **Docker & Docker Compose** (nếu sử dụng Laravel Sail)
+
+#### Production (EC2)
+- **Ubuntu Server**: 20.04 LTS hoặc mới hơn
+- **Nginx**: >= 1.18
+- **PHP-FPM**: >= 8.2
+- **MySQL/MariaDB**: >= 8.0
+- **AWS Account** (cho S3)
+
+---
+
+### 🐳 Phương pháp 1: Sử dụng Docker (Laravel Sail) - Khuyến nghị
+
+Laravel Sail cung cấp môi trường Docker được cấu hình sẵn, giúp bạn không cần cài đặt PHP, MySQL, Redis trực tiếp trên máy.
+
+#### Bước 1: Clone repository
 
 ```bash
-# Trên máy local (Cursor)
+git clone git@github.com:19010853/G14_Inventory_Management_System.git
+cd G14_Inventory_Management_System
+```
+
+#### Bước 2: Cài đặt dependencies
+
+```bash
+# Cài đặt PHP dependencies
+composer install
+
+# Cài đặt Node.js dependencies
+npm install
+```
+
+#### Bước 3: Cấu hình môi trường
+
+```bash
+# Copy file .env.example thành .env
+cp .env.example .env
+
+# Tạo application key
+php artisan key:generate
+```
+
+#### Bước 4: Cấu hình database trong .env
+
+Mở file `.env` và cập nhật thông tin database:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=mysql          # Tên service trong docker-compose
+DB_PORT=3306
+DB_DATABASE=g14_inventory
+DB_USERNAME=sail
+DB_PASSWORD=password
+```
+
+#### Bước 5: Khởi động Docker containers
+
+```bash
+# Khởi động Laravel Sail (sẽ tự động build và start containers)
+./vendor/bin/sail up -d
+
+# Hoặc nếu bạn đã alias sail
+sail up -d
+```
+
+Laravel Sail sẽ tự động tạo và khởi động các containers:
+- **laravel.test**: Container chạy Laravel application
+- **mysql**: MySQL database server
+- **redis**: Redis cache (nếu cần)
+
+#### Bước 6: Chạy migrations và seeders
+
+```bash
+# Chạy migrations
+./vendor/bin/sail artisan migrate
+
+# Chạy seeders để tạo dữ liệu mẫu
+./vendor/bin/sail artisan db:seed
+
+# Hoặc chạy cả hai cùng lúc
+./vendor/bin/sail artisan migrate --seed
+```
+
+#### Bước 7: Tạo storage link
+
+```bash
+./vendor/bin/sail artisan storage:link
+```
+
+#### Bước 8: Build frontend assets
+
+```bash
+# Development mode (watch mode)
+./vendor/bin/sail npm run dev
+
+# Hoặc build cho production
+./vendor/bin/sail npm run build
+```
+
+#### Bước 9: Truy cập ứng dụng
+
+Mở trình duyệt và truy cập: `http://localhost`
+
+**Lưu ý**: Nếu bạn muốn thay đổi port, có thể chỉnh sửa trong file `compose.yaml` hoặc sử dụng biến môi trường `APP_PORT`.
+
+#### Các lệnh Sail thường dùng
+
+```bash
+# Xem logs
+./vendor/bin/sail logs
+
+# Dừng containers
+./vendor/bin/sail down
+
+# Restart containers
+./vendor/bin/sail restart
+
+# Chạy Artisan commands
+./vendor/bin/sail artisan [command]
+
+# Chạy Composer commands
+./vendor/bin/sail composer [command]
+
+# Chạy npm commands
+./vendor/bin/sail npm [command]
+
+# Truy cập MySQL CLI
+./vendor/bin/sail mysql
+```
+
+---
+
+### 💻 Phương pháp 2: Cài đặt trực tiếp (không dùng Docker)
+
+Nếu bạn không muốn sử dụng Docker, có thể cài đặt trực tiếp trên máy.
+
+#### Bước 1-3: Giống như phương pháp Docker
+
+#### Bước 4: Cấu hình database trong .env
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=g14_inventory
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+#### Bước 5: Chạy migrations và seeders
+
+```bash
+php artisan migrate --seed
+```
+
+#### Bước 6: Tạo storage link
+
+```bash
+php artisan storage:link
+```
+
+#### Bước 7: Build frontend assets
+
+```bash
+# Development mode
+npm run dev
+
+# Production mode
+npm run build
+```
+
+#### Bước 8: Khởi động server
+
+```bash
+php artisan serve
+```
+
+Truy cập ứng dụng tại: `http://127.0.0.1:8000`
+
+---
+
+### ☁️ Cấu hình AWS S3 (Production)
+
+Hệ thống hỗ trợ lưu trữ file trên AWS S3 cho môi trường production.
+
+#### Bước 1: Tạo S3 Bucket
+
+1. Đăng nhập vào AWS Console
+2. Tạo một S3 bucket mới (ví dụ: `g14-inventory-storage`)
+3. Cấu hình bucket permissions (public read cho images nếu cần)
+
+#### Bước 2: Tạo IAM User và Access Keys
+
+1. Tạo IAM user mới với quyền truy cập S3
+2. Tạo Access Key ID và Secret Access Key
+3. Lưu lại credentials
+
+#### Bước 3: Cấu hình trong .env
+
+Thêm các biến môi trường sau vào file `.env`:
+
+```env
+FILESYSTEM_DISK=s3
+
+AWS_ACCESS_KEY_ID=your_access_key_id
+AWS_SECRET_ACCESS_KEY=your_secret_access_key
+AWS_DEFAULT_REGION=ap-southeast-1
+AWS_BUCKET=g14-inventory-storage
+AWS_URL=https://g14-inventory-storage.s3.ap-southeast-1.amazonaws.com
+```
+
+**Lưu ý**: Trên EC2, bạn có thể sử dụng IAM Role thay vì Access Keys để bảo mật hơn. Khi đó, không cần set `AWS_ACCESS_KEY_ID` và `AWS_SECRET_ACCESS_KEY`.
+
+#### Bước 4: Test kết nối S3
+
+```bash
+# Sử dụng script test có sẵn
+php test-s3-connection.php
+
+# Hoặc sử dụng Laravel Tinker
+php artisan tinker
+>>> Storage::disk('s3')->put('test.txt', 'Hello S3!');
+>>> Storage::disk('s3')->exists('test.txt');
+```
+
+#### Bước 5: Migrate images từ local lên S3 (nếu cần)
+
+Nếu bạn đã có images trên local storage và muốn chuyển lên S3:
+
+```bash
+php migrate-images-to-s3.php
+```
+
+---
+
+### 🌐 Deploy lên EC2 Server với Nginx
+
+#### Bước 1: Chuẩn bị EC2 Instance
+
+1. Tạo EC2 instance (Ubuntu 20.04+)
+2. Cấu hình Security Group:
+   - Mở port 22 (SSH)
+   - Mở port 80 (HTTP)
+   - Mở port 443 (HTTPS)
+3. Kết nối vào server qua SSH
+
+#### Bước 2: Cài đặt các phần mềm cần thiết
+
+```bash
+# Cập nhật hệ thống
+sudo apt update && sudo apt upgrade -y
+
+# Cài đặt Nginx
+sudo apt install nginx -y
+
+# Cài đặt PHP 8.2 và các extensions
+sudo apt install software-properties-common -y
+sudo add-apt-repository ppa:ondrej/php -y
+sudo apt update
+sudo apt install php8.2-fpm php8.2-mysql php8.2-mbstring php8.2-xml php8.2-curl php8.2-zip php8.2-gd -y
+
+# Cài đặt MySQL
+sudo apt install mysql-server -y
+
+# Cài đặt Composer
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+
+# Cài đặt Node.js và npm
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+#### Bước 3: Clone project
+
+```bash
+cd /var/www
+sudo git clone git@github.com:19010853/G14_Inventory_Management_System.git
+sudo chown -R $USER:$USER G14_Inventory_Management_System
+cd G14_Inventory_Management_System
+```
+
+#### Bước 4: Cấu hình môi trường
+
+```bash
+# Copy .env.example
+cp .env.example .env
+
+# Tạo application key
+php artisan key:generate
+
+# Chỉnh sửa .env với thông tin production
+nano .env
+```
+
+Cấu hình `.env` cho production:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.com
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=g14_inventory
+DB_USERNAME=your_db_user
+DB_PASSWORD=your_db_password
+
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=your_key
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_DEFAULT_REGION=ap-southeast-1
+AWS_BUCKET=your-bucket-name
+AWS_URL=https://your-bucket-name.s3.ap-southeast-1.amazonaws.com
+
+# Mail Configuration (Gmail SMTP)
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-gmail@gmail.com
+MAIL_PASSWORD="your-app-password"
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=your-gmail@gmail.com
+MAIL_FROM_NAME="Group 14 Inventory System"
+```
+
+**⚠️ Lưu ý quan trọng về cú pháp .env:**
+
+1. **Không có khoảng trắng quanh dấu `=`**: 
+   - ✅ Đúng: `MAIL_HOST=smtp.gmail.com`
+   - ❌ Sai: `MAIL_HOST = smtp.gmail.com`
+
+2. **Giá trị có khoảng trắng phải đặt trong dấu ngoặc kép**:
+   - ✅ Đúng: `MAIL_PASSWORD="abcd efgh ijkl mnop"`
+   - ❌ Sai: `MAIL_PASSWORD=abcd efgh ijkl mnop`
+
+3. **Gmail App Password**: Bạn cần tạo "App Password" từ Google Account, không dùng mật khẩu thường:
+   - Vào https://myaccount.google.com/ → Security → App passwords
+   - Tạo App Password mới cho "Mail"
+   - Sử dụng 16 ký tự này trong `MAIL_PASSWORD` (có thể có khoảng trắng, cần đặt trong dấu ngoặc kép)
+
+#### Bước 5: Cài đặt dependencies
+
+```bash
+# Cài đặt PHP dependencies
+composer install --no-dev --optimize-autoloader
+
+# Cài đặt Node.js dependencies
+npm install --production
+
+# Build frontend assets
+npm run build
+```
+
+#### Bước 6: Cấu hình database
+
+```bash
+# Tạo database
+sudo mysql -u root -p
+```
+
+Trong MySQL:
+
+```sql
+CREATE DATABASE g14_inventory CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'your_db_user'@'localhost' IDENTIFIED BY 'your_db_password';
+GRANT ALL PRIVILEGES ON g14_inventory.* TO 'your_db_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+```bash
+# Chạy migrations
+php artisan migrate --force
+
+# Chạy seeders (chỉ lần đầu)
+php artisan db:seed --force
+```
+
+#### Bước 7: Cấu hình Nginx
+
+Tạo file cấu hình Nginx:
+
+```bash
+sudo nano /etc/nginx/sites-available/g14-inventory
+```
+
+Nội dung file:
+
+```nginx
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your-domain.com www.your-domain.com;
+    root /var/www/G14_Inventory_Management_System/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+```
+
+Kích hoạt site:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/g14-inventory /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+#### Bước 8: Cấu hình SSL (Let's Encrypt)
+
+```bash
+# Cài đặt Certbot
+sudo apt install certbot python3-certbot-nginx -y
+
+# Cấu hình SSL
+sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+```
+
+#### Bước 9: Set permissions
+
+```bash
+sudo chown -R www-data:www-data /var/www/G14_Inventory_Management_System
+sudo chmod -R 755 /var/www/G14_Inventory_Management_System
+sudo chmod -R 775 /var/www/G14_Inventory_Management_System/storage
+sudo chmod -R 775 /var/www/G14_Inventory_Management_System/bootstrap/cache
+```
+
+#### Bước 10: Tạo storage link và optimize
+
+```bash
+php artisan storage:link
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+#### Bước 11: Cấu hình Cron Job (cho scheduled tasks)
+
+```bash
+sudo crontab -e
+```
+
+Thêm dòng:
+
+```
+* * * * * cd /var/www/G14_Inventory_Management_System && php artisan schedule:run >> /dev/null 2>&1
+```
+
+#### Bước 12: Restart services
+
+```bash
+sudo systemctl restart php8.2-fpm
+sudo systemctl restart nginx
+```
+
+---
+
+### 📦 Cập nhật code trên Production
+
+#### Phương pháp 1: Sử dụng Git (Khuyến nghị)
+
+```bash
+# Trên máy local
 git add .
 git commit -m "feat: Mô tả thay đổi"
 git push origin main
 
 # Trên EC2 server
 cd /var/www/G14_Inventory_Management_System
+
+# Backup (khuyến nghị)
+BACKUP_DIR=~/backups/$(date +%Y%m%d_%H%M%S)
+mkdir -p $BACKUP_DIR
+tar -czf $BACKUP_DIR/code_backup.tar.gz .
+mysqldump -u your_db_user -p your_database_name > $BACKUP_DIR/database_backup.sql
+
+# Pull code mới
 git pull origin main
-composer install --no-dev
-npm install && npm run build
+
+# Cài đặt dependencies
+composer install --no-dev --optimize-autoloader
+npm install --production && npm run build
+
+# Chạy migrations (nếu có)
 php artisan migrate --force
+
+# Clear và cache lại
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+php artisan route:clear
 php artisan config:cache
 php artisan route:cache
+php artisan view:cache
+
+# Set permissions
+sudo chown -R www-data:www-data .
+sudo chmod -R 775 storage bootstrap/cache
+
+# Restart services
+sudo systemctl restart php8.2-fpm
+sudo systemctl restart nginx
 ```
 
-### Phương pháp 2: Sử dụng script deploy tự động
+#### Phương pháp 2: Sử dụng script deploy tự động
 
-1. Chỉnh sửa file `deploy.sh` với thông tin server của bạn
-2. Chạy: `chmod +x deploy.sh && ./deploy.sh`
+Sử dụng script `deploy.sh` có sẵn trong project:
 
-Xem chi tiết tại: [DEPLOYMENT.md](./DEPLOYMENT.md)
+```bash
+# Chỉnh sửa các biến trong deploy.sh
+nano deploy.sh
 
----
-
-## Định dạng Code (Code Formatting) với Prettier
-
-Để đảm bảo code của toàn bộ dự án được nhất quán, chúng ta sử dụng Prettier.
-
-- **Kiểm tra định dạng:** Chạy lệnh sau để xem những file nào chưa được định dạng đúng.
-  ```bash
-  npm run format:check
-  ```
-- **Tự động định dạng:** Chạy lệnh sau để Prettier tự động sửa và định dạng lại tất cả các file cần thiết.
-  ```bash
-  npm run format
-  ```
-
-**Quan trọng:** Hãy chạy lệnh `npm run format` trước khi bạn commit code.
+# Chạy script
+chmod +x deploy.sh
+./deploy.sh
+```
 
 ---
 
-## Quy trình Làm việc Nhóm với Git và CSDL
+### 🔄 Database Migrations
 
-Để đảm bảo CSDL và code của mọi người luôn đồng nhất, chúng ta sẽ tuân thủ quy trình sau.
+#### Migration Employee Role
 
-### A. Khi bạn bắt đầu làm việc hoặc cần cập nhật dự án
+Nếu bạn cần chạy migration để đổi `role='admin'` thành `role='employee'`:
 
-1.  **Lấy code mới nhất:** Luôn `pull` code mới nhất từ nhánh phát triển chung về máy.
-    ```bash
-    git pull origin main
-    ```
-2.  **Cập nhật dependencies:**
-    ```bash
-    composer install
-    npm install
-    ```
-3.  **Cập nhật CSDL:**
-    ```bash
-    php artisan migrate
-    ```
+**Bước 1: Backup database**
 
-### B. Khi bạn cần thay đổi Cấu trúc CSDL (Migration)
+```bash
+# Tạo backup
+mkdir -p ~/backups
+mysqldump -u your_db_user -p your_database_name users > ~/backups/users_backup_$(date +%Y%m%d_%H%M%S).sql
+```
 
-Mọi thay đổi về cấu trúc CSDL **BẮT BUỘC** phải được thực hiện thông qua **Migration**.
+**Bước 2: Kiểm tra dữ liệu hiện tại**
 
-1.  **Tạo file migration:**
-    ```bash
-    php artisan make:migration ten_migration_cua_ban
-    ```
-2.  **Chỉnh sửa file migration** và kiểm tra trên local bằng `php artisan migrate`.
-3.  **Commit và Push** file migration mới lên Git.
+```bash
+php artisan tinker
+```
 
-### C. Khi bạn cần thêm Dữ liệu Mặc định (Seeder)
+```php
+\App\Models\User::where('role', 'admin')->count();
+\App\Models\User::where('role', 'admin')->get(['id', 'name', 'email', 'role']);
+exit
+```
 
-Seeder chỉ dùng để thêm các **dữ liệu khởi tạo** hoặc **dữ liệu mẫu**.
+**Bước 3: Chạy migration**
 
-1.  **Tạo hoặc chỉnh sửa file seeder** trong `database/seeders`.
-2.  **Gọi seeder** trong `DatabaseSeeder.php` nếu cần.
-3.  **Kiểm tra trên local** bằng `php artisan db:seed` hoặc `php artisan migrate:fresh --seed`.
-4.  **Commit và Push** các thay đổi về seeder lên Git.
+```bash
+# Sử dụng script an toàn (nếu có)
+./scripts/safe_migrate_employee_role.sh
 
-### D. Trước khi Commit Code
+# Hoặc chạy trực tiếp
+php artisan migrate --path=database/migrations/2026_01_09_043153_update_admin_role_to_employee_role.php
+```
 
-Trước khi tạo một commit mới, hãy đảm bảo bạn đã làm những việc sau:
+**Bước 4: Verify**
 
-1.  **Định dạng lại code:**
-    ```bash
-    npm run format
-    ```
-2.  **Kiểm tra lại các thay đổi** của bạn bằng `git status` và `git diff`.
-3.  **Viết commit message rõ ràng** và push code của bạn.
-    ```bash
-    git add .
-    git commit -m "feat: Mô tả ngắn về tính năng bạn đã làm"
-    git push
-    ```
+```bash
+php artisan tinker
+```
 
----
+```php
+\App\Models\User::where('role', 'employee')->count();
+\App\Models\User::where('role', 'admin')->count(); // Nên = 0
+exit
+```
 
-## Các lệnh Artisan/NPM thường dùng
+**Rollback nếu cần:**
 
-- `php artisan serve`: Chạy server phát triển.
-- `php artisan migrate`: Chạy migration chưa áp dụng.
-- `php artisan migrate:fresh --seed`: Xóa và tạo lại DB kèm dữ liệu mẫu.
-- `php artisan db:seed`: Chạy seeder.
-- `php artisan tinker`: Môi trường REPL kiểm thử nhanh.
-- `php artisan route:list`: Liệt kê routes hiện có.
-- `php artisan cache:clear && php artisan config:clear && php artisan view:clear`: Xóa cache cấu hình/view.
-- `php artisan storage:link`: Tạo liên kết `public/storage`.
-- `npm run dev`: Build asset ở chế độ watch/dev.
-- `npm run build`: Build asset production.
-- `npm run format` / `npm run format:check`: Định dạng code và kiểm tra.
+```bash
+# Rollback migration
+php artisan migrate:rollback --step=1 --path=database/migrations/2026_01_09_043153_update_admin_role_to_employee_role.php
+
+# Restore database từ backup
+mysql -u your_db_user -p your_database_name < ~/backups/users_backup_YYYYMMDD_HHMMSS.sql
+```
 
 ---
 
-## Khắc phục sự cố thường gặp
+### 🔐 Deployment: Role Permissions & Super Admin Protection
 
-- Cổng 8000 đã được sử dụng: đổi cổng `php artisan serve --port=8001`.
-- Lỗi kết nối DB: kiểm tra `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` trong `.env`, đảm bảo MySQL đang chạy.
-- Không hiển thị file upload: chạy `php artisan storage:link`, kiểm tra quyền thư mục `storage/` và `public/`.
-- Thay đổi `.env` nhưng không có hiệu lực: chạy
-  ```bash
-  php artisan config:clear && php artisan cache:clear
-  ```
-- Lỗi Node/Frontend: đảm bảo `npm install` đã chạy; nếu cần, xóa `node_modules` rồi cài lại.
-- Push Git bị từ chối vì remote có commit mới:
-  ```bash
-  git fetch origin
-  git pull --rebase origin main
-  # giải quyết xung đột nếu có, sau đó:
-  git push origin main
-  ```
+Khi deploy các tính năng liên quan đến Role Permissions và Super Admin Protection:
+
+#### Checklist trước khi deploy
+
+- [ ] Backup code và database
+- [ ] Pull latest code từ repository
+- [ ] Kiểm tra dependencies có thay đổi không
+- [ ] Kiểm tra migrations mới
+- [ ] Clear tất cả cache
+- [ ] Set permissions đúng
+- [ ] Restart services
+
+#### Quy trình deploy
+
+```bash
+# 1. Backup
+BACKUP_DIR=~/backups/$(date +%Y%m%d_%H%M%S)
+mkdir -p $BACKUP_DIR
+tar -czf $BACKUP_DIR/code_backup.tar.gz .
+mysqldump -u your_db_user -p your_database_name > $BACKUP_DIR/database_backup.sql
+
+# 2. Pull code
+git pull origin main
+
+# 3. Install dependencies (nếu cần)
+composer install --no-dev --optimize-autoloader
+
+# 4. Run migrations (nếu có)
+php artisan migrate:status
+php artisan migrate
+
+# 5. Clear caches
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+php artisan route:clear
+
+# 6. Optimize
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 7. Set permissions
+sudo chown -R www-data:www-data /var/www/G14_Inventory_Management_System
+sudo chmod -R 775 storage bootstrap/cache
+
+# 8. Restart services
+sudo systemctl restart php8.2-fpm
+sudo systemctl restart nginx
+```
+
+#### Verify sau khi deploy
+
+1. **Test Role Permissions Loading**:
+   - Truy cập: `/add/roles/permission`
+   - Chọn một role, kiểm tra permissions tự động load
+
+2. **Test Super Admin Protection**:
+   - Truy cập: `/all/roles/permission`
+   - Kiểm tra "Super Admin" có badge "Protected System Role"
+   - Không có nút Edit/Delete cho Super Admin
+   - Truy cập: `/all/employee`
+   - Super Admin account không có nút Delete
+
+3. **Test API Endpoint**:
+   ```bash
+   curl -X GET "https://your-domain.com/api/role/1/permissions" \
+     -H "Cookie: your_session_cookie"
+   ```
+
+#### Rollback nếu cần
+
+```bash
+# Restore code
+cd /var/www/G14_Inventory_Management_System
+tar -xzf ~/backups/YYYYMMDD_HHMMSS/code_backup.tar.gz
+
+# Restore database (nếu cần)
+mysql -u your_db_user -p your_database_name < ~/backups/YYYYMMDD_HHMMSS/database_backup.sql
+
+# Clear caches
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Restart services
+sudo systemctl restart php-fpm
+sudo systemctl restart nginx
+```
+
+---
+
+## 🛠️ Các lệnh thường dùng
+
+### Laravel Artisan
+
+```bash
+# Development server
+php artisan serve
+
+# Database
+php artisan migrate                    # Chạy migrations
+php artisan migrate:fresh --seed       # Reset và seed database
+php artisan db:seed                   # Chạy seeders
+
+# Cache
+php artisan cache:clear              # Xóa cache
+php artisan config:clear             # Xóa config cache
+php artisan route:clear              # Xóa route cache
+php artisan view:clear                # Xóa view cache
+
+# Optimization (Production)
+php artisan config:cache             # Cache config
+php artisan route:cache              # Cache routes
+php artisan view:cache               # Cache views
+php artisan optimize                 # Tối ưu hóa toàn bộ
+
+# Storage
+php artisan storage:link             # Tạo symbolic link
+
+# Utilities
+php artisan tinker                   # Laravel REPL
+php artisan route:list               # Liệt kê routes
+```
+
+### NPM Scripts
+
+```bash
+npm run dev          # Development mode (watch)
+npm run build        # Production build
+npm run format       # Format code với Prettier
+npm run format:check # Kiểm tra format code
+```
+
+### Docker (Laravel Sail)
+
+```bash
+./vendor/bin/sail up -d        # Khởi động containers
+./vendor/bin/sail down         # Dừng containers
+./vendor/bin/sail restart      # Restart containers
+./vendor/bin/sail logs         # Xem logs
+./vendor/bin/sail artisan ...  # Chạy artisan commands
+./vendor/bin/sail composer ... # Chạy composer commands
+./vendor/bin/sail npm ...      # Chạy npm commands
+```
+
+---
+
+## 🐛 Khắc phục sự cố
+
+### Lỗi kết nối database
+
+- Kiểm tra thông tin trong `.env` (DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD)
+- Đảm bảo MySQL service đang chạy: `sudo systemctl status mysql`
+- Kiểm tra firewall: `sudo ufw status`
+
+### Lỗi permission denied
+
+```bash
+sudo chown -R www-data:www-data /var/www/G14_Inventory_Management_System
+sudo chmod -R 755 /var/www/G14_Inventory_Management_System
+sudo chmod -R 775 storage bootstrap/cache
+```
+
+### Lỗi storage link
+
+```bash
+php artisan storage:link
+# Hoặc trên production
+sudo php artisan storage:link
+```
+
+### Lỗi S3 connection
+
+- Kiểm tra AWS credentials trong `.env`
+- Kiểm tra IAM permissions
+- Test kết nối: `php test-s3-connection.php`
+
+### Lỗi Nginx 502 Bad Gateway
+
+- Kiểm tra PHP-FPM đang chạy: `sudo systemctl status php8.2-fpm`
+- Kiểm tra socket path trong Nginx config
+- Restart PHP-FPM: `sudo systemctl restart php8.2-fpm`
+
+### Clear tất cả cache
+
+```bash
+php artisan optimize:clear
+# Hoặc
+php artisan cache:clear && php artisan config:clear && php artisan route:clear && php artisan view:clear
+```
+
+### Lỗi .env file parsing
+
+**Lỗi**: `Failed to parse dotenv file. Encountered unexpected whitespace`
+
+**Nguyên nhân**: Giá trị trong `.env` có khoảng trắng nhưng không được đặt trong dấu ngoặc kép.
+
+**Giải pháp**:
+
+```bash
+# Kiểm tra và sửa tự động
+sed -i 's/^MAIL_PASSWORD=\([^"]*[[:space:]][^"]*\)$/MAIL_PASSWORD="\1"/' .env
+
+# Xóa khoảng trắng thừa
+sed -i 's/[[:space:]]*$//' .env
+
+# Xóa khoảng trắng quanh dấu =
+sed -i 's/ = /=/g' .env
+```
+
+**Hoặc sửa thủ công**:
+
+1. Mở file `.env`: `nano .env`
+2. Tìm dòng có vấn đề (ví dụ: `MAIL_PASSWORD=abcd efgh ijkl mnop`)
+3. Sửa thành: `MAIL_PASSWORD="abcd efgh ijkl mnop"` (thêm dấu ngoặc kép)
+4. Lưu và thoát (Ctrl+X, Y, Enter)
+
+**Verify**:
+
+```bash
+php artisan config:clear
+php artisan config:cache  # Sẽ báo lỗi nếu .env vẫn sai
+```
+
+### Lỗi Gmail SMTP không gửi được email
+
+**Kiểm tra**:
+
+1. **Gmail App Password**: Đảm bảo bạn đang dùng App Password, không phải mật khẩu thường
+2. **2-Step Verification**: Phải bật 2-Step Verification trên Google Account
+3. **Cấu hình .env**: Kiểm tra lại các giá trị MAIL_*
+
+**Test email**:
+
+```bash
+php artisan tinker
+```
+
+```php
+try {
+    Mail::raw('Test email', function ($message) {
+        $message->to('your-email@gmail.com')
+                ->subject('Test Email');
+    });
+    echo "Email sent successfully";
+} catch (\Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
+```
+
+**Xem logs**:
+
+```bash
+tail -f storage/logs/laravel.log
+```
+
+---
+
+## 📝 Quy trình làm việc với Git
+
+### Trước khi bắt đầu làm việc
+
+```bash
+git pull origin main
+composer install
+npm install
+php artisan migrate
+```
+
+### Khi thay đổi cấu trúc database
+
+```bash
+php artisan make:migration create_example_table
+# Chỉnh sửa migration file
+php artisan migrate
+git add database/migrations/
+git commit -m "feat: Add example table migration"
+git push
+```
+
+### Trước khi commit
+
+```bash
+npm run format          # Format code
+git status              # Kiểm tra thay đổi
+git diff                # Xem diff
+git add .
+git commit -m "feat: Mô tả thay đổi"
+git push
+```
+
+---
+
+## 🎯 Kết luận và Hướng phát triển
+
+### Tổng kết
+
+**G14 Inventory Management System** là một hệ thống quản lý kho hàng hoàn chỉnh với các tính năng:
+
+- ✅ Quản lý sản phẩm, đơn hàng, tồn kho
+- ✅ Hệ thống phân quyền mạnh mẽ
+- ✅ Báo cáo và thống kê chi tiết
+- ✅ Tích hợp AWS S3 cho lưu trữ file
+- ✅ Giao diện hiện đại, responsive
+- ✅ Deploy trên AWS EC2 với Nginx
+
+### Hướng phát triển trong tương lai
+
+#### Ngắn hạn (1-3 tháng)
+- 🔄 **API RESTful**: Xây dựng API để tích hợp với mobile app hoặc hệ thống khác
+- 📱 **Mobile App**: Phát triển ứng dụng mobile (React Native/Flutter)
+- 🔔 **Real-time Notifications**: Tích hợp Pusher/WebSocket cho thông báo real-time
+- 📊 **Advanced Analytics**: Thêm các biểu đồ và phân tích nâng cao
+- 🔍 **Advanced Search**: Tìm kiếm nâng cao với Elasticsearch
+
+#### Trung hạn (3-6 tháng)
+- 🤖 **Automation**: Tự động hóa các quy trình (reorder points, alerts)
+- 📧 **Email Reports**: Gửi báo cáo định kỳ qua email
+- 🔐 **Two-Factor Authentication**: Bảo mật 2 lớp cho tài khoản
+- 📦 **Barcode/QR Code**: Quét mã vạch để quản lý sản phẩm
+- 🌍 **Multi-language**: Hỗ trợ đa ngôn ngữ
+
+#### Dài hạn (6-12 tháng)
+- ☁️ **Multi-tenant**: Hỗ trợ nhiều công ty trên cùng một hệ thống
+- 🚚 **Shipping Integration**: Tích hợp với các dịch vụ vận chuyển
+- 💰 **Accounting Integration**: Tích hợp với hệ thống kế toán
+- 📈 **AI/ML Features**: Dự đoán nhu cầu, tối ưu hóa tồn kho
+- 🔄 **Microservices Architecture**: Chuyển đổi sang kiến trúc microservices
+
+### Đóng góp
+
+Chúng tôi hoan nghênh mọi đóng góp từ cộng đồng! Vui lòng:
+
+1. Fork repository
+2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Tạo Pull Request
+
+### License
+
+Dự án này được phát hành dưới giấy phép [MIT License](LICENSE).
+
+### Liên hệ
+
+- **Repository**: [GitHub](https://github.com/19010853/G14_Inventory_Management_System)
+- **Team**: Group 14 - Hoang, Khoi, Van, Tuyen
+
+---
+
+**Made with ❤️ by Group 14**
