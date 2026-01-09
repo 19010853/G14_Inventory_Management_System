@@ -21,11 +21,11 @@ class GeminiClient
         }
 
         // Use v1 API (more stable than v1beta)
-        $url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key={$apiKey}";
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}";
 
         Log::info('Calling Gemini API', [
             'model' => 'gemini-2.0-flash',
-            'api_version' => 'v1',
+            'api_version' => 'v1beta',
             'prompt_length' => strlen($prompt),
             'url' => str_replace($apiKey, '***', $url)
         ]);
