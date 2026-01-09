@@ -84,11 +84,12 @@
                       @foreach ($permissions as $permission)
                         <div class="form-check mb-2">
                           <input
-                            class="form-check-input"
+                            class="form-check-input permission-checkbox"
                             name="permission[]"
                             value="{{ $permission->id }}"
                             type="checkbox"
                             id="flexCheckDefault{{ $permission->id }}"
+                            data-permission-name="{{ $permission->name }}"
                             {{ $role->hasPermissionTo($permission->name) ? 'checked' : '' }}
                           />
                           <label
@@ -124,6 +125,78 @@
   </div>
 
   <script>
+    // Permission mapping: all.* -> *.menu
+    const permissionMapping = {
+      'all.brand': 'brand.menu',
+      'all.warehouse': 'warehouse.menu',
+      'all.supplier': 'supplier.menu',
+      'all.customer': 'customer.menu',
+      'all.category': 'category.menu',
+      'all.product': 'product.menu',
+      'all.purchase': 'purchase.menu',
+      'all.return.purchase': 'return.purchase.menu',
+      'all.sale': 'sale.menu',
+      'all.return.sale': 'return.sale.menu',
+      'due.sales': 'due.menu',
+      'due.sales.return': 'due.return.sale.menu',
+      'all.transfer': 'transfer.menu',
+      'reports.all': 'report.menu'
+    };
+
+    // Reverse mapping: *.menu -> all.*
+    const reverseMapping = {};
+    for (const [allPerm, menuPerm] of Object.entries(permissionMapping)) {
+      reverseMapping[menuPerm] = allPerm;
+    }
+
+    // Find checkbox by permission name
+    function findCheckboxByPermissionName(permissionName) {
+      let found = null;
+      $('.permission-checkbox').each(function() {
+        if ($(this).data('permission-name') === permissionName) {
+          found = $(this);
+          return false; // break loop
+        }
+      });
+      return found;
+    }
+
+    // Flag to prevent infinite loops during sync
+    let isSyncing = false;
+
+    // Sync checkboxes: when all.* is checked, check *.menu
+    $(document).on('change', '.permission-checkbox', function() {
+      // Prevent recursive calls
+      if (isSyncing) return;
+      
+      const checkbox = $(this);
+      const permissionName = checkbox.data('permission-name');
+      
+      if (!permissionName) return;
+
+      isSyncing = true;
+
+      // If this is an all.* permission and it's checked
+      if (permissionMapping[permissionName] && checkbox.is(':checked')) {
+        const menuPermission = permissionMapping[permissionName];
+        const menuCheckbox = findCheckboxByPermissionName(menuPermission);
+        if (menuCheckbox && !menuCheckbox.is(':checked')) {
+          menuCheckbox.prop('checked', true);
+        }
+      }
+
+      // If this is a *.menu permission and it's unchecked
+      if (reverseMapping[permissionName] && !checkbox.is(':checked')) {
+        const allPermission = reverseMapping[permissionName];
+        const allCheckbox = findCheckboxByPermissionName(allPermission);
+        if (allCheckbox && allCheckbox.is(':checked')) {
+          allCheckbox.prop('checked', false);
+        }
+      }
+
+      isSyncing = false;
+    });
+
     // Permission All - chọn / bỏ chọn tất cả checkbox
     $('#formCheck1').on('click', function () {
       const checked = $(this).is(':checked');

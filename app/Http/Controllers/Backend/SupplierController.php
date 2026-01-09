@@ -11,7 +11,8 @@ class SupplierController extends Controller
 {
     //All Supplier
     public function AllSupplier(){
-        if (!auth()->user()->hasPermissionTo('all.supplier')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.supplier') && !$user->hasPermissionTo('supplier.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $supplier = Supplier::latest()->get();
@@ -113,7 +114,8 @@ class SupplierController extends Controller
 
     // All Customer
     public function AllCustomer(){
-        if (!auth()->user()->hasPermissionTo('all.customer')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.customer') && !$user->hasPermissionTo('customer.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $customer = Customer::latest()->get();

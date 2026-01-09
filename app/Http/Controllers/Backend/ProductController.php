@@ -64,7 +64,8 @@ class ProductController extends Controller
 
     // All Product
     public function AllProduct(){
-        if (!auth()->user()->hasPermissionTo('all.product')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.product') && !$user->hasPermissionTo('product.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $allData = Product::orderBy('id','DESC')->get();

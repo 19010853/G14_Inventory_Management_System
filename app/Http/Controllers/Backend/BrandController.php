@@ -84,7 +84,8 @@ class BrandController extends Controller
 
     //All Brand
     public function AllBrand(){
-        if (!auth()->user()->hasPermissionTo('all.brand')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.brand') && !$user->hasPermissionTo('brand.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $brand = Brand::latest()->get();

@@ -33,31 +33,44 @@ class PermissionSeeder extends Seeder
             ['name' => 'customer.menu', 'group_name' => 'Customer'],
             ['name' => 'all.customer', 'group_name' => 'Customer'],
             
-            // Due Group
-            ['name' => 'due.menu', 'group_name' => 'Due'],
-            ['name' => 'due.sales', 'group_name' => 'Due'],
-            ['name' => 'due.sales.return', 'group_name' => 'Due'],
+            // Category Group (Product)
+            ['name' => 'category.menu', 'group_name' => 'Product'],
+            ['name' => 'all.category', 'group_name' => 'Product'],
             
             // Product Group
             ['name' => 'product.menu', 'group_name' => 'Product'],
-            ['name' => 'all.category', 'group_name' => 'Product'],
             ['name' => 'all.product', 'group_name' => 'Product'],
-            
-            // Transfers Group
-            ['name' => 'transfers.menu', 'group_name' => 'Transfers'],
-            ['name' => 'all.transfers', 'group_name' => 'Transfers'],
             
             // Purchase Group
             ['name' => 'purchase.menu', 'group_name' => 'Purchase'],
             ['name' => 'all.purchase', 'group_name' => 'Purchase'],
-            ['name' => 'return.purchase', 'group_name' => 'Purchase'],
+            
+            // Return Purchase Group
+            ['name' => 'return.purchase.menu', 'group_name' => 'Purchase'],
+            ['name' => 'all.return.purchase', 'group_name' => 'Purchase'],
             
             // Sale Group
             ['name' => 'sale.menu', 'group_name' => 'Sale'],
             ['name' => 'all.sale', 'group_name' => 'Sale'],
-            ['name' => 'return.sale', 'group_name' => 'Sale'],
             
-            // Reports Group
+            // Return Sale Group
+            ['name' => 'return.sale.menu', 'group_name' => 'Sale'],
+            ['name' => 'all.return.sale', 'group_name' => 'Sale'],
+            
+            // Due Sales Group
+            ['name' => 'due.menu', 'group_name' => 'Due'],
+            ['name' => 'due.sales', 'group_name' => 'Due'],
+            
+            // Due Sales Return Group
+            ['name' => 'due.return.sale.menu', 'group_name' => 'Due'],
+            ['name' => 'due.sales.return', 'group_name' => 'Due'],
+            
+            // Transfer Group
+            ['name' => 'transfer.menu', 'group_name' => 'Transfers'],
+            ['name' => 'all.transfer', 'group_name' => 'Transfers'],
+            
+            // Report Group
+            ['name' => 'report.menu', 'group_name' => 'Report'],
             ['name' => 'reports.all', 'group_name' => 'Report'],
             
             // Role & Permission Group

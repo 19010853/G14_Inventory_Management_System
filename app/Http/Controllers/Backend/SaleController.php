@@ -20,7 +20,8 @@ class SaleController extends Controller
 {
     //Show All Sales
     public function AllSales(){
-        if (!auth()->user()->hasPermissionTo('all.sale')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.sale') && !$user->hasPermissionTo('sale.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $allData = Sale::orderBy('id','desc')->get();

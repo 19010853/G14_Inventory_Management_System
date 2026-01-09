@@ -21,7 +21,8 @@ class SaleReturnController extends Controller
 {
     // Show All Sale Returns
      public function AllSalesReturn(){
-        if (!auth()->user()->hasPermissionTo('return.sale')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.return.sale') && !$user->hasPermissionTo('return.sale.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $allData = SaleReturn::orderBy('id','desc')->get();
@@ -303,6 +304,10 @@ class SaleReturnController extends Controller
 
     // Due Sale and Due Return Sale
     public function DueSale(){
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('due.sales') && !$user->hasPermissionTo('due.menu')) {
+            abort(403, 'Unauthorized Action');
+        }
         if (!auth()->user()->hasPermissionTo('due.sales')) {
             abort(403, 'Unauthorized Action');
         }
@@ -316,7 +321,8 @@ class SaleReturnController extends Controller
     // End Method
 
     public function DueSaleReturn(){
-        if (!auth()->user()->hasPermissionTo('due.sales.return')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('due.sales.return') && !$user->hasPermissionTo('due.return.sale.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $sales = SaleReturn::with(['customer','warehouse'])

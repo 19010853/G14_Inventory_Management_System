@@ -209,6 +209,10 @@ class RoleController extends Controller
         if (!empty($permissions)) {
             // Get permission names from IDs
             $permissionNames = Permission::whereIn('id', $permissions)->pluck('name')->toArray();
+            
+            // Automatically add .menu permission when all.* is assigned
+            $permissionNames = $this->addMenuPermissions($permissionNames);
+            
             // Use syncPermissions to avoid duplicate entries
             $role->syncPermissions($permissionNames);
         } else {
@@ -278,6 +282,10 @@ class RoleController extends Controller
 
         if (!empty($permissions)) {
             $permissionNames = Permission::whereIn('id',$permissions)->pluck('name')->toArray();
+            
+            // Automatically add .menu permission when all.* is assigned
+            $permissionNames = $this->addMenuPermissions($permissionNames);
+            
             $role->syncPermissions($permissionNames);
         } else {
             $role->syncPermissions([]);
@@ -488,4 +496,37 @@ class RoleController extends Controller
 
     }
      // End Method
+
+    /**
+     * Automatically add .menu permission when all.* permission is assigned
+     */
+    private function addMenuPermissions(array $permissionNames): array
+    {
+        // Map all.* permissions to their corresponding .menu permissions
+        $menuPermissionMap = [
+            'all.brand' => 'brand.menu',
+            'all.warehouse' => 'warehouse.menu',
+            'all.supplier' => 'supplier.menu',
+            'all.customer' => 'customer.menu',
+            'all.category' => 'category.menu',
+            'all.product' => 'product.menu',
+            'all.purchase' => 'purchase.menu',
+            'all.return.purchase' => 'return.purchase.menu',
+            'all.sale' => 'sale.menu',
+            'all.return.sale' => 'return.sale.menu',
+            'due.sales' => 'due.menu',
+            'due.sales.return' => 'due.return.sale.menu',
+            'all.transfer' => 'transfer.menu',
+            'reports.all' => 'report.menu',
+        ];
+
+        // Add .menu permissions for any all.* permissions that are present
+        foreach ($menuPermissionMap as $allPermission => $menuPermission) {
+            if (in_array($allPermission, $permissionNames) && !in_array($menuPermission, $permissionNames)) {
+                $permissionNames[] = $menuPermission;
+            }
+        }
+
+        return $permissionNames;
+    }
 }

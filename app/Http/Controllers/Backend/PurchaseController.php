@@ -19,7 +19,8 @@ class PurchaseController extends Controller
 {
     //All Purchase Methods
     public function AllPurchase(){
-        if (!auth()->user()->hasPermissionTo('all.purchase')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.purchase') && !$user->hasPermissionTo('purchase.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $allData = Purchase::orderBy('id', 'desc')->get();

@@ -142,7 +142,7 @@
             </a>
             <div class="collapse" id="Product">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.category'))
+                @if (Auth::guard('web')->user()->can('all.category') || Auth::guard('web')->user()->can('category.menu'))
                   <li>
                     <a href="{{ route('all.category') }}" class="tp-link">
                       All Category
@@ -150,7 +150,7 @@
                   </li>
                 @endif
 
-                @if (Auth::guard('web')->user()->can('all.product'))
+                @if (Auth::guard('web')->user()->can('all.product') || Auth::guard('web')->user()->can('product.menu'))
                   <li>
                     <a href="{{ route('all.product') }}" class="tp-link">
                       All Product
@@ -171,14 +171,14 @@
             </a>
             <div class="collapse" id="Purchase">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.purchase'))
+                @if (Auth::guard('web')->user()->can('all.purchase') || Auth::guard('web')->user()->can('purchase.menu'))
                   <li>
                     <a href="{{ route('all.purchase') }}" class="tp-link">
                       All Purchase
                     </a>
                   </li>
                 @endif
-                @if (Auth::guard('web')->user()->can('return.purchase'))
+                @if (Auth::guard('web')->user()->can('all.return.purchase') || Auth::guard('web')->user()->can('return.purchase.menu'))
                   <li>
                     <a href="{{ route('all.return.purchase') }}" class="tp-link">
                       All Purchase Return
@@ -199,12 +199,12 @@
             </a>
             <div class="collapse" id="Sale">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.sale'))
+                @if (Auth::guard('web')->user()->can('all.sale') || Auth::guard('web')->user()->can('sale.menu'))
                   <li>
                     <a href="{{ route('all.sale') }}" class="tp-link">All Sale</a>
                   </li>
                 @endif
-                @if (Auth::guard('web')->user()->can('return.sale'))
+                @if (Auth::guard('web')->user()->can('all.return.sale') || Auth::guard('web')->user()->can('return.sale.menu'))
                   <li>
                     <a href="{{ route('all.return.sale') }}" class="tp-link">
                       All Sale Return
@@ -225,12 +225,12 @@
             </a>
             <div class="collapse" id="Due">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('due.sales'))
+                @if (Auth::guard('web')->user()->can('due.sales') || Auth::guard('web')->user()->can('due.menu'))
                   <li>
                     <a href="{{ route('due.sale') }}" class="tp-link">All Sales Due</a>
                   </li>
                 @endif
-                @if (Auth::guard('web')->user()->can('due.sales.return'))
+                @if (Auth::guard('web')->user()->can('due.sales.return') || Auth::guard('web')->user()->can('due.return.sale.menu'))
                   <li>
                     <a href="{{ route('due.sale.return') }}" class="tp-link">
                       All Sales Return Due
@@ -242,7 +242,7 @@
           </li>
         @endif
 
-        @if (Auth::guard('web')->user()->can('transfers.menu'))
+        @if (Auth::guard('web')->user()->can('transfer.menu'))
           <li>
             <a href="#Transfers" data-bs-toggle="collapse">
               <i data-feather="repeat"></i>
@@ -251,7 +251,7 @@
             </a>
             <div class="collapse" id="Transfers">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.transfers'))
+                @if (Auth::guard('web')->user()->can('all.transfer') || Auth::guard('web')->user()->can('transfer.menu'))
                   <li>
                     <a href="{{ route('all.transfer') }}" class="tp-link">
                       All Transfers
@@ -263,7 +263,7 @@
           </li>
         @endif
 
-        @if (Auth::guard('web')->user()->can('reports.all'))
+        @if (Auth::guard('web')->user()->can('report.menu') || Auth::guard('web')->user()->can('reports.all'))
           <li>
             <a href="#Report" data-bs-toggle="collapse">
               <i data-feather="file-text"></i>
@@ -272,11 +272,13 @@
             </a>
             <div class="collapse" id="Report">
               <ul class="nav-second-level">
-                <li>
-                  <a href="{{ route('all.report') }}" class="tp-link">
-                    All Reports
-                  </a>
-                </li>
+                @if (Auth::guard('web')->user()->can('reports.all') || Auth::guard('web')->user()->can('report.menu'))
+                  <li>
+                    <a href="{{ route('all.report') }}" class="tp-link">
+                      All Reports
+                    </a>
+                  </li>
+                @endif
               </ul>
             </div>
           </li>

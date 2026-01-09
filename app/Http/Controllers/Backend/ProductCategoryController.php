@@ -10,7 +10,8 @@ class ProductCategoryController extends Controller
 {
     //All category
     public function AllCategory(){
-        if (!auth()->user()->hasPermissionTo('all.category')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.category') && !$user->hasPermissionTo('category.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $category = ProductCategory::latest()->get();

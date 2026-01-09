@@ -21,7 +21,8 @@ class ReturnPurchaseController extends Controller
     //
     // All Return Purchase Methods
     public function AllReturnPurchase(){
-        if (!auth()->user()->hasPermissionTo('return.purchase')) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.return.purchase') && !$user->hasPermissionTo('return.purchase.menu')) {
             abort(403, 'Unauthorized Action');
         }
         $allData = ReturnPurchase::with('warehouse', 'supplier')->orderBy('id', 'desc')->get();

@@ -179,9 +179,45 @@
       });
     });
 
+    // Permission mapping: all.* -> *.menu
+    const permissionMapping = {
+      'all.brand': 'brand.menu',
+      'all.warehouse': 'warehouse.menu',
+      'all.supplier': 'supplier.menu',
+      'all.customer': 'customer.menu',
+      'all.category': 'category.menu',
+      'all.product': 'product.menu',
+      'all.purchase': 'purchase.menu',
+      'all.return.purchase': 'return.purchase.menu',
+      'all.sale': 'sale.menu',
+      'all.return.sale': 'return.sale.menu',
+      'due.sales': 'due.menu',
+      'due.sales.return': 'due.return.sale.menu',
+      'all.transfer': 'transfer.menu',
+      'reports.all': 'report.menu'
+    };
+
+    // Reverse mapping: *.menu -> all.*
+    const reverseMapping = {};
+    for (const [allPerm, menuPerm] of Object.entries(permissionMapping)) {
+      reverseMapping[menuPerm] = allPerm;
+    }
+
+    // Create a map of permission name to permission object for quick lookup
+    function createPermissionNameMap() {
+      const nameMap = {};
+      for (const [groupName, groupPerms] of Object.entries(allPermissions)) {
+        groupPerms.forEach(perm => {
+          nameMap[perm.name] = perm;
+        });
+      }
+      return nameMap;
+    }
+
     // Render permissions checkboxes
     function renderPermissions(selectedPermissionIds) {
       let html = '';
+      const permissionNameMap = createPermissionNameMap();
       
       for (const [groupName, groupPerms] of Object.entries(allPermissions)) {
         const groupHasPermission = groupPerms.some(p => selectedPermissionIds.includes(p.id));
@@ -197,7 +233,7 @@
         groupPerms.forEach(perm => {
           const hasPermission = selectedPermissionIds.includes(perm.id);
           html += '<div class="form-check mb-2">';
-          html += '<input class="form-check-input" name="permission[]" value="' + perm.id + '" type="checkbox" id="perm_' + perm.id + '" ' + (hasPermission ? 'checked' : '') + ' />';
+          html += '<input class="form-check-input permission-checkbox" name="permission[]" value="' + perm.id + '" type="checkbox" id="perm_' + perm.id + '" data-permission-name="' + perm.name + '" ' + (hasPermission ? 'checked' : '') + ' />';
           html += '<label class="form-check-label" for="perm_' + perm.id + '">' + perm.name + '</label>';
           html += '</div>';
         });
@@ -207,6 +243,48 @@
 
       $('#permissionsContainer').html(html);
     }
+
+    // Flag to prevent infinite loops during sync
+    let isSyncing = false;
+
+    // Sync checkboxes: when all.* is checked, check *.menu
+    $(document).on('change', '.permission-checkbox', function() {
+      // Prevent recursive calls
+      if (isSyncing) return;
+      
+      const checkbox = $(this);
+      const permissionName = checkbox.data('permission-name');
+      
+      if (!permissionName) return;
+
+      isSyncing = true;
+
+      // If this is an all.* permission and it's checked
+      if (permissionMapping[permissionName] && checkbox.is(':checked')) {
+        const menuPermission = permissionMapping[permissionName];
+        const menuPermObj = createPermissionNameMap()[menuPermission];
+        if (menuPermObj) {
+          const menuCheckbox = $('#perm_' + menuPermObj.id);
+          if (menuCheckbox.length && !menuCheckbox.is(':checked')) {
+            menuCheckbox.prop('checked', true);
+          }
+        }
+      }
+
+      // If this is a *.menu permission and it's unchecked
+      if (reverseMapping[permissionName] && !checkbox.is(':checked')) {
+        const allPermission = reverseMapping[permissionName];
+        const allPermObj = createPermissionNameMap()[allPermission];
+        if (allPermObj) {
+          const allCheckbox = $('#perm_' + allPermObj.id);
+          if (allCheckbox.length && allCheckbox.is(':checked')) {
+            allCheckbox.prop('checked', false);
+          }
+        }
+      }
+
+      isSyncing = false;
+    });
 
     // Permission All - select/deselect all checkboxes
     $(document).on('click', '#formCheck1', function () {
