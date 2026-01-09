@@ -6,15 +6,15 @@
         <a href="{{ route('dashboard') }}" class="logo logo-light">
           <span class="logo-sm">
             <img
-              src="{{ asset('backend/assets/images/logo-sm.png') }}"
-              alt=""
+              src="{{ asset('backend/assets/images/logo-sm.svg') }}"
+              alt="G14 Inventory"
               height="22"
             />
           </span>
           <span class="logo-lg">
             <img
-              src="{{ asset('backend/assets/images/logo-light.png') }}"
-              alt=""
+              src="{{ asset('backend/assets/images/logo-light.svg') }}"
+              alt="G14 Inventory"
               height="24"
             />
           </span>
@@ -22,15 +22,15 @@
         <a href="{{ route('dashboard') }}" class="logo logo-dark">
           <span class="logo-sm">
             <img
-              src="{{ asset('backend/assets/images/logo-sm.png') }}"
-              alt=""
+              src="{{ asset('backend/assets/images/logo-sm.svg') }}"
+              alt="G14 Inventory"
               height="22"
             />
           </span>
           <span class="logo-lg">
             <img
-              src="{{ asset('backend/assets/images/logo-dark.png') }}"
-              alt=""
+              src="{{ asset('backend/assets/images/logo-dark.svg') }}"
+              alt="G14 Inventory"
               height="24"
             />
           </span>

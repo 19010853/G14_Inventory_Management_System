@@ -68,7 +68,7 @@
 <body class="font-sans antialiased">
     <div class="main-container">
         <div class="content-wrapper">
-            <img src="{{ asset('backend/assets/images/logo-dark.png') }}" alt="logo" class="logo mx-auto">
+            <img src="{{ asset('backend/assets/images/logo-dark.svg') }}" alt="G14 Inventory" class="logo mx-auto">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">
                 Welcome to Tapeli
             </h1>

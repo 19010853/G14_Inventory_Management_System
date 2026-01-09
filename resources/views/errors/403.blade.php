@@ -98,7 +98,7 @@
         <div class="error-container">
             <div class="error-logo">
                 <a href="{{ route('dashboard') }}">
-                    <img src="{{ asset('backend/assets/images/logo-dark.png')}}" alt="logo-dark" height="32" />
+                    <img src="{{ asset('backend/assets/images/logo-dark.svg')}}" alt="G14 Inventory" height="32" />
                 </a>
             </div>
 
