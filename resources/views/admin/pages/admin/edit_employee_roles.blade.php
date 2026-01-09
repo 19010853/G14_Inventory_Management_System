@@ -6,6 +6,13 @@
     .form-check-label {
       text-transform: capitalize;
     }
+    .permission-readonly {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+    .permission-readonly input[type="checkbox"] {
+      cursor: not-allowed;
+    }
   </style>
 
   <div class="content">
@@ -39,6 +46,7 @@
                 method="post"
                 class="row g-3"
                 enctype="multipart/form-data"
+                id="employeeRoleForm"
               >
                 @csrf
 
@@ -61,94 +69,100 @@
                 </div>
 
                 <div class="col-md-12 mb-3">
-                  <label for="validationDefault01" class="form-label">
-                    Role
+                  <label for="roles" class="form-label">
+                    Role <span class="text-danger">*</span>
                   </label>
-                  <select name="roles" class="form-select" id="example-select">
+                  <select name="roles" class="form-select" id="roleSelect" required>
                     <option value="">Select Role</option>
                     @foreach ($roles as $role)
-                      <option value="{{ $role->id }}" {{ $employee->hasRole($role->name) ? 'selected' : '' }}>
+                      <option value="{{ $role->id }}" 
+                        data-role-name="{{ $role->name }}"
+                        {{ $employee->hasRole($role->name) ? 'selected' : '' }}>
                         {{ $role->name }}
                       </option>
                     @endforeach
                   </select>
+                  <small class="text-muted">Changing the role will automatically update permissions to match the selected role.</small>
                 </div>
 
                 <div class="col-12">
                   <hr>
-                  <h5 class="mb-3">Permissions</h5>
-                </div>
-
-                <div class="form-check mb-2">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="formCheck1"
-                  />
-                  <label class="form-check-label" for="formCheck1">
-                    Permission All
-                  </label>
-                </div>
-
-                <hr />
-                @foreach ($permission_groups as $group)
-                  <div class="row">
-                    <div class="col-3">
-                      @php
-                        $permissions = App\Models\User::getpermissionByGroupName($group->group_name);
-                      @endphp
-
-                      <div class="form-check mb-2">
-                        <input
-                          class="form-check-input permission-group"
-                          type="checkbox"
-                          value=""
-                          @php
-                            $hasAllPermissions = true;
-                            foreach($permissions as $perm) {
-                              if (!$employee->hasPermissionTo($perm->name)) {
-                                $hasAllPermissions = false;
-                                break;
-                              }
-                            }
-                          @endphp
-                          {{ $hasAllPermissions ? 'checked' : '' }}
-                        />
-                        <label class="form-check-label">
-                          {{ $group->group_name }}
-                        </label>
-                      </div>
-                    </div>
-
-                    <div class="col-9">
-                      @foreach ($permissions as $permission)
-                        <div class="form-check mb-2">
-                          <input
-                            class="form-check-input"
-                            name="permission[]"
-                            value="{{ $permission->id }}"
-                            type="checkbox"
-                            id="flexCheckDefault{{ $permission->id }}"
-                            {{ $employee->hasPermissionTo($permission->name) ? 'checked' : '' }}
-                          />
-                          <label
-                            class="form-check-label"
-                            for="flexCheckDefault{{ $permission->id }}"
-                          >
-                            {{ $permission->name }}
-                          </label>
-                        </div>
-                      @endforeach
-
-                      <br />
-                    </div>
+                  <h5 class="mb-3">Permissions <small class="text-muted">(Read-only - Shows permissions of selected role)</small></h5>
+                  <div class="alert alert-info">
+                    <i class="mdi mdi-information-outline me-2"></i>
+                    Permissions are automatically derived from the assigned role. You cannot edit permissions directly.
                   </div>
-                  {{-- // End Row --}}
-                @endforeach
+                </div>
+
+                <div id="permissionsContainer" class="col-12 permission-readonly">
+                  @php
+                    $selectedRole = $currentRole ?? null;
+                    $rolePermissions = $selectedRole ? $selectedRole->permissions->pluck('name')->toArray() : [];
+                  @endphp
+                  
+                  @foreach ($permission_groups as $group)
+                    @php
+                      $permissions = App\Models\User::getpermissionByGroupName($group->group_name);
+                      $groupHasPermission = false;
+                      foreach($permissions as $perm) {
+                        if (in_array($perm->name, $rolePermissions)) {
+                          $groupHasPermission = true;
+                          break;
+                        }
+                      }
+                    @endphp
+                    
+                    @if($groupHasPermission || !$selectedRole)
+                      <div class="row mb-3">
+                        <div class="col-3">
+                          <div class="form-check mb-2">
+                            <input
+                              class="form-check-input permission-group"
+                              type="checkbox"
+                              disabled
+                              {{ $groupHasPermission ? 'checked' : '' }}
+                            />
+                            <label class="form-check-label fw-semibold">
+                              {{ $group->group_name }}
+                            </label>
+                          </div>
+                        </div>
+
+                        <div class="col-9">
+                          @foreach ($permissions as $permission)
+                            <div class="form-check mb-2">
+                              <input
+                                class="form-check-input"
+                                type="checkbox"
+                                disabled
+                                {{ in_array($permission->name, $rolePermissions) ? 'checked' : '' }}
+                                id="perm_{{ $permission->id }}"
+                              />
+                              <label
+                                class="form-check-label"
+                                for="perm_{{ $permission->id }}"
+                              >
+                                {{ $permission->name }}
+                              </label>
+                            </div>
+                          @endforeach
+                          <br />
+                        </div>
+                      </div>
+                    @endif
+                  @endforeach
+                  
+                  @if(!$selectedRole)
+                    <div class="alert alert-warning">
+                      <i class="mdi mdi-alert-outline me-2"></i>
+                      Please select a role to view its permissions.
+                    </div>
+                  @endif
+                </div>
 
                 <div class="col-12">
                   <button class="btn btn-primary" type="submit">
-                    Save Change
+                    Save Changes
                   </button>
                   <a href="{{ route('all.employee') }}" class="btn btn-secondary">
                     Cancel
@@ -167,18 +181,87 @@
   </div>
 
   <script>
-    // Permission All - chọn / bỏ chọn tất cả checkbox
-    $('#formCheck1').on('click', function () {
-      const checked = $(this).is(':checked');
-      $('input[type=checkbox]').prop('checked', checked);
+    // Role permissions data for JavaScript
+    const rolePermissions = {
+      @foreach($roles as $role)
+        {{ $role->id }}: [
+          @foreach($role->permissions as $perm)
+            "{{ $perm->name }}"{{ !$loop->last ? ',' : '' }}
+          @endforeach
+        ]{{ !$loop->last ? ',' : '' }}
+      @endforeach
+    };
+
+    // All permissions grouped by group name
+    const allPermissions = {
+      @foreach($permission_groups as $group)
+        "{{ $group->group_name }}": [
+          @php
+            $permissions = App\Models\User::getpermissionByGroupName($group->group_name);
+          @endphp
+          @foreach($permissions as $perm)
+            {
+              id: {{ $perm->id }},
+              name: "{{ $perm->name }}"
+            }{{ !$loop->last ? ',' : '' }}
+          @endforeach
+        ]{{ !$loop->last ? ',' : '' }}
+      @endforeach
+    };
+
+    // Update permissions display when role changes
+    $('#roleSelect').on('change', function() {
+      const roleId = $(this).val();
+      const container = $('#permissionsContainer');
+      
+      if (!roleId) {
+        container.html('<div class="alert alert-warning"><i class="mdi mdi-alert-outline me-2"></i>Please select a role to view its permissions.</div>');
+        return;
+      }
+
+      const permissions = rolePermissions[roleId] || [];
+      let html = '';
+
+      // Build permissions HTML
+      for (const [groupName, groupPerms] of Object.entries(allPermissions)) {
+        const groupHasPermission = groupPerms.some(p => permissions.includes(p.name));
+        
+        if (groupHasPermission) {
+          html += '<div class="row mb-3">';
+          html += '<div class="col-3">';
+          html += '<div class="form-check mb-2">';
+          html += '<input class="form-check-input permission-group" type="checkbox" disabled checked />';
+          html += '<label class="form-check-label fw-semibold">' + groupName + '</label>';
+          html += '</div></div>';
+          html += '<div class="col-9">';
+          
+          groupPerms.forEach(perm => {
+            const hasPermission = permissions.includes(perm.name);
+            html += '<div class="form-check mb-2">';
+            html += '<input class="form-check-input" type="checkbox" disabled ' + (hasPermission ? 'checked' : '') + ' id="perm_' + perm.id + '" />';
+            html += '<label class="form-check-label" for="perm_' + perm.id + '">' + perm.name + '</label>';
+            html += '</div>';
+          });
+          
+          html += '<br /></div></div>';
+        }
+      }
+
+      if (html === '') {
+        html = '<div class="alert alert-info"><i class="mdi mdi-information-outline me-2"></i>This role has no permissions assigned.</div>';
+      }
+
+      container.html(html);
     });
 
-    // Chọn / bỏ chọn theo từng group (Brand, Warehouse, ...)
-    $(document).on('change', '.permission-group', function () {
-      const checked = $(this).is(':checked');
-      const row = $(this).closest('.row');
-      // Tìm tất cả checkbox permission thuộc group này trong cột bên phải
-      row.find('.col-9 input[type=checkbox]').prop('checked', checked);
+    // Prevent form submission if no role is selected
+    $('#employeeRoleForm').on('submit', function(e) {
+      const roleId = $('#roleSelect').val();
+      if (!roleId) {
+        e.preventDefault();
+        alert('Please select a role before saving.');
+        return false;
+      }
     });
   </script>
 @endsection

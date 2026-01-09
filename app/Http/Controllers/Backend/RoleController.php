@@ -315,7 +315,11 @@ class RoleController extends Controller
         $roles = Role::all();
         $permissions = Permission::all();
         $permission_groups = User::getpermissionGroups();
-        return view('admin.pages.admin.edit_employee_roles',compact('employee','roles','permissions','permission_groups'));
+        
+        // Get the current role of the employee (if any)
+        $currentRole = $employee->roles->first();
+        
+        return view('admin.pages.admin.edit_employee_roles',compact('employee','roles','permissions','permission_groups','currentRole'));
     }
     // End Method
 
@@ -333,22 +337,25 @@ class RoleController extends Controller
             if ($role) {
                 // Remove all existing roles and assign new one
                 $employee->syncRoles([$role->name]);
+                
+                // CRITICAL FIX: Sync permissions from the role only
+                // Remove all direct permissions first to avoid conflicts
+                $employee->syncPermissions([]);
+                
+                // Get permissions from the role and assign them to the employee
+                $rolePermissions = $role->permissions->pluck('name')->toArray();
+                if (!empty($rolePermissions)) {
+                    $employee->syncPermissions($rolePermissions);
+                }
             }
         } else {
-            // If no role selected, remove all roles
+            // If no role selected, remove all roles and permissions
             $employee->syncRoles([]);
+            $employee->syncPermissions([]);
         }
 
-        // Update permissions if provided
-        if ($request->has('permission')) {
-            $permissions = $request->permission ?? [];
-            if (!empty($permissions)) {
-                $permissionNames = Permission::whereIn('id', $permissions)->pluck('name')->toArray();
-                $employee->syncPermissions($permissionNames);
-            } else {
-                $employee->syncPermissions([]);
-            }
-        }
+        // Note: We do NOT allow direct permission editing for employees
+        // Permissions are always derived from the assigned role
 
         $notification = array(
             'message' => 'Employee Roles Updated Successfully',
