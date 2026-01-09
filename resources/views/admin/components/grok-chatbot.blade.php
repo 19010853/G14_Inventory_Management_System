@@ -247,8 +247,77 @@
     const questionCounter = document.getElementById('question-counter');
     const welcomeMessage = document.getElementById('welcome-message');
 
-    let conversation = [];
+    // Get user ID for localStorage key
+    const userId = {{ auth()->id() }};
+    const storageKey = `grok_chatbot_conversation_${userId}`;
+
+    // Load conversation from localStorage
+    let conversation = loadConversation();
     let isProcessing = false;
+
+    // Load conversation from localStorage
+    function loadConversation() {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          // Only load if it's an array and has valid structure
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.error('Error loading conversation from localStorage:', e);
+      }
+      return [];
+    }
+
+    // Save conversation to localStorage
+    function saveConversation(conv) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(conv));
+      } catch (e) {
+        console.error('Error saving conversation to localStorage:', e);
+      }
+    }
+
+    // Clear conversation from localStorage
+    function clearStoredConversation() {
+      try {
+        localStorage.removeItem(storageKey);
+      } catch (e) {
+        console.error('Error clearing conversation from localStorage:', e);
+      }
+    }
+
+    // Restore conversation UI on page load
+    function restoreConversationUI() {
+      if (conversation.length > 0) {
+        // Hide welcome message
+        if (welcomeMessage) {
+          welcomeMessage.style.display = 'none';
+        }
+        
+        // Restore all messages
+        conversation.forEach(function(item) {
+          if (item.user) {
+            addMessage('user', item.user, false); // false = don't scroll yet
+          }
+          if (item.assistant) {
+            addMessage('assistant', item.assistant, false);
+          }
+        });
+        
+        // Update question counter
+        questionCounter.textContent = `${conversation.length}/5`;
+        
+        // Scroll to bottom after restoring
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }
+
+    // Restore conversation when page loads
+    restoreConversationUI();
 
     // Toggle panel
     toggleBtn.addEventListener('click', function() {
@@ -316,6 +385,9 @@
           addMessage('assistant', data.response);
           conversation = data.conversation || [];
           
+          // Save conversation to localStorage
+          saveConversation(conversation);
+          
           // Update question counter
           const questionCount = data.questionCount || conversation.length;
           questionCounter.textContent = `${questionCount}/5`;
@@ -350,7 +422,7 @@
     });
 
     // Add message to chat
-    function addMessage(role, content) {
+    function addMessage(role, content, shouldScroll = true) {
       const messageDiv = document.createElement('div');
       messageDiv.className = `grok-message ${role}`;
       
@@ -361,8 +433,10 @@
       messageDiv.appendChild(contentDiv);
       messagesContainer.appendChild(messageDiv);
       
-      // Scroll to bottom
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      // Scroll to bottom only if shouldScroll is true
+      if (shouldScroll) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
       
       // Re-initialize Feather icons
       if (typeof feather !== 'undefined') {
@@ -378,6 +452,8 @@
         welcomeMessage.style.display = 'block';
       }
       questionCounter.textContent = '0/5';
+      // Clear from localStorage
+      clearStoredConversation();
     }
 
     // Update send button state
