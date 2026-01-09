@@ -25,19 +25,21 @@
             <!-- end card header -->
 
             <div class="card-body">
+              <div class="table-responsive">
               <table
                 id="datatable"
-                class="table table-bordered dt-responsive table-responsive nowrap"
+                class="table table-bordered align-middle"
+                style="table-layout: fixed; width: 100%;"
               >
                 <thead>
                   <tr>
                     <th>Sl</th>
                     <th>Date</th>
-                    <th>From WareHouse</th>
-                    <th>To WareHouse</th>
-                    <th>Product</th>
+                    <th style="width: 18%;">From WareHouse</th>
+                    <th style="width: 18%;">To WareHouse</th>
+                    <th style="width: 26%;">Product</th>
                     <th>Stock Transfer</th>
-                    <th>Action</th>
+                    <th style="width: 14%;">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -47,16 +49,19 @@
                       <td>
                         {{ \Carbon\Carbon::parse($item->date)->format('Y-m-d') }}
                       </td>
-                      <td>{{ $item->fromWarehouse->name ?? 'N/A' }}</td>
-                      <td>{{ $item->toWarehouse->name ?? 'N/A' }}</td>
-                      <td>
+                      <td style="word-wrap: break-word; white-space: normal;">
+                        {{ $item->fromWarehouse->name ?? 'N/A' }}
+                      </td>
+                      <td style="word-wrap: break-word; white-space: normal;">
+                        {{ $item->toWarehouse->name ?? 'N/A' }}
+                      </td>
+                      <td style="word-wrap: break-word; white-space: normal;">
                         @foreach ($item->transferItems as $transferItem)
-                          {{ $transferItem->product->name ?? 'N/A' }}
-                          <br />
+                          {{ $transferItem->product->name ?? 'N/A' }}@if (!$loop->last)<br>@endif
                         @endforeach
                       </td>
 
-                      <td>
+                      <td class="text-nowrap">
                         @foreach ($item->transferItems as $transferItem)
                           <h4>
                             <span class="badge text-bg-info">
@@ -67,7 +72,7 @@
                         @endforeach
                       </td>
 
-                      <td>
+                      <td class="text-nowrap">
                         <a
                           title="Details"
                           href="{{ route('details.transfer', $item->id) }}"
@@ -98,6 +103,7 @@
                   @endforeach
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>

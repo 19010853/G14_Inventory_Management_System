@@ -35,7 +35,7 @@
               >
                 @csrf
 
-                <input type="hidden" name="id" value="{{ $roles->id }}" />
+                <input type="hidden" name="id" value="{{ $role->id }}" />
 
                 <div class="col-md-6">
                   <label for="validationDefault01" class="form-label">
@@ -45,7 +45,7 @@
                     type="text"
                     class="form-control"
                     name="name"
-                    value="{{ $roles->name }}"
+                    value="{{ $role->name }}"
                   />
                 </div>
 

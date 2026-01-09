@@ -305,16 +305,26 @@
 
   <!-- JavaScript for Image Preview with Remove Button -->
   <script>
-    document
-      .getElementById('multiImg')
-      .addEventListener('change', function (event) {
-        const previewContainer = document.getElementById('preview_img');
+    (function() {
+      // Store all selected files persistently
+      let selectedFiles = [];
+      const input = document.getElementById('multiImg');
+      const previewContainer = document.getElementById('preview_img');
+
+      // Function to update the file input with all selected files
+      function updateFileInput() {
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach(file => {
+          dataTransfer.items.add(file);
+        });
+        input.files = dataTransfer.files;
+      }
+
+      // Function to render preview for all selected files
+      function renderPreviews() {
         previewContainer.innerHTML = ''; // Clear previous previews
 
-        const files = Array.from(event.target.files); // Convert FileList to Array
-        const input = event.target;
-
-        files.forEach((file, index) => {
+        selectedFiles.forEach((file, index) => {
           // Check if the file is an image
           if (file.type.match('image.*')) {
             const reader = new FileReader();
@@ -323,12 +333,15 @@
               // Create preview container
               const col = document.createElement('div');
               col.className = 'col-md-3 mb-3';
+              col.setAttribute('data-file-index', index);
 
               // Create image
               const img = document.createElement('img');
               img.src = e.target.result;
               img.className = 'img-fluid rounded';
               img.style.maxHeight = '150px';
+              img.style.width = '100%';
+              img.style.objectFit = 'cover';
               img.alt = 'Image Preview';
 
               // Create remove button
@@ -337,17 +350,18 @@
               removeBtn.className = 'btn btn-danger btn-sm position-absolute';
               removeBtn.style.top = '10px';
               removeBtn.style.right = '10px';
+              removeBtn.style.zIndex = '10';
               removeBtn.innerHTML = '&times;'; // Cross icon
               removeBtn.title = 'Remove Image';
 
               // Remove button functionality
               removeBtn.addEventListener('click', function () {
-                col.remove(); // Remove the image preview
-                // Update the file input by creating a new FileList
-                const newFiles = files.filter((_, i) => i !== index);
-                const dataTransfer = new DataTransfer();
-                newFiles.forEach((f) => dataTransfer.items.add(f));
-                input.files = dataTransfer.files;
+                // Remove file from array
+                selectedFiles.splice(index, 1);
+                // Update file input
+                updateFileInput();
+                // Re-render all previews (to update indices)
+                renderPreviews();
               });
 
               // Create wrapper for positioning
@@ -363,6 +377,30 @@
             reader.readAsDataURL(file);
           }
         });
+      }
+
+      // Handle file selection - merge new files with existing ones
+      input.addEventListener('change', function (event) {
+        const newFiles = Array.from(event.target.files);
+        
+        // Add new files to the selectedFiles array (avoid duplicates by checking name and size)
+        newFiles.forEach(newFile => {
+          // Check if file already exists (by name and size to avoid duplicates)
+          const isDuplicate = selectedFiles.some(existingFile => 
+            existingFile.name === newFile.name && existingFile.size === newFile.size
+          );
+          
+          if (!isDuplicate && newFile.type.match('image.*')) {
+            selectedFiles.push(newFile);
+          }
+        });
+
+        // Update file input with all files
+        updateFileInput();
+        
+        // Re-render all previews
+        renderPreviews();
       });
+    })();
   </script>
 @endsection
