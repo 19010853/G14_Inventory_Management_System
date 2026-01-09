@@ -170,7 +170,7 @@
                     <div class="mb-3">
                       <input
                         name="image[]"
-                        accept=".png, .jpg, .jpeg"
+                        accept="image/*"
                         multiple=""
                         type="file"
                         id="multiImg"

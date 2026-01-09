@@ -153,6 +153,13 @@ class BrandController extends Controller
 
     //Update Brand
     public function UpdateBrand(Request $request){
+        // Validate input, ensuring only image files are accepted
+        $request->validate([
+            'id'    => 'required|exists:brands,id',
+            'name'  => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
         $brand_id = $request->id;
         $brand = Brand::find($brand_id);
 

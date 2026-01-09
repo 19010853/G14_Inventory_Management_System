@@ -31,18 +31,28 @@ class AdminController extends Controller
         $id = Auth::user()->id;
         $data = User::find($id);
 
-        $data->name = $request->name;
-        $data->email = $request->email;
-        $data->phone = $request->phone;
-        $data->address = $request->address;
+        // Validate input to allow ONLY image files for profile photo
+        $validated = $request->validate([
+            'name'   => 'required|string|max:255',
+            'email'  => 'required|email|max:255',
+            'phone'  => 'nullable|string|max:255',
+            'address'=> 'nullable|string|max:1000',
+            'photo'  => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
 
-        $oldPhotoPath = $request->photo;
+        $data->name = $validated['name'];
+        $data->email = $validated['email'];
+        $data->phone = $validated['phone'] ?? null;
+        $data->address = $validated['address'] ?? null;
+
+        // Keep track of existing photo file name in DB, not from request
+        $oldPhotoPath = $data->photo;
 
         if ($request->hasFile('photo')){
             $file = $request->file('photo');
             $filename = time().'.'.$file->getClientOriginalExtension();
             $file->move(public_path('upload/user_images'),$filename);
-            $data->photo=$filename;
+            $data->photo = $filename;
 
             if ($oldPhotoPath && $oldPhotoPath !== $filename) {
                 $this->deleteOldPhoto($oldPhotoPath);

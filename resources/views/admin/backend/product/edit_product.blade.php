@@ -220,7 +220,7 @@
                       <label class="form-label text-muted small">Add New Images:</label>
                       <input
                         name="image[]"
-                        accept=".png, .jpg, .jpeg"
+                        accept="image/*"
                         multiple=""
                         type="file"
                         id="multiImg"

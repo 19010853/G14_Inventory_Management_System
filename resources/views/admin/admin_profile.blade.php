@@ -123,6 +123,7 @@
                                   class="form-control"
                                   type="file"
                                   name="photo"
+                                  accept="image/*"
                                 />
                               </div>
                             </div>

@@ -53,6 +53,7 @@
                     class="form-control"
                     name="image"
                     id="image"
+                    accept="image/*"
                   />
                 </div>
 
