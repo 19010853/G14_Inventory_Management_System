@@ -285,17 +285,16 @@ class TransferController extends Controller
 
           DB::commit();
 
-            $notification = array(
-                'message' => 'Transfer Updated Successfully',
-                'alert-type' => 'success'
-            );
-            return redirect()->route('all.transfer')->with($notification);
-         }
+          $notification = array(
+              'message' => 'Transfer Updated Successfully',
+              'alert-type' => 'success'
+          );
+          return redirect()->route('all.transfer')->with($notification);
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
-          }
+      } catch (\Exception $e) {
+          DB::rollBack();
+          return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
+      }
 
     }
      // End Method
