@@ -17,6 +17,7 @@ use App\Http\Controllers\Backend\TransferController;
 use App\Http\Controllers\Backend\WarehouseController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\NotificationController;
+use App\Http\Controllers\Backend\GrokChatController;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -207,6 +208,12 @@ Route::controller(RoleController::class)->group(function(){
     Route::get('/edit/employee/roles/{id}', 'EditEmployeeRoles')->name('edit.employee.roles');
     Route::post('/update/employee/roles/{id}', 'UpdateEmployeeRoles')->name('update.employee.roles');
     Route::get('/delete/employee/{id}', 'DeleteEmployee')->name('delete.employee');
+});
+
+// Grok Chatbot Routes
+Route::middleware('auth')->group(function () {
+    Route::post('/grok/chat', [GrokChatController::class, 'chat'])->name('grok.chat');
+    Route::post('/grok/clear', [GrokChatController::class, 'clear'])->name('grok.clear');
 });
 
 });

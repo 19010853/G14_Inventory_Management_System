@@ -792,6 +792,9 @@
     <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
 
+    <!-- Grok Chatbot Component -->
+    @include('admin.components.grok-chatbot')
+
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
