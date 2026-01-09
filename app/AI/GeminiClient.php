@@ -9,7 +9,7 @@ class GeminiClient
 {
     /**
      * Generate response from Gemini API
-     * Uses gemini-1.5-flash with v1beta API (fast, cheap, production-friendly)
+     * Uses gemini-1.5-flash with v1 API (fast, cheap, production-friendly)
      */
     public static function generate(string $prompt): string
     {
@@ -20,11 +20,12 @@ class GeminiClient
             throw new \Exception('GEMINI_API_KEY is not configured in .env file.');
         }
 
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}";
+        // Use v1 API (more stable than v1beta)
+        $url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={$apiKey}";
 
         Log::info('Calling Gemini API', [
             'model' => 'gemini-1.5-flash',
-            'api_version' => 'v1beta',
+            'api_version' => 'v1',
             'prompt_length' => strlen($prompt),
             'url' => str_replace($apiKey, '***', $url)
         ]);
