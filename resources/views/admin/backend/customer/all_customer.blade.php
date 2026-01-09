@@ -35,9 +35,10 @@
             <!-- end card header -->
 
             <div class="card-body">
+              <div class="table-responsive">
               <table
                 id="datatable"
-                class="table table-bordered dt-responsive table-responsive nowrap"
+                class="table table-bordered dt-responsive nowrap w-100"
               >
                 <thead>
                   <tr>
@@ -77,6 +78,7 @@
                   @endforeach
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>

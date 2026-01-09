@@ -28,25 +28,24 @@
               <div class="table-responsive">
               <table
                 id="datatable"
-                class="table table-bordered align-middle"
-                style="table-layout: fixed; width: 100%;"
+                class="table table-bordered align-middle w-100"
               >
                 <thead>
                   <tr>
-                    <th>Sl</th>
-                    <th>Date</th>
-                    <th style="width: 18%;">From WareHouse</th>
-                    <th style="width: 18%;">To WareHouse</th>
-                    <th style="width: 26%;">Product</th>
-                    <th>Stock Transfer</th>
-                    <th style="width: 14%;">Action</th>
+                    <th style="width: 60px;" class="text-nowrap">Sl</th>
+                    <th style="width: 120px;" class="text-nowrap">Date</th>
+                    <th>From WareHouse</th>
+                    <th>To WareHouse</th>
+                    <th>Product</th>
+                    <th style="width: 140px;" class="text-nowrap">Stock Transfer</th>
+                    <th style="width: 160px;" class="text-nowrap">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   @foreach ($allData as $key => $item)
                     <tr>
-                      <td>{{ $key + 1 }}</td>
-                      <td>
+                      <td class="text-nowrap">{{ $key + 1 }}</td>
+                      <td class="text-nowrap">
                         {{ \Carbon\Carbon::parse($item->date)->format('Y-m-d') }}
                       </td>
                       <td style="word-wrap: break-word; white-space: normal;">
