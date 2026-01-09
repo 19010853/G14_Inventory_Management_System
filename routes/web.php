@@ -199,11 +199,13 @@ Route::controller(RoleController::class)->group(function(){
 });
 
 Route::controller(RoleController::class)->group(function(){
-    Route::get('/all/admin', 'AllAdmin')->name('all.admin');
-    Route::get('/add/admin', 'AddAdmin')->name('add.admin');
-    Route::post('/store/admin', 'StoreAdmin')->name('store.admin');
-    Route::get('/details/admin/{id}', 'DetailsAdmin')->name('details.admin');
-    Route::get('/delete/admin/{id}', 'DeleteAdmin')->name('delete.admin');
+    Route::get('/all/employee', 'AllEmployee')->name('all.employee');
+    Route::get('/add/employee', 'AddEmployee')->name('add.employee');
+    Route::post('/store/employee', 'StoreEmployee')->name('store.employee');
+    Route::get('/details/employee/{id}', 'DetailsEmployee')->name('details.employee');
+    Route::get('/edit/employee/roles/{id}', 'EditEmployeeRoles')->name('edit.employee.roles');
+    Route::post('/update/employee/roles/{id}', 'UpdateEmployeeRoles')->name('update.employee.roles');
+    Route::get('/delete/employee/{id}', 'DeleteEmployee')->name('delete.employee');
 });
 
 });

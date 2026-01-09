@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\AdminAccountCreatedMail;
+use App\Mail\EmployeeAccountCreatedMail;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -228,18 +228,18 @@ class RoleController extends Controller
     }
     // End Method
 
-    //Show All Admin Roles with their Permissions
-    public function AllAdmin(){
+    //Show All Employee Roles with their Permissions
+    public function AllEmployee(){
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
-        $alladmin = User::where('role','admin')->latest()->get();
+        $alladmin = User::where('role','employee')->latest()->get();
         return view('admin.pages.admin.all_admin',compact('alladmin'));
     }
     // End Method
 
-    // Add Admin Roles with their Permissions
-    public function AddAdmin(){
+    // Add Employee Roles with their Permissions
+    public function AddEmployee(){
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
@@ -248,8 +248,8 @@ class RoleController extends Controller
     }
     // End Method
 
-    // Store Admin Roles with their Permissions
-    public function StoreAdmin(Request $request){
+    // Store Employee Roles with their Permissions
+    public function StoreEmployee(Request $request){
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
@@ -267,7 +267,7 @@ class RoleController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($randomPassword);
-        $user->role = 'admin';
+        $user->role = 'employee';
         $user->save();
 
         if ($request->roles) {
@@ -279,23 +279,23 @@ class RoleController extends Controller
 
         // Send email with password
         try {
-            Mail::to($user->email)->send(new AdminAccountCreatedMail($user->name, $randomPassword));
+            Mail::to($user->email)->send(new EmployeeAccountCreatedMail($user->name, $randomPassword));
         } catch (\Exception $e) {
-            \Log::error('Failed to send admin account creation email: ' . $e->getMessage());
+            \Log::error('Failed to send employee account creation email: ' . $e->getMessage());
             // Continue even if email fails
         }
 
         $notification = array(
-            'message' => 'New Admin Inserted Successfully. Password has been sent to their email.',
+            'message' => 'New Employee Inserted Successfully. Password has been sent to their email.',
             'alert-type' => 'success'
          );
-         return redirect()->route('all.admin')->with($notification);
+         return redirect()->route('all.employee')->with($notification);
 
     }
     // End Method
 
-    // Details Admin - View Admin Information
-    public function DetailsAdmin($id){
+    // Details Employee - View Employee Information
+    public function DetailsEmployee($id){
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
@@ -304,8 +304,60 @@ class RoleController extends Controller
     }
     // End Method
 
-    // Delete Admin Roles with their Permissions
-    public function DeleteAdmin($id){
+    // Edit Employee Roles
+    public function EditEmployeeRoles($id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
+        $employee = User::findOrFail($id);
+        $roles = Role::all();
+        $permissions = Permission::all();
+        $permission_groups = User::getpermissionGroups();
+        return view('admin.pages.admin.edit_employee_roles',compact('employee','roles','permissions','permission_groups'));
+    }
+    // End Method
+
+    // Update Employee Roles
+    public function UpdateEmployeeRoles(Request $request, $id){
+        if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
+            abort(403, 'Unauthorized Action');
+        }
+
+        $employee = User::findOrFail($id);
+        
+        // Update roles if provided
+        if ($request->has('roles') && $request->roles) {
+            $role = Role::where('id', $request->roles)->where('guard_name', 'web')->first();
+            if ($role) {
+                // Remove all existing roles and assign new one
+                $employee->syncRoles([$role->name]);
+            }
+        } else {
+            // If no role selected, remove all roles
+            $employee->syncRoles([]);
+        }
+
+        // Update permissions if provided
+        if ($request->has('permission')) {
+            $permissions = $request->permission ?? [];
+            if (!empty($permissions)) {
+                $permissionNames = Permission::whereIn('id', $permissions)->pluck('name')->toArray();
+                $employee->syncPermissions($permissionNames);
+            } else {
+                $employee->syncPermissions([]);
+            }
+        }
+
+        $notification = array(
+            'message' => 'Employee Roles Updated Successfully',
+            'alert-type' => 'success'
+         );
+         return redirect()->route('all.employee')->with($notification);
+    }
+    // End Method
+
+    // Delete Employee Roles with their Permissions
+    public function DeleteEmployee($id){
         if (!auth()->user()->hasPermissionTo('role_and_permission.all')) {
             abort(403, 'Unauthorized Action');
         }
@@ -316,7 +368,7 @@ class RoleController extends Controller
         }
 
         $notification = array(
-            'message' => ' Admin Deleted Successfully',
+            'message' => 'Employee Deleted Successfully',
             'alert-type' => 'success'
          );
          return redirect()->back()->with($notification);

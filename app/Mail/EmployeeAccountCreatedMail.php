@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class AdminAccountCreatedMail extends Mailable
+class EmployeeAccountCreatedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -30,7 +30,7 @@ class AdminAccountCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Admin Account Has Been Created',
+            subject: 'Your Employee Account Has Been Created',
         );
     }
 
@@ -40,7 +40,7 @@ class AdminAccountCreatedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.admin-account-created',
+            view: 'emails.employee-account-created',
         );
     }
 
@@ -54,4 +54,3 @@ class AdminAccountCreatedMail extends Mailable
         return [];
     }
 }
-

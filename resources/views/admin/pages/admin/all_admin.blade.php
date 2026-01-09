@@ -5,13 +5,13 @@
     <div class="container-xxl">
       <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column">
         <div class="flex-grow-1">
-          <h4 class="fs-18 fw-semibold m-0">All Admin</h4>
+          <h4 class="fs-18 fw-semibold m-0">All Employee</h4>
         </div>
 
         <div class="text-end">
           <ol class="breadcrumb m-0 py-0">
-            <a href="{{ route('add.admin') }}" class="btn btn-primary">
-              Add Admin
+            <a href="{{ route('add.employee') }}" class="btn btn-primary">
+              Add Employee
             </a>
           </ol>
         </div>
@@ -54,7 +54,7 @@
                       <td>
                         @if (Auth::guard('web')->user()->can('role_and_permission.all'))
                           <a
-                            href="{{ route('details.admin', $item->id) }}"
+                            href="{{ route('details.employee', $item->id) }}"
                             class="btn btn-info btn-sm"
                             title="View Details"
                           >
@@ -63,10 +63,19 @@
                         @endif
                         @if (Auth::guard('web')->user()->can('role_and_permission.all'))
                           <a
-                            href="{{ route('delete.admin', $item->id) }}"
+                            href="{{ route('edit.employee.roles', $item->id) }}"
+                            class="btn btn-warning btn-sm"
+                            title="Edit Roles"
+                          >
+                            <i class="mdi mdi-account-edit me-1"></i>Edit Roles
+                          </a>
+                        @endif
+                        @if (Auth::guard('web')->user()->can('role_and_permission.all'))
+                          <a
+                            href="{{ route('delete.employee', $item->id) }}"
                             class="btn btn-danger btn-sm"
                             id="delete"
-                            data-delete-text="this admin"
+                            data-delete-text="this employee"
                           >
                             <i class="mdi mdi-delete me-1"></i>Delete
                           </a>

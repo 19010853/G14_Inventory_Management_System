@@ -326,7 +326,7 @@
             <div class="collapse" id="sidebarAdmin">
               <ul class="nav-second-level">
                 <li>
-                  <a href="{{ route('all.admin') }}" class="tp-link">
+                  <a href="{{ route('all.employee') }}" class="tp-link">
                     All Employee
                   </a>
                 </li>

@@ -5,18 +5,18 @@
     <div class="container-xxl">
       <div class="py-3 d-flex align-items-sm-center flex-sm-row flex-column justify-content-between mb-4">
         <div class="flex-grow-1">
-          <h4 class="fs-20 fw-semibold m-0 mb-2" style="color: #212529;">Admin Details</h4>
+          <h4 class="fs-20 fw-semibold m-0 mb-2" style="color: #212529;">Employee Details</h4>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb m-0">
               <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-              <li class="breadcrumb-item"><a href="{{ route('all.admin') }}">All Admin</a></li>
-              <li class="breadcrumb-item active">Admin Details</li>
+              <li class="breadcrumb-item"><a href="{{ route('all.employee') }}">All Employee</a></li>
+              <li class="breadcrumb-item active">Employee Details</li>
             </ol>
           </nav>
         </div>
 
         <div class="text-end mt-3 mt-sm-0">
-          <a href="{{ route('all.admin') }}" class="btn btn-secondary">
+          <a href="{{ route('all.employee') }}" class="btn btn-secondary">
             <i data-feather="arrow-left" style="width: 16px; height: 16px; margin-right: 6px;"></i>
             Back to List
           </a>
@@ -32,7 +32,7 @@
                   <img
                     src="{{ ! empty($admin->photo) ? url('upload/user_images/' . $admin->photo) : url('upload/no_image.jpg') }}"
                     class="rounded-circle"
-                    alt="admin profile"
+                    alt="employee profile"
                     style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #0d6efd;"
                   />
 
