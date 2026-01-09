@@ -55,9 +55,17 @@
                       <td>
                         @php
                           try {
-                            $imageUrl = $item->image 
-                              ? Storage::disk($imageDisk ?? 'public')->url($item->image) 
-                              : asset('upload/no_image.jpg');
+                            if ($item->image) {
+                              // Nếu cột image đã lưu full URL (dữ liệu cũ) thì dùng trực tiếp
+                              if (\Illuminate\Support\Str::startsWith($item->image, ['http://', 'https://'])) {
+                                $imageUrl = $item->image;
+                              } else {
+                                // Ngược lại, generate URL từ path + disk (dữ liệu mới, đồng bộ với UpdateBrand)
+                                $imageUrl = Storage::disk($imageDisk ?? 'public')->url($item->image);
+                              }
+                            } else {
+                              $imageUrl = asset('upload/no_image.jpg');
+                            }
                           } catch (\Exception $e) {
                             $imageUrl = asset('upload/no_image.jpg');
                           }

@@ -108,35 +108,13 @@ class BrandController extends Controller
         ]);
 
         try {
-            $image = $request->file('image');
-            
-            // 1. Khởi tạo Manager v3
-            $manager = new ImageManager(new Driver());
-            $name_gen = hexdec(uniqid()).'.'.$image->getClientOriginalExtension();
-            
-            // 2. Resize và encode ảnh (Cú pháp v3)
-            $img = $manager->read($image)->resize(300, 300)->toJpeg();
+            // Sử dụng cùng 1 helper lưu ảnh như UpdateBrand để đảm bảo logic thống nhất
+            $savePath = $this->storeBrandImage($request->file('image'));
 
-            // 3. Đẩy trực tiếp lên S3 (IAM Role sẽ tự xác thực)
-            $path = 'upload/brand/'.$name_gen;
-            $disk = $this->imageDisk();
-            
-            if ($disk === 's3') {
-                Storage::disk('s3')->put($path, (string) $img, [
-                    'visibility' => 'public',
-                    'ContentType' => 'image/jpeg'
-                ]);
-                // Lấy URL tuyệt đối để lưu vào Database
-                $save_url = Storage::disk('s3')->url($path);
-            } else {
-                Storage::disk($disk)->put($path, (string) $img, ['visibility' => 'public']);
-                $save_url = $path; // For local storage, save path only
-            }
-
-            // 4. Lưu vào DB
+            // Lưu vào DB (chỉ lưu path, để view tự generate URL theo disk)
             Brand::create([
                 'name' => $request->name,
-                'image' => ($disk === 's3') ? $save_url : $path,
+                'image' => $savePath,
                 'created_at' => \Carbon\Carbon::now(),
             ]);
 
