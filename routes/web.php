@@ -17,7 +17,6 @@ use App\Http\Controllers\Backend\TransferController;
 use App\Http\Controllers\Backend\WarehouseController;
 use App\Http\Controllers\Backend\RoleController;
 use App\Http\Controllers\Backend\NotificationController;
-use App\Http\Controllers\Backend\GeminiChatController;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -205,9 +204,6 @@ Route::controller(RoleController::class)->group(function(){
     Route::get('/details/admin/{id}', 'DetailsAdmin')->name('details.admin');
     Route::get('/delete/admin/{id}', 'DeleteAdmin')->name('delete.admin');
 });
-
-    // Gemini Chatbot
-    Route::post('/chat/gemini', [GeminiChatController::class, 'chat'])->name('chat.gemini');
 
 });
 
