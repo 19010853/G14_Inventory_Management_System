@@ -21,6 +21,9 @@ class ProductCategoryController extends Controller
 
     //Store Category
     public function StoreCategory(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.category')) {
+            abort(403, 'Unauthorized Action');
+        }
         ProductCategory::insert([
             'category_name' => $request->category_name,
             'category_slug' => strtolower(str_replace(' ','-',$request->category_name)),
@@ -35,12 +38,18 @@ class ProductCategoryController extends Controller
     // End Method
 
     public function EditCategory($id){
+        if (!auth()->user()->hasPermissionTo('all.category')) {
+            abort(403, 'Unauthorized Action');
+        }
         $category = ProductCategory::find($id);
         return response()->json($category);
      }
       //End Method
 
       public function UpdateCategory(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.category')) {
+            abort(403, 'Unauthorized Action');
+        }
         $cat_id = $request->cat_id;
 
         ProductCategory::find($cat_id)->update([
@@ -58,7 +67,9 @@ class ProductCategoryController extends Controller
      //End Method
 
     public function DeleteCategory($id){
-
+        if (!auth()->user()->hasPermissionTo('all.category')) {
+            abort(403, 'Unauthorized Action');
+        }
         ProductCategory::find($id)->delete();
         $notification = array(
             'message' => 'ProductCategory Delete Successfully',

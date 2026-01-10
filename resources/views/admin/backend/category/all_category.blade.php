@@ -8,6 +8,7 @@
           <h4 class="fs-18 fw-semibold m-0">All Product Category</h4>
         </div>
 
+        @if (Auth::guard('web')->user()->can('all.category'))
         <div class="text-end">
           <ol class="breadcrumb m-0 py-0">
             <button
@@ -20,6 +21,7 @@
             </button>
           </ol>
         </div>
+        @endif
       </div>
 
       <!-- Datatables  -->
@@ -49,6 +51,7 @@
                       <td>{{ $item->category_name }}</td>
                       <td>{{ $item->category_slug }}</td>
                       <td>
+                        @if (Auth::guard('web')->user()->can('all.category'))
                         <button
                           type="button"
                           class="btn btn-success btn-sm"
@@ -68,6 +71,7 @@
                         >
                           Delete
                         </a>
+                        @endif
                       </td>
                     </tr>
                   @endforeach

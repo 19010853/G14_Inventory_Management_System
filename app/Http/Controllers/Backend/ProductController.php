@@ -77,6 +77,9 @@ class ProductController extends Controller
 
     // Add Product
     public function AddProduct(){
+        if (!auth()->user()->hasPermissionTo('all.product')) {
+            abort(403, 'Unauthorized Action');
+        }
         $categories = ProductCategory::all();
         $brands = Brand::all();
         $suppliers = Supplier::all();
@@ -87,6 +90,9 @@ class ProductController extends Controller
 
     // Store Product
     public function StoreProduct(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.product')) {
+            abort(403, 'Unauthorized Action');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255',
@@ -177,6 +183,9 @@ class ProductController extends Controller
 
     // Edit Product
     public function EditProduct($id){
+        if (!auth()->user()->hasPermissionTo('all.product')) {
+            abort(403, 'Unauthorized Action');
+        }
         $editData = Product::find($id);
         $categories = ProductCategory::all();
         $brands = Brand::all();
@@ -192,6 +201,9 @@ class ProductController extends Controller
 
     // Update Product
     public function UpdateProduct(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.product')) {
+            abort(403, 'Unauthorized Action');
+        }
         // First validate the ID exists
         $request->validate([
             'id' => 'required|exists:products,id',
@@ -318,6 +330,9 @@ class ProductController extends Controller
 
     // Delete Product
     public function DeleteProduct($id){
+        if (!auth()->user()->hasPermissionTo('all.product')) {
+            abort(403, 'Unauthorized Action');
+        }
         $product = Product::findOrFail($id);
 
         // Delete associated images
