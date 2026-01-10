@@ -240,6 +240,18 @@ class GrokChatController extends Controller
             $context .= "\nCurrent system data and access:\n" . implode("\n", $dataContext) . "\n";
         }
         
+        $context .= "\n\nFORMATTING INSTRUCTIONS:\n";
+        $context .= "- Always format your responses with proper line breaks and paragraphs for better readability.\n";
+        $context .= "- Use line breaks (\\n) to separate different points, steps, or sections.\n";
+        $context .= "- When providing numbered lists or steps, put each item on a new line.\n";
+        $context .= "- Use blank lines to separate paragraphs when explaining different concepts.\n";
+        $context .= "- Make your responses easy to read and well-structured.\n";
+        $context .= "- Example format:\n";
+        $context .= "  Step 1: First point\n";
+        $context .= "  Step 2: Second point\n";
+        $context .= "  \n";
+        $context .= "  Additional information in a new paragraph.\n";
+        
         $context .= "\nAlways be helpful, concise, and professional. If you don't know something, say so.";
         
         return $context;

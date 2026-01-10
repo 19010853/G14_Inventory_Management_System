@@ -184,6 +184,8 @@
     border: 1px solid #e9ecef;
     border-bottom-left-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    white-space: pre-wrap; /* Preserve line breaks and wrap text */
+    word-wrap: break-word;
   }
 
   @keyframes fadeIn {
@@ -428,6 +430,9 @@
       
       const contentDiv = document.createElement('div');
       contentDiv.className = 'grok-message-content';
+      
+      // Use textContent to safely display content (prevents XSS)
+      // CSS white-space: pre-wrap will preserve line breaks
       contentDiv.textContent = content;
       
       messageDiv.appendChild(contentDiv);
