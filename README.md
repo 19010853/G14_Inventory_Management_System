@@ -8,21 +8,26 @@
 
 **G14 Inventory Management System** là một hệ thống quản lý kho hàng toàn diện được xây dựng trên nền tảng **Laravel 12**, giúp doanh nghiệp quản lý hiệu quả các hoạt động liên quan đến kho hàng, bao gồm:
 
-- 📦 **Quản lý sản phẩm**: Thêm, sửa, xóa, tìm kiếm sản phẩm với đầy đủ thông tin (brand, category, warehouse)
+- 📦 **Quản lý sản phẩm**: Thêm, sửa, xóa, tìm kiếm sản phẩm với đầy đủ thông tin (brand, category, warehouse), hỗ trợ multiple images
 - 🛒 **Quản lý đơn hàng**: Purchase, Sale, Return Purchase, Sale Return, Transfer giữa các kho
+- 💰 **Quản lý công nợ**: Quản lý và thanh toán công nợ cho Sales và Return Sales với permission-based access
 - 📊 **Báo cáo và thống kê**: Báo cáo tồn kho, báo cáo bán hàng, báo cáo mua hàng, báo cáo chuyển kho
-- 👥 **Quản lý người dùng và phân quyền**: Hệ thống role-based access control (RBAC) với Spatie Permission
+- 👥 **Quản lý người dùng và phân quyền**: Hệ thống role-based access control (RBAC) với Spatie Permission, hỗ trợ `.menu` và `all.*` permissions
 - 🏢 **Quản lý đối tác**: Quản lý nhà cung cấp (Supplier) và khách hàng (Customer)
 - 📈 **Dashboard**: Tổng quan về tình hình kinh doanh với các biểu đồ và thống kê trực quan
+- 🤖 **AI Chatbot**: Tích hợp Grok-3-mini chatbot để hỗ trợ người dùng với permission-based responses
 
 ### 🎯 Tính năng nổi bật
 
 - ✅ **Quản lý tồn kho tự động**: Cập nhật số lượng sản phẩm tự động dựa trên trạng thái đơn hàng
-- ✅ **Hệ thống phân quyền mạnh mẽ**: Quản lý quyền truy cập chi tiết theo vai trò
+- ✅ **Hệ thống phân quyền mạnh mẽ**: Quản lý quyền truy cập chi tiết theo vai trò với `.menu` và `all.*` permissions
 - ✅ **Lưu trữ đám mây**: Tích hợp AWS S3 để lưu trữ hình ảnh và file
-- ✅ **Giao diện hiện đại**: Responsive design với Tailwind CSS và Vite
+- ✅ **Giao diện hiện đại**: Responsive design với Tailwind CSS và Vite, hỗ trợ mobile
 - ✅ **Báo cáo PDF**: Xuất báo cáo và hóa đơn dưới dạng PDF
 - ✅ **Email notifications**: Gửi email thông báo khi tạo tài khoản mới
+- ✅ **AI Chatbot**: Tích hợp Grok-3-mini chatbot để hỗ trợ người dùng với permission-based responses
+- ✅ **Quản lý công nợ**: Hệ thống quản lý và thanh toán công nợ cho Sales và Return Sales
+- ✅ **Validation mạnh mẽ**: Kiểm tra file upload (chỉ cho phép images), validation đầy đủ cho tất cả forms
 
 ---
 
@@ -35,15 +40,17 @@
 - **PHP**: 8.2+
 - **Database**: MySQL/MariaDB
 - **Authentication**: Laravel Breeze
-- **Authorization**: Spatie Laravel Permission
+- **Authorization**: Spatie Laravel Permission (với hệ thống `.menu` và `all.*` permissions)
 - **File Storage**: AWS S3 (Production) / Local Storage (Development)
 - **PDF Generation**: DomPDF
+- **AI Integration**: OpenRouter API (Grok-3-mini)
 
 #### Frontend
 - **Build Tool**: Vite 7.x
-- **CSS Framework**: Tailwind CSS 3.x
-- **JavaScript**: Alpine.js, Axios
+- **CSS Framework**: Tailwind CSS 3.x, Bootstrap 5
+- **JavaScript**: Alpine.js, Axios, Vanilla JS
 - **Icons**: Feather Icons
+- **Tables**: DataTables (responsive tables với horizontal scroll)
 
 #### Infrastructure
 - **Containerization**: Docker (Laravel Sail)
@@ -347,6 +354,9 @@ AWS_SECRET_ACCESS_KEY=your_secret_access_key
 AWS_DEFAULT_REGION=ap-southeast-1
 AWS_BUCKET=g14-inventory-storage
 AWS_URL=https://g14-inventory-storage.s3.ap-southeast-1.amazonaws.com
+
+# OpenRouter API (cho AI Chatbot - Tùy chọn)
+OPENROUTER_API_KEY=your_openrouter_api_key_here
 ```
 
 **Lưu ý**: Trên EC2, bạn có thể sử dụng IAM Role thay vì Access Keys để bảo mật hơn. Khi đó, không cần set `AWS_ACCESS_KEY_ID` và `AWS_SECRET_ACCESS_KEY`.
@@ -463,6 +473,9 @@ MAIL_PASSWORD="your-app-password"
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=your-gmail@gmail.com
 MAIL_FROM_NAME="Group 14 Inventory System"
+
+# OpenRouter API (cho AI Chatbot - Tùy chọn)
+OPENROUTER_API_KEY=your_openrouter_api_key_here
 ```
 
 **⚠️ Lưu ý quan trọng về cú pháp .env:**
@@ -837,6 +850,121 @@ sudo systemctl restart nginx
 
 ---
 
+## 🔐 Hệ thống Phân quyền
+
+### Cấu trúc Permissions
+
+Hệ thống sử dụng cấu trúc phân quyền hai cấp:
+
+#### 1. Menu Permissions (`.menu`)
+Cho phép user xem menu và truy cập danh sách (read-only):
+- `brand.menu`: Xem menu Brand và danh sách brands
+- `product.menu`: Xem menu Product và danh sách products
+- `sale.menu`: Xem menu Sale và danh sách sales
+- `purchase.menu`: Xem menu Purchase và danh sách purchases
+- `due.menu`: Xem menu Due và danh sách due sales
+- `transfer.menu`: Xem menu Transfer và danh sách transfers
+- `all.report`: Xem menu Report và truy cập báo cáo (không có `report.menu` riêng)
+
+#### 2. Full Permissions (`all.*`)
+Cho phép user đầy đủ quyền (create, read, update, delete):
+- `all.brand`: Quản lý đầy đủ brands (tự động bao gồm `brand.menu`)
+- `all.product`: Quản lý đầy đủ products (tự động bao gồm `product.menu`)
+- `all.sale`: Quản lý đầy đủ sales (tự động bao gồm `sale.menu`)
+- `all.purchase`: Quản lý đầy đủ purchases (tự động bao gồm `purchase.menu`)
+- `all.transfer`: Quản lý đầy đủ transfers (tự động bao gồm `transfer.menu`)
+- `all.report`: Truy cập đầy đủ báo cáo
+
+#### 3. Due Permissions (Đặc biệt)
+- `due.sales`: Quản lý công nợ sales (có thể thanh toán mà không cần `all.sale`)
+- `due.sales.return`: Quản lý công nợ return sales (có thể thanh toán mà không cần `all.return.sale`)
+
+### Quy tắc hoạt động
+
+1. **Tự động gán menu permission**: Khi gán `all.*` permission cho role, hệ thống tự động gán `.menu` permission tương ứng
+2. **UI hiển thị**: 
+   - User có `.menu` chỉ thấy menu và danh sách, không thấy nút Add/Edit/Delete
+   - User có `all.*` thấy đầy đủ các nút và có thể thực hiện tất cả actions
+3. **Controller protection**: Tất cả controllers đều có permission checks để đảm bảo security
+
+### Quản lý Permissions
+
+Truy cập `/add/roles/permission` hoặc `/admin/edit/roles/{id}` để quản lý permissions cho roles.
+
+**Lưu ý**: Khi check `all.*` permission, checkbox `*.menu` sẽ tự động được check. Khi uncheck `*.menu`, checkbox `all.*` sẽ tự động được uncheck.
+
+---
+
+## 💰 Hệ thống Quản lý Công nợ
+
+### Tính năng
+
+Hệ thống hỗ trợ quản lý và thanh toán công nợ cho Sales và Return Sales:
+
+1. **Due Sales** (`/due/sale`):
+   - Xem danh sách các đơn sale có công nợ
+   - Thanh toán công nợ với permission `due.sales` hoặc `all.sale`
+
+2. **Due Return Sales** (`/due/sale/return`):
+   - Xem danh sách các đơn return sale có công nợ
+   - Thanh toán công nợ với permission `due.sales.return` hoặc `all.return.sale`
+
+### Payment Flow
+
+1. User có `due.sales` (không có `all.sale`):
+   - Có thể xem danh sách due sales
+   - Click "Pay Now" → Truy cập trang payment chỉ để cập nhật `paid_amount` và `full_paid`
+   - Không thể chỉnh sửa các thông tin khác (products, customer, warehouse, etc.)
+
+2. User có `all.sale`:
+   - Có thể xem danh sách due sales
+   - Click "Pay Now" → Truy cập trang edit đầy đủ để chỉnh sửa tất cả thông tin
+
+### Routes
+
+- `GET /pay/sale/{id}`: Trang thanh toán cho sale (yêu cầu `due.sales` hoặc `all.sale`)
+- `POST /update/sale/payment/{id}`: Cập nhật payment cho sale
+- `GET /pay/sale/return/{id}`: Trang thanh toán cho return sale (yêu cầu `due.sales.return` hoặc `all.return.sale`)
+- `POST /update/sale/return/payment/{id}`: Cập nhật payment cho return sale
+
+---
+
+## 🤖 AI Chatbot
+
+### Tính năng
+
+Hệ thống tích hợp Grok-3-mini chatbot với các tính năng:
+
+1. **Permission-based responses**: Chatbot chỉ trả lời về các tính năng user có quyền truy cập
+2. **5 questions per session**: Giới hạn 5 câu hỏi mỗi phiên, tự động clear khi đạt giới hạn
+3. **Conversation persistence**: Lưu lịch sử chat trong localStorage
+4. **Formatted responses**: Câu trả lời được format với line breaks và paragraphs rõ ràng
+
+### Cấu hình
+
+Thêm vào `.env`:
+
+```env
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+```
+
+Lấy API key từ [OpenRouter](https://openrouter.ai/).
+
+### Sử dụng
+
+1. Click vào icon chatbot ở góc dưới bên phải màn hình
+2. Nhập câu hỏi và nhấn Enter hoặc click Send
+3. Chatbot sẽ trả lời dựa trên permissions của user
+4. Sau 5 câu hỏi, conversation sẽ tự động clear
+
+### Permission Checks
+
+Chatbot tự động kiểm tra permissions trước khi trả lời:
+- Nếu user không có permission cho topic được hỏi, chatbot sẽ từ chối một cách lịch sự
+- System prompt bao gồm danh sách permissions của user để chatbot biết những gì user có thể truy cập
+
+---
+
 ## 🛠️ Các lệnh thường dùng
 
 ### Laravel Artisan
@@ -1045,12 +1173,38 @@ git push
 
 **G14 Inventory Management System** là một hệ thống quản lý kho hàng hoàn chỉnh với các tính năng:
 
-- ✅ Quản lý sản phẩm, đơn hàng, tồn kho
-- ✅ Hệ thống phân quyền mạnh mẽ
+- ✅ Quản lý sản phẩm, đơn hàng, tồn kho với multiple images
+- ✅ Hệ thống phân quyền mạnh mẽ với `.menu` và `all.*` permissions
+- ✅ Quản lý công nợ và thanh toán với permission-based access
 - ✅ Báo cáo và thống kê chi tiết
 - ✅ Tích hợp AWS S3 cho lưu trữ file
-- ✅ Giao diện hiện đại, responsive
+- ✅ AI Chatbot hỗ trợ người dùng với Grok-3-mini
+- ✅ Giao diện hiện đại, responsive với mobile support
+- ✅ Validation mạnh mẽ cho file uploads và forms
 - ✅ Deploy trên AWS EC2 với Nginx
+
+### Hệ thống phân quyền
+
+Hệ thống sử dụng cấu trúc phân quyền hai cấp:
+
+- **`.menu` permissions**: Cho phép xem menu và truy cập danh sách (read-only)
+  - Ví dụ: `brand.menu`, `product.menu`, `sale.menu`
+- **`all.*` permissions**: Cho phép đầy đủ quyền (create, read, update, delete)
+  - Ví dụ: `all.brand`, `all.product`, `all.sale`
+  - Tự động bao gồm permission `.menu` tương ứng
+
+**Đặc biệt**:
+- `due.sales` và `due.sales.return`: Quyền quản lý công nợ (có thể thanh toán mà không cần `all.sale` hoặc `all.return.sale`)
+- `all.report`: Quyền truy cập báo cáo (không có `report.menu` riêng)
+
+### AI Chatbot
+
+Hệ thống tích hợp Grok-3-mini chatbot với các tính năng:
+
+- **Permission-based responses**: Chatbot chỉ trả lời về các tính năng user có quyền truy cập
+- **5 questions per session**: Giới hạn 5 câu hỏi mỗi phiên, tự động clear khi đạt giới hạn
+- **Conversation persistence**: Lưu lịch sử chat trong localStorage
+- **Formatted responses**: Câu trả lời được format với line breaks và paragraphs rõ ràng
 
 ### Hướng phát triển trong tương lai
 
@@ -1060,6 +1214,7 @@ git push
 - 🔔 **Real-time Notifications**: Tích hợp Pusher/WebSocket cho thông báo real-time
 - 📊 **Advanced Analytics**: Thêm các biểu đồ và phân tích nâng cao
 - 🔍 **Advanced Search**: Tìm kiếm nâng cao với Elasticsearch
+- 🤖 **Enhanced AI Chatbot**: Cải thiện chatbot với context awareness và multi-turn conversations
 
 #### Trung hạn (3-6 tháng)
 - 🤖 **Automation**: Tự động hóa các quy trình (reorder points, alerts)
