@@ -49,13 +49,23 @@
                         </h4>
                       </td>
                       <td>
+                        @if (Auth::guard('web')->user()->can('all.sale'))
                         <a
-                          title="Pay Now"
+                          title="Pay Now (Full Edit)"
                           href="{{ route('edit.sale', $item->id) }}"
                           class="btn btn-info btn-sm"
                         >
                           Pay Now
                         </a>
+                        @elseif (Auth::guard('web')->user()->can('due.sales'))
+                        <a
+                          title="Pay Now"
+                          href="{{ route('pay.sale', $item->id) }}"
+                          class="btn btn-info btn-sm"
+                        >
+                          Pay Now
+                        </a>
+                        @endif
                       </td>
                     </tr>
                   @endforeach

@@ -40,6 +40,9 @@ class TransferController extends Controller
 
     // Add New Transfer Method
     public function AddTransfer(){
+        if (!auth()->user()->hasPermissionTo('all.transfer')) {
+            abort(403, 'Unauthorized Action');
+        }
         try {
             $warehouses = Warehouse::all();
             return view('admin.backend.transfer.add_transfer', compact('warehouses'));
@@ -53,6 +56,9 @@ class TransferController extends Controller
 
     // Store Transfer Method
     public function StoreTransfer(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.transfer')) {
+            abort(403, 'Unauthorized Action');
+        }
         try {
             $request->validate([
                 'date' => 'required|date',
@@ -207,6 +213,9 @@ class TransferController extends Controller
 
     // Edit Transfer Method
     public function EditTransfer($id){
+        if (!auth()->user()->hasPermissionTo('all.transfer')) {
+            abort(403, 'Unauthorized Action');
+        }
         $editData = Transfer::with(['fromWarehouse','toWarehouse','transferItems.product'])->findOrFail($id);
         $warehouses = Warehouse::all();
         return view('admin.backend.transfer.edit_transfer',compact('warehouses','editData'));
@@ -216,6 +225,9 @@ class TransferController extends Controller
 
     // Update Transfer Method
     public function UpdateTransfer(Request $request, $id){
+        if (!auth()->user()->hasPermissionTo('all.transfer')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         try {
 
@@ -301,6 +313,9 @@ class TransferController extends Controller
 
      // Delete Transfer Method
      public function DeleteTransfer($id){
+        if (!auth()->user()->hasPermissionTo('all.transfer')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         try {
           DB::beginTransaction();

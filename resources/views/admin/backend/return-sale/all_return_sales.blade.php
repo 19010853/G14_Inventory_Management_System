@@ -85,6 +85,7 @@
                         </a>
                         @endif
 
+                        @if (Auth::guard('web')->user()->can('all.return.sale'))
                         <a
                           title="Edit"
                           href="{{ route('edit.return.sale', $item->id) }}"
@@ -102,6 +103,7 @@
                         >
                           <span class="mdi mdi-delete-circle mdi-18px"></span>
                         </a>
+                        @endif
                       </td>
                     </tr>
                   @endforeach

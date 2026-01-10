@@ -133,6 +133,8 @@ Route::controller(SaleController::class)->group(function(){
     Route::get('/delete/sale/{id}', 'DeleteSales')->name('delete.sale');
     Route::get('/details/sale/{id}', 'DetailsSales')->name('details.sale');
     Route::get('/invoice/sale/{id}', 'InvoiceSales')->name('invoice.sale');
+    Route::get('/pay/sale/{id}', 'PaySale')->name('pay.sale');
+    Route::post('/update/sale/payment/{id}', 'UpdateSalePayment')->name('update.sale.payment');
 });
 
 Route::controller(SaleReturnController::class)->group(function(){
@@ -144,6 +146,8 @@ Route::controller(SaleReturnController::class)->group(function(){
     Route::get('/details/sale/return/{id}', 'DetailsSalesReturn')->name('details.return.sale');
     Route::get('/invoice/sale/return/{id}', 'InvoiceSalesReturn')->name('invoice.return.sale');
     Route::get('/delete/sale/return/{id}', 'DeleteSalesReturn')->name('delete.return.sale');
+    Route::get('/pay/sale/return/{id}', 'PaySaleReturn')->name('pay.sale.return');
+    Route::post('/update/sale/return/payment/{id}', 'UpdateSaleReturnPayment')->name('update.sale.return.payment');
 });
 
 Route::controller(SaleReturnController::class)->group(function(){

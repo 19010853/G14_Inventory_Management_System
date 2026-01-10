@@ -32,6 +32,9 @@ class ReturnPurchaseController extends Controller
 
     // Add Return Purchase Methods
     public function AddReturnPurchase(){
+        if (!auth()->user()->hasPermissionTo('all.return.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
         $suppliers = Supplier::all();
         $warehouses = Warehouse::all();
         return view('admin.backend.return-purchase.add_return_purchase',compact('suppliers','warehouses'));
@@ -40,6 +43,9 @@ class ReturnPurchaseController extends Controller
 
     // Store Return Purchase Methods
     public function StoreReturnPurchase(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.return.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $request->validate([
             'date' => 'required|date',
@@ -170,6 +176,9 @@ class ReturnPurchaseController extends Controller
 
     // Edit Return Purchase Methods
     public function EditReturnPurchase($id) {
+        if (!auth()->user()->hasPermissionTo('all.return.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
         $editData = ReturnPurchase::with(['purchaseItems.product'])->findOrFail($id);
         $suppliers = Supplier::all();
         $warehouses = Warehouse::all();
@@ -179,6 +188,9 @@ class ReturnPurchaseController extends Controller
 
     // Update Return Purchase Methods
     public function UpdateReturnPurchase(Request $request, $id) {
+        if (!auth()->user()->hasPermissionTo('all.return.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
         $request->validate([
             'date' => 'required|date',
             'status' => 'required',
@@ -261,6 +273,9 @@ class ReturnPurchaseController extends Controller
 
     // Delete Return Purchase Methods
     public function DeleteReturnPurchase($id) {
+        if (!auth()->user()->hasPermissionTo('all.return.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
         try {
             DB::beginTransaction();
 

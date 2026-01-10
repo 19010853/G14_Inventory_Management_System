@@ -31,6 +31,9 @@ class SaleController extends Controller
 
     // Add Sale
     public function AddSale(){
+        if (!auth()->user()->hasPermissionTo('all.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         $customers = Customer::all();
         $warehouses = Warehouse::all();
 
@@ -40,6 +43,9 @@ class SaleController extends Controller
 
     // Store Sale
     public function StoreSale(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         $request->validate([
             'date' => 'required|date',
             'status' => 'required|in:Sale,Pending,Ordered',
@@ -175,6 +181,9 @@ class SaleController extends Controller
 
     // Edit Sale
     public function EditSales($id) {
+        if (!auth()->user()->hasPermissionTo('all.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         $editData = Sale::with('saleItems.product')->findOrFail($id);
         $customers = Customer::all();
         $warehouses = Warehouse::all();
@@ -184,6 +193,9 @@ class SaleController extends Controller
 
     // Update Sale
     public function UpdateSales(Request $request, $id) {
+        if (!auth()->user()->hasPermissionTo('all.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         $request->validate([
             'date' => 'required|date',
             'status' => 'required'
@@ -255,8 +267,91 @@ class SaleController extends Controller
     }
     // End Method
 
+    // Pay Sale (for due.sales permission only)
+    public function PaySale($id) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('due.sales') && !$user->hasPermissionTo('all.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
+        
+        $sale = Sale::with(['customer', 'warehouse', 'saleItems.product'])->findOrFail($id);
+        
+        // Verify that this sale has a due amount
+        if ($sale->due_amount <= 0) {
+            $notification = array(
+                'message' => 'This sale has no due amount.',
+                'alert-type' => 'warning'
+            );
+            return redirect()->route('due.sale')->with($notification);
+        }
+        
+        return view('admin.backend.sales.pay_sale', compact('sale'));
+    }
+    // End Method
+
+    // Update Sale Payment (for due.sales permission only)
+    public function UpdateSalePayment(Request $request, $id) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('due.sales') && !$user->hasPermissionTo('all.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
+        
+        $request->validate([
+            'paid_amount' => 'required|numeric|min:0',
+            'full_paid' => 'nullable|numeric|min:0',
+        ]);
+        
+        try {
+            DB::beginTransaction();
+            
+            $sale = Sale::findOrFail($id);
+            
+            // Calculate new paid amount and due amount
+            $newPaidAmount = $request->paid_amount;
+            $fullPaid = $request->full_paid ?? 0;
+            $grandTotal = $sale->grand_total;
+            
+            // Calculate due amount
+            $newDueAmount = max(0, $grandTotal - $newPaidAmount - $fullPaid);
+            
+            $sale->update([
+                'paid_amount' => $newPaidAmount,
+                'full_paid' => $fullPaid,
+                'due_amount' => $newDueAmount,
+            ]);
+            
+            DB::commit();
+            
+            // Send notification if due amount is paid
+            if ($newDueAmount == 0 && $sale->due_amount > 0) {
+                $users = User::whereHas('roles', function($query) {
+                    $query->where('name', 'Admin');
+                })->get();
+                Notification::send($users, new NewSaleDueNotification($sale));
+            }
+            
+            $notification = array(
+                'message' => 'Payment Updated Successfully',
+                'alert-type' => 'success'
+            );
+            
+            return redirect()->route('due.sale')->with($notification);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Update Sale Payment error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()->withInput()->withErrors(['error' => 'Failed to update payment. Please try again.']);
+        }
+    }
+    // End Method
+
     // Delete Sale
     public function DeleteSales($id){
+        if (!auth()->user()->hasPermissionTo('all.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         try {
             DB::beginTransaction();
             $sales = Sale::findOrFail($id);

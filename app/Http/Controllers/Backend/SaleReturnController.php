@@ -32,6 +32,9 @@ class SaleReturnController extends Controller
 
     // Add Sale Return
     public function AddSalesReturn(){
+        if (!auth()->user()->hasPermissionTo('all.return.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         $customers = Customer::all();
         $warehouses = Warehouse::all();
         return view('admin.backend.return-sale.add_return_sales',compact('customers','warehouses'));
@@ -40,6 +43,9 @@ class SaleReturnController extends Controller
 
      // Store Sale Return
     public function StoreSalesReturn(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.return.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         try {
             $request->validate([
                 'date' => 'required|date',
@@ -162,6 +168,9 @@ class SaleReturnController extends Controller
     // End Method
 
     public function EditSalesReturn($id){
+        if (!auth()->user()->hasPermissionTo('all.return.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         $editData = SaleReturn::with('saleReturnItems.product')->findOrFail($id);
         $customers = Customer::all();
         $warehouses = WareHouse::all();
@@ -170,6 +179,9 @@ class SaleReturnController extends Controller
     // End Method
 
     public function UpdateSalesReturn(Request $request, $id){
+        if (!auth()->user()->hasPermissionTo('all.return.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $request->validate([
             'date' => 'required|date',
@@ -271,6 +283,9 @@ class SaleReturnController extends Controller
 
     // Delete Sale Return
     public function DeleteSalesReturn($id){
+        if (!auth()->user()->hasPermissionTo('all.return.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
         try {
           DB::beginTransaction();
           $sales = SaleReturn::findOrFail($id);
@@ -308,9 +323,6 @@ class SaleReturnController extends Controller
         if (!$user->hasPermissionTo('due.sales') && !$user->hasPermissionTo('due.menu')) {
             abort(403, 'Unauthorized Action');
         }
-        if (!auth()->user()->hasPermissionTo('due.sales')) {
-            abort(403, 'Unauthorized Action');
-        }
         $sales = Sale::with(['customer','warehouse'])
             ->select('id','customer_id','warehouse_id','due_amount')
             ->where('due_amount', '>', 0)
@@ -331,6 +343,86 @@ class SaleReturnController extends Controller
             ->get();
         return view('admin.backend.due.sale_return_due',compact('sales'));
 
+    }
+    // End Method
+
+    // Pay Sale Return (for due.sales.return permission only)
+    public function PaySaleReturn($id) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('due.sales.return') && !$user->hasPermissionTo('all.return.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
+        
+        $saleReturn = SaleReturn::with(['customer', 'warehouse', 'saleReturnItems.product'])->findOrFail($id);
+        
+        // Verify that this sale return has a due amount
+        if ($saleReturn->due_amount <= 0) {
+            $notification = array(
+                'message' => 'This sale return has no due amount.',
+                'alert-type' => 'warning'
+            );
+            return redirect()->route('due.sale.return')->with($notification);
+        }
+        
+        return view('admin.backend.return-sale.pay_sale_return', compact('saleReturn'));
+    }
+    // End Method
+
+    // Update Sale Return Payment (for due.sales.return permission only)
+    public function UpdateSaleReturnPayment(Request $request, $id) {
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('due.sales.return') && !$user->hasPermissionTo('all.return.sale')) {
+            abort(403, 'Unauthorized Action');
+        }
+        
+        $request->validate([
+            'paid_amount' => 'required|numeric|min:0',
+            'full_paid' => 'nullable|numeric|min:0',
+        ]);
+        
+        try {
+            DB::beginTransaction();
+            
+            $saleReturn = SaleReturn::findOrFail($id);
+            
+            // Calculate new paid amount and due amount
+            $newPaidAmount = $request->paid_amount;
+            $fullPaid = $request->full_paid ?? 0;
+            $grandTotal = $saleReturn->grand_total;
+            
+            // Calculate due amount
+            $newDueAmount = max(0, $grandTotal - $newPaidAmount - $fullPaid);
+            
+            $saleReturn->update([
+                'paid_amount' => $newPaidAmount,
+                'full_paid' => $fullPaid,
+                'due_amount' => $newDueAmount,
+            ]);
+            
+            DB::commit();
+            
+            // Send notification if due amount is paid
+            if ($newDueAmount == 0 && $saleReturn->due_amount > 0) {
+                $users = User::whereHas('roles', function($query) {
+                    $query->where('name', 'Admin');
+                })->get();
+                Notification::send($users, new NewSaleReturnDueNotification($saleReturn));
+            }
+            
+            $notification = array(
+                'message' => 'Payment Updated Successfully',
+                'alert-type' => 'success'
+            );
+            
+            return redirect()->route('due.sale.return')->with($notification);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Update Sale Return Payment error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return redirect()->back()->withInput()->withErrors(['error' => 'Failed to update payment. Please try again.']);
+        }
     }
     // End Method
 

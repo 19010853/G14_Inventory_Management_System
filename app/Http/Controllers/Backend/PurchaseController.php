@@ -29,6 +29,9 @@ class PurchaseController extends Controller
 
     //Add Purchase Methods
     public function AddPurchase(){
+        if (!auth()->user()->hasPermissionTo('all.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
         $suppliers = Supplier::all();
         $warehouses = Warehouse::all();
         return view('admin.backend.purchase.add_purchase',compact('suppliers','warehouses'));
@@ -77,6 +80,9 @@ class PurchaseController extends Controller
 
     // Store Purchase Methods
     public function StorePurchase(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $request->validate([
             'date' => 'required|date',
@@ -159,6 +165,9 @@ class PurchaseController extends Controller
 
     // Edit Purchase Methods
     public function EditPurchase($id){
+        if (!auth()->user()->hasPermissionTo('all.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
         try {
             $editData = Purchase::with(['supplier', 'warehouse', 'purchaseItems.product'])->findOrFail($id);
             $suppliers = Supplier::all();
@@ -176,6 +185,9 @@ class PurchaseController extends Controller
 
     // Update Purchase Methods
     public function UpdatePurchase(Request $request, $id){
+        if (!auth()->user()->hasPermissionTo('all.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $request->validate([
             'date' => 'required|date',
@@ -307,6 +319,9 @@ class PurchaseController extends Controller
 
     // Delete Purchase Methods
     public function DeletePurchase($id){
+        if (!auth()->user()->hasPermissionTo('all.purchase')) {
+            abort(403, 'Unauthorized Action');
+        }
         try {
             DB::beginTransaction();
 

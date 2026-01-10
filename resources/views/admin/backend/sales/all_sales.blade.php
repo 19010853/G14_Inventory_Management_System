@@ -8,6 +8,7 @@
           <h4 class="fs-18 fw-semibold m-0">All Sales</h4>
         </div>
 
+        @if (Auth::guard('web')->user()->can('all.sale'))
         <div class="text-end">
           <ol class="breadcrumb m-0 py-0">
             <a href="{{ route('add.sale') }}" class="btn btn-primary">
@@ -15,6 +16,7 @@
             </a>
           </ol>
         </div>
+        @endif
       </div>
 
       <!-- Datatables  -->
@@ -85,6 +87,7 @@
                         </a>
                         @endif
 
+                        @if (Auth::guard('web')->user()->can('all.sale'))
                         <a
                           title="Edit"
                           href="{{ route('edit.sale', $item->id) }}"
@@ -102,6 +105,7 @@
                         >
                           <span class="mdi mdi-delete-circle mdi-18px"></span>
                         </a>
+                        @endif
                       </td>
                     </tr>
                   @endforeach
