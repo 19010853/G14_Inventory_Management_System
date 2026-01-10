@@ -262,9 +262,13 @@ class PurchaseController extends Controller
                 'message' => 'Purchase Updated Successfully',
                 'alert-type' => 'success'
              );
+             
+             return redirect()->route('all.purchase')->with($notification);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
+            \Log::error('Update Purchase error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            return redirect()->back()->withInput()->withErrors(['error' => 'Failed to update purchase: ' . $e->getMessage()]);
           }
     }
     // End Methods
