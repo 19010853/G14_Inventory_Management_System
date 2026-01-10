@@ -14,12 +14,14 @@
           </nav>
         </div>
 
+        @if (Auth::guard('web')->user()->can('all.customer'))
         <div class="text-end mt-3 mt-sm-0">
           <a href="{{ route('add.customer') }}" class="btn btn-primary">
             <i data-feather="plus" style="width: 16px; height: 16px; margin-right: 6px;"></i>
             Add Customer
           </a>
         </div>
+        @endif
       </div>
 
       <!-- Datatables  -->
@@ -59,6 +61,7 @@
                       <td>{{ $item->phone }}</td>
                       <td>{{ Str::limit($item->address, 50, '...') }}</td>
                       <td>
+                        @if (Auth::guard('web')->user()->can('all.customer'))
                         <a
                           href="{{ route('edit.customer', $item->id) }}"
                           class="btn btn-success btn-sm"
@@ -73,6 +76,7 @@
                         >
                           Delete
                         </a>
+                        @endif
                       </td>
                     </tr>
                   @endforeach

@@ -8,6 +8,7 @@
           <h4 class="fs-18 fw-semibold m-0">All Supplier</h4>
         </div>
 
+        @if (Auth::guard('web')->user()->can('all.supplier'))
         <div class="text-end">
           <ol class="breadcrumb m-0 py-0">
             <a href="{{ route('add.supplier') }}" class="btn btn-primary">
@@ -15,6 +16,7 @@
             </a>
           </ol>
         </div>
+        @endif
       </div>
 
       <!-- Datatables  -->
@@ -49,6 +51,7 @@
                       <td>{{ $item->phone }}</td>
                       <td>{{ Str::limit($item->address, 50, '...') }}</td>
                       <td>
+                        @if (Auth::guard('web')->user()->can('all.supplier'))
                         <a
                           href="{{ route('edit.supplier', $item->id) }}"
                           class="btn btn-success btn-sm"
@@ -63,6 +66,7 @@
                         >
                           Delete
                         </a>
+                        @endif
                       </td>
                     </tr>
                   @endforeach

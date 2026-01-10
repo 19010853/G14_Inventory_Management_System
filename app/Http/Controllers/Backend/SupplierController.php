@@ -22,12 +22,18 @@ class SupplierController extends Controller
 
     //Add Supplier
     public function AddSupplier(){
+        if (!auth()->user()->hasPermissionTo('all.supplier')) {
+            abort(403, 'Unauthorized Action');
+        }
         return view('admin.backend.supplier.add_supplier');
     }
     // End Method
 
     //Store Supplier
     public function StoreSupplier(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.supplier')) {
+            abort(403, 'Unauthorized Action');
+        }
         // Clean email - if it's not a valid email format, set to null
         $email = $request->email;
         if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -74,6 +80,9 @@ class SupplierController extends Controller
 
     // Edit Supplier
     public function EditSupplier($id){
+        if (!auth()->user()->hasPermissionTo('all.supplier')) {
+            abort(403, 'Unauthorized Action');
+        }
         $supplier = Supplier::find($id);
         return view('admin.backend.supplier.edit_supplier',compact('supplier'));
     }
@@ -81,6 +90,9 @@ class SupplierController extends Controller
 
     // Update Supplier
     public function UpdateSupplier(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.supplier')) {
+            abort(403, 'Unauthorized Action');
+        }
         $supplier_id = $request->id;
 
         Supplier::find($supplier_id)->update([
@@ -101,6 +113,9 @@ class SupplierController extends Controller
 
     // Delete Supplier
     public function DeleteSupplier($id){
+        if (!auth()->user()->hasPermissionTo('all.supplier')) {
+            abort(403, 'Unauthorized Action');
+        }
         Supplier::find($id)->delete();
 
         $notification = array(
@@ -125,12 +140,18 @@ class SupplierController extends Controller
 
     // Add Customer
     public function AddCustomer(){
+        if (!auth()->user()->hasPermissionTo('all.customer')) {
+            abort(403, 'Unauthorized Action');
+        }
         return view('admin.backend.customer.add_customer');
     }
     // End Method
 
     // Store Customer
     public function StoreCustomer(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.customer')) {
+            abort(403, 'Unauthorized Action');
+        }
         Customer::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -149,6 +170,9 @@ class SupplierController extends Controller
 
     // Edit Customer
     public function EditCustomer($id){
+        if (!auth()->user()->hasPermissionTo('all.customer')) {
+            abort(403, 'Unauthorized Action');
+        }
         $customer = Customer::find($id);
         return view('admin.backend.customer.edit_customer',compact('customer'));
     }
@@ -156,6 +180,9 @@ class SupplierController extends Controller
 
     // Update Customer
     public function UpdateCustomer(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.customer')) {
+            abort(403, 'Unauthorized Action');
+        }
         $customer_id = $request->id;
 
         Customer::find($customer_id)->update([
@@ -176,6 +203,9 @@ class SupplierController extends Controller
 
     // Delete Customer
     public function DeleteCustomer($id){
+        if (!auth()->user()->hasPermissionTo('all.customer')) {
+            abort(403, 'Unauthorized Action');
+        }
         Customer::find($id)->delete();
 
         $notification = array(
