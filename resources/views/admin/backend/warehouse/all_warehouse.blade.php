@@ -8,6 +8,7 @@
           <h4 class="fs-18 fw-semibold m-0">All WareHouse</h4>
         </div>
 
+        @if (Auth::guard('web')->user()->can('all.warehouse'))
         <div class="text-end">
           <ol class="breadcrumb m-0 py-0">
             <a href="{{ route('add.warehouse') }}" class="btn btn-primary">
@@ -15,6 +16,7 @@
             </a>
           </ol>
         </div>
+        @endif
       </div>
 
       <!-- Datatables  -->
@@ -51,20 +53,22 @@
                           {{ $item->city }}
                         </td>
                         <td>
+                          @if (Auth::guard('web')->user()->can('all.warehouse'))
                           <a
                             href="{{ route('edit.warehouse', $item->id) }}"
                             class="btn btn-success btn-sm"
                           >
                             Edit
                           </a>
-                        <a
-                          href="{{ route('delete.warehouse', $item->id) }}"
-                          class="btn btn-danger btn-sm"
-                          id="delete"
-                          data-delete-text="this warehouse"
-                        >
-                          Delete
-                        </a>
+                          <a
+                            href="{{ route('delete.warehouse', $item->id) }}"
+                            class="btn btn-danger btn-sm"
+                            id="delete"
+                            data-delete-text="this warehouse"
+                          >
+                            Delete
+                          </a>
+                          @endif
                         </td>
                       </tr>
                     @endforeach

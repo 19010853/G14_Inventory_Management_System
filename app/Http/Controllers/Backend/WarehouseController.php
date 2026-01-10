@@ -22,12 +22,18 @@ class WarehouseController extends Controller
 
     //Add Warehouse
     public function AddWarehouse(){
+        if (!auth()->user()->hasPermissionTo('all.warehouse')) {
+            abort(403, 'Unauthorized Action');
+        }
         return view('admin.backend.warehouse.add_warehouse');
     }
     //End Method
 
     //Store Warehouse
     public function StoreWarehouse(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.warehouse')) {
+            abort(403, 'Unauthorized Action');
+        }
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:warehouses,email|max:255',
@@ -53,6 +59,9 @@ class WarehouseController extends Controller
 
     //Edit Warehouse
     public function EditWarehouse($id){
+        if (!auth()->user()->hasPermissionTo('all.warehouse')) {
+            abort(403, 'Unauthorized Action');
+        }
         $warehouse = Warehouse::find($id);
         return view('admin.backend.warehouse.edit_warehouse',compact('warehouse'));
     }
@@ -60,6 +69,9 @@ class WarehouseController extends Controller
 
     //Update Warehouse
     public function UpdateWarehouse(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.warehouse')) {
+            abort(403, 'Unauthorized Action');
+        }
         $warehouse_id = $request->id;
 
         $validatedData = $request->validate([
@@ -92,6 +104,9 @@ class WarehouseController extends Controller
 
     //Delete Warehouse
     public function DeleteWarehouse($id){
+        if (!auth()->user()->hasPermissionTo('all.warehouse')) {
+            abort(403, 'Unauthorized Action');
+        }
         Warehouse::find($id)->delete();
 
         $notification = array(
