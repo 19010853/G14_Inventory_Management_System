@@ -517,7 +517,6 @@ class RoleController extends Controller
             'due.sales' => 'due.menu',
             'due.sales.return' => 'due.return.sale.menu',
             'all.transfer' => 'transfer.menu',
-            'reports.all' => 'report.menu',
         ];
 
         // Add .menu permissions for any all.* permissions that are present

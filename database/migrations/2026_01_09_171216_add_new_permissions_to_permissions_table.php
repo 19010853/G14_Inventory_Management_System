@@ -32,7 +32,7 @@ return new class extends Migration
             ['name' => 'all.transfer', 'group_name' => 'Transfers'],
             
             // Report Group
-            ['name' => 'report.menu', 'group_name' => 'Report'],
+            ['name' => 'all.report', 'group_name' => 'Report'],
         ];
 
         foreach ($permissions as $permission) {
@@ -65,7 +65,6 @@ return new class extends Migration
             'due.sales' => 'due.menu',
             'due.sales.return' => 'due.return.sale.menu',
             'all.transfer' => 'transfer.menu',
-            'reports.all' => 'report.menu',
         ];
 
         // Also handle old permission names
@@ -125,7 +124,6 @@ return new class extends Migration
             'due.return.sale.menu',
             'transfer.menu',
             'all.transfer',
-            'report.menu',
         ];
 
         foreach ($permissionsToRemove as $permissionName) {

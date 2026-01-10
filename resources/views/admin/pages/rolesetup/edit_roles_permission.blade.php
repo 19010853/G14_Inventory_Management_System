@@ -139,8 +139,7 @@
       'all.return.sale': 'return.sale.menu',
       'due.sales': 'due.menu',
       'due.sales.return': 'due.return.sale.menu',
-      'all.transfer': 'transfer.menu',
-      'reports.all': 'report.menu'
+      'all.transfer': 'transfer.menu'
     };
 
     // Reverse mapping: *.menu -> all.*

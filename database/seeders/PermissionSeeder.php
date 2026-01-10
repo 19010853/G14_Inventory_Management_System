@@ -18,8 +18,6 @@ class PermissionSeeder extends Seeder
             // Brand Group
             ['name' => 'brand.menu', 'group_name' => 'Brand'],
             ['name' => 'all.brand', 'group_name' => 'Brand'],
-            ['name' => 'edit.brand', 'group_name' => 'Brand'],
-            ['name' => 'delete.brand', 'group_name' => 'Brand'],
             
             // Warehouse Group
             ['name' => 'warehouse.menu', 'group_name' => 'WareHouse'],
@@ -70,8 +68,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'all.transfer', 'group_name' => 'Transfers'],
             
             // Report Group
-            ['name' => 'report.menu', 'group_name' => 'Report'],
-            ['name' => 'reports.all', 'group_name' => 'Report'],
+            ['name' => 'all.report', 'group_name' => 'Report'],
             
             // Role & Permission Group
             ['name' => 'role_and_permission.all', 'group_name' => 'Role & Permission'],

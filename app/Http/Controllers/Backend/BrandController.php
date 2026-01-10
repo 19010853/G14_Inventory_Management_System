@@ -97,12 +97,18 @@ class BrandController extends Controller
 
     //Add Brand
     public function AddBrand(){
+        if (!auth()->user()->hasPermissionTo('all.brand')) {
+            abort(403, 'Unauthorized Action');
+        }
         return view('admin.backend.brand.add_brand');
     }
     //End Method
 
     //Store Brand
     public function StoreBrand(Request $request){
+        if (!auth()->user()->hasPermissionTo('all.brand')) {
+            abort(403, 'Unauthorized Action');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -142,7 +148,7 @@ class BrandController extends Controller
 
     //Edit Brand
     public function EditBrand($id){
-        if (!auth()->user()->hasPermissionTo('edit.brand')) {
+        if (!auth()->user()->hasPermissionTo('all.brand')) {
             abort(403, 'Unauthorized Action');
         }
         $brand = Brand::find($id);
@@ -196,7 +202,7 @@ class BrandController extends Controller
 
     //Delete Brand
     public function DeleteBrand($id){
-        if (!auth()->user()->hasPermissionTo('delete.brand')) {
+        if (!auth()->user()->hasPermissionTo('all.brand')) {
             abort(403, 'Unauthorized Action');
         }
         $item = Brand::find($id);

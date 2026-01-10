@@ -19,7 +19,7 @@ class ReportController extends Controller
     // Show All Report
     public function AllReport(){
         $user = auth()->user();
-        if (!$user->hasPermissionTo('reports.all') && !$user->hasPermissionTo('report.menu')) {
+        if (!$user->hasPermissionTo('all.report')) {
             abort(403, 'Unauthorized Action');
         }
         $purchases = Purchase::with(['purchaseItems.product','supplier','warehouse'])->get();
@@ -29,6 +29,10 @@ class ReportController extends Controller
 
     // Filter Purchases Report
     public function FilterPurchases(Request $request){
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.report')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -48,6 +52,10 @@ class ReportController extends Controller
 
     // Purchase Return Report
     public function PurchaseReturnReport(){
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.report')) {
+            abort(403, 'Unauthorized Action');
+        }
         $returnPurchases = ReturnPurchase::with(['purchaseItems.product','supplier','warehouse'])->get();
         return view('admin.backend.report.purchase_return_report',compact('returnPurchases'));
     }
@@ -55,6 +63,10 @@ class ReportController extends Controller
 
     // Sale Report
     public function SaleReport(){
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.report')) {
+            abort(403, 'Unauthorized Action');
+        }
         $saleReports = Sale::with(['saleItems.product','customer','warehouse'])->get();
         return view('admin.backend.report.sale_report',compact('saleReports'));
     }
@@ -62,6 +74,10 @@ class ReportController extends Controller
 
     // Filter Sales Report
     public function FilterSales(Request $request){
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.report')) {
+            abort(403, 'Unauthorized Action');
+        }
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -81,6 +97,10 @@ class ReportController extends Controller
 
     // Sale Return Report
     public function SaleReturnReport(){
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.report')) {
+            abort(403, 'Unauthorized Action');
+        }
         $returnSales = SaleReturn::with(['saleReturnItems.product','customer','warehouse'])->get();
         return view('admin.backend.report.sales_return_report',compact('returnSales'));
     }
@@ -88,6 +108,10 @@ class ReportController extends Controller
 
     // Product Stock Report
     public function ProductStockReport(){
+        $user = auth()->user();
+        if (!$user->hasPermissionTo('all.report')) {
+            abort(403, 'Unauthorized Action');
+        }
         $products = Product::with(['category','warehouse'])->get();
         return view('admin.backend.report.stock_report',compact('products'));
 

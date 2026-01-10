@@ -24,7 +24,7 @@ class TransferController extends Controller
 {
     // Show All Transfer Method
     public function AllTransfer(){
-        if (!auth()->user()->hasPermissionTo('all.transfers')) {
+        if (!auth()->user()->hasPermissionTo('all.transfer') && !auth()->user()->hasPermissionTo('transfer.menu')) {
             abort(403, 'Unauthorized Action');
         }
         try {

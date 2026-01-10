@@ -79,7 +79,7 @@
                         />
                       </td>
                       <td>
-                        @if (Auth::guard('web')->user()->can('edit.brand'))
+                        @if (Auth::guard('web')->user()->can('all.brand'))
                           <a
                             href="{{ route('edit.brand', $item->id) }}"
                             class="btn btn-success btn-sm"
@@ -89,7 +89,7 @@
                           </a>
                         @endif
 
-                        @if (Auth::guard('web')->user()->can('delete.brand'))
+                        @if (Auth::guard('web')->user()->can('all.brand'))
                           <a
                             href="{{ route('delete.brand', $item->id) }}"
                             class="btn btn-danger btn-sm"

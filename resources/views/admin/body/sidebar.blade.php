@@ -263,7 +263,7 @@
           </li>
         @endif
 
-        @if (Auth::guard('web')->user()->can('report.menu') || Auth::guard('web')->user()->can('reports.all'))
+        @if (Auth::guard('web')->user()->can('all.report'))
           <li>
             <a href="#Report" data-bs-toggle="collapse">
               <i data-feather="file-text"></i>
@@ -272,7 +272,7 @@
             </a>
             <div class="collapse" id="Report">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('reports.all') || Auth::guard('web')->user()->can('report.menu'))
+                @if (Auth::guard('web')->user()->can('all.report'))
                   <li>
                     <a href="{{ route('all.report') }}" class="tp-link">
                       All Reports
