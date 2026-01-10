@@ -204,6 +204,12 @@ class SaleController extends Controller
         $sales = Sale::findOrFail($id);
         $oldStatus = $sales->status;
 
+        // Calculate due_amount from grand_total, paid_amount, and full_paid
+        $grandTotal = $request->grand_total ?? $sales->grand_total;
+        $paidAmount = $request->paid_amount ?? 0;
+        $fullPaid = $request->full_paid ?? 0;
+        $dueAmount = max(0, $grandTotal - $paidAmount - $fullPaid);
+
         $sales->update([
             'date' => $request->date,
             'warehouse_id' => $request->warehouse_id,
@@ -212,10 +218,10 @@ class SaleController extends Controller
             'shipping' => $request->shipping ?? 0,
             'status' => $request->status,
             'note' => $request->note,
-            'grand_total' => $request->grand_total,
-            'paid_amount' => $request->paid_amount,
-            'due_amount' => $request->due_amount,
-            'full_paid' => $request->full_paid,
+            'grand_total' => $grandTotal,
+            'paid_amount' => $paidAmount,
+            'due_amount' => $dueAmount,
+            'full_paid' => $fullPaid,
         ]);
 
         // Get old sale items
