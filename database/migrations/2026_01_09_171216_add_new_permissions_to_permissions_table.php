@@ -71,8 +71,6 @@ return new class extends Migration
         $oldPermissionMap = [
             'all.transfers' => 'transfer.menu',
             'transfers.menu' => 'transfer.menu',
-            'return.purchase' => 'return.purchase.menu',
-            'return.sale' => 'return.sale.menu',
         ];
 
         $allRoles = \Spatie\Permission\Models\Role::all();
