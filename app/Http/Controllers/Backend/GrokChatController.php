@@ -108,7 +108,15 @@ class GrokChatController extends Controller
         $messageLower = strtolower($message);
         
         // Map keywords to permissions
+        // Note: Order matters - longer phrases should come first to match correctly
         $permissionMap = [
+            'return purchase' => ['all.return.purchase', 'return.purchase.menu'],
+            'return purchases' => ['all.return.purchase', 'return.purchase.menu'],
+            'return sale' => ['all.return.sale', 'return.sale.menu'],
+            'return sales' => ['all.return.sale', 'return.sale.menu'],
+            'due sales return' => ['due.sales.return', 'due.return.sale.menu'],
+            'due return' => ['due.sales.return', 'due.return.sale.menu'],
+            'due sales' => ['due.sales', 'due.menu'],
             'brand' => ['all.brand', 'brand.menu'],
             'brands' => ['all.brand', 'brand.menu'],
             'warehouse' => ['all.warehouse', 'warehouse.menu'],
@@ -123,20 +131,14 @@ class GrokChatController extends Controller
             'products' => ['all.product', 'product.menu'],
             'purchase' => ['all.purchase', 'purchase.menu'],
             'purchases' => ['all.purchase', 'purchase.menu'],
-            'return purchase' => ['all.return.purchase', 'return.purchase.menu'],
-            'return purchases' => ['all.return.purchase', 'return.purchase.menu'],
             'sale' => ['all.sale', 'sale.menu'],
             'sales' => ['all.sale', 'sale.menu'],
-            'return sale' => ['all.return.sale', 'return.sale.menu'],
-            'return sales' => ['all.return.sale', 'return.sale.menu'],
             'due' => ['due.sales', 'due.menu'],
-            'due sales' => ['due.sales', 'due.menu'],
-            'due return' => ['due.sales.return', 'due.return.sale.menu'],
-            'due sales return' => ['due.sales.return', 'due.return.sale.menu'],
             'transfer' => ['all.transfer', 'transfer.menu'],
             'transfers' => ['all.transfer', 'transfer.menu'],
             'report' => ['all.report'],
             'reports' => ['all.report'],
+            'reporting' => ['all.report'],
             'role' => ['role_and_permission.all'],
             'permission' => ['role_and_permission.all'],
             'employee' => ['role_and_permission.all'],
@@ -177,54 +179,65 @@ class GrokChatController extends Controller
         $context = "You are a helpful virtual assistant for the G14 Inventory Management System. ";
         $context .= "The user's role(s): " . implode(', ', $userRoles) . ". ";
         
+        // Add explicit permissions list to help chatbot understand what user can access
+        $context .= "\n\nThe user has the following permissions: " . implode(', ', $userPermissions) . ". ";
+        $context .= "You MUST respect these permissions and ONLY provide information about features the user has permission to access.\n";
+        
         $context .= "\n\nYou can help users with:\n";
         $context .= "- Guiding them through how to perform specific actions on the website\n";
-        $context .= "- Providing information about products, brands, warehouses, suppliers, customers, purchases, sales, and transfers stored in the system\n";
+        $context .= "- Providing information about products, brands, warehouses, suppliers, customers, purchases, sales, transfers, and reports stored in the system\n";
         $context .= "- Answering other relevant usage-related questions\n";
         
         $context .= "\n\nIMPORTANT: You must ONLY provide information about features the user has permission to access. ";
+        $context .= "If the user has a permission (like 'all.report'), you MUST provide information about that feature. ";
+        $context .= "Do NOT make assumptions based on role names alone - always check the actual permissions list above. ";
         $context .= "If asked about something they don't have permission for, politely decline.\n\n";
         
         // Add permission-based data context
         $dataContext = [];
         
-        if ($user->can('all.brand')) {
+        if ($user->can('all.brand') || $user->can('brand.menu')) {
             $brandCount = Brand::count();
             $dataContext[] = "There are {$brandCount} brands in the system.";
         }
         
-        if ($user->can('all.product')) {
+        if ($user->can('all.product') || $user->can('product.menu')) {
             $productCount = Product::count();
             $dataContext[] = "There are {$productCount} products in the system.";
         }
         
-        if ($user->can('all.warehouse')) {
+        if ($user->can('all.warehouse') || $user->can('warehouse.menu')) {
             $warehouseCount = Warehouse::count();
             $dataContext[] = "There are {$warehouseCount} warehouses in the system.";
         }
         
-        if ($user->can('all.supplier')) {
+        if ($user->can('all.supplier') || $user->can('supplier.menu')) {
             $supplierCount = Supplier::count();
             $dataContext[] = "There are {$supplierCount} suppliers in the system.";
         }
         
-        if ($user->can('all.customer')) {
+        if ($user->can('all.customer') || $user->can('customer.menu')) {
             $customerCount = Customer::count();
             $dataContext[] = "There are {$customerCount} customers in the system.";
         }
         
-        if ($user->can('all.purchase')) {
+        if ($user->can('all.purchase') || $user->can('purchase.menu')) {
             $purchaseCount = Purchase::count();
             $dataContext[] = "There are {$purchaseCount} purchase records in the system.";
         }
         
-        if ($user->can('all.sale')) {
+        if ($user->can('all.sale') || $user->can('sale.menu')) {
             $saleCount = Sale::count();
             $dataContext[] = "There are {$saleCount} sale records in the system.";
         }
         
+        // Add report information if user has report permission
+        if ($user->can('all.report')) {
+            $dataContext[] = "The user has access to reports. You can help them view and understand various reports including purchase reports, sale reports, product stock reports, etc.";
+        }
+        
         if (!empty($dataContext)) {
-            $context .= "\nCurrent system data:\n" . implode("\n", $dataContext) . "\n";
+            $context .= "\nCurrent system data and access:\n" . implode("\n", $dataContext) . "\n";
         }
         
         $context .= "\nAlways be helpful, concise, and professional. If you don't know something, say so.";
