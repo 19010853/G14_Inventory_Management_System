@@ -14,12 +14,14 @@
           </nav>
         </div>
 
+        @if (Auth::guard('web')->user()->can('all.brand'))
         <div class="text-end mt-3 mt-sm-0">
           <a href="{{ route('add.brand') }}" class="btn btn-primary">
             <i data-feather="plus" style="width: 16px; height: 16px; margin-right: 6px;"></i>
             Add Brand
           </a>
         </div>
+        @endif
       </div>
 
       <!-- Datatables  -->

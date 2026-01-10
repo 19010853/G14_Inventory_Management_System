@@ -58,7 +58,7 @@
             </a>
             <div class="collapse" id="sidebarAuth">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.brand'))
+                @if (Auth::guard('web')->user()->can('brand.menu') || Auth::guard('web')->user()->can('all.brand'))
                   <li>
                     <a href="{{ route('all.brand') }}" class="tp-link">
                       All Brand
@@ -79,7 +79,7 @@
             </a>
             <div class="collapse" id="WareHouse">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.warehouse'))
+                @if (Auth::guard('web')->user()->can('warehouse.menu') || Auth::guard('web')->user()->can('all.warehouse'))
                   <li>
                     <a href="{{ route('all.warehouse') }}" class="tp-link">
                       All WareHouse
@@ -100,7 +100,7 @@
             </a>
             <div class="collapse" id="Supplier">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.supplier'))
+                @if (Auth::guard('web')->user()->can('supplier.menu') || Auth::guard('web')->user()->can('all.supplier'))
                   <li>
                     <a href="{{ route('all.supplier') }}" class="tp-link">
                       All Supplier
@@ -121,7 +121,7 @@
             </a>
             <div class="collapse" id="Customer">
               <ul class="nav-second-level">
-                @if (Auth::guard('web')->user()->can('all.customer'))
+                @if (Auth::guard('web')->user()->can('customer.menu') || Auth::guard('web')->user()->can('all.customer'))
                   <li>
                     <a href="{{ route('all.customer') }}" class="tp-link">
                       All Customer
